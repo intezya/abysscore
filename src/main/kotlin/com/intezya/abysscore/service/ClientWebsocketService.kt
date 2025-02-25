@@ -14,7 +14,7 @@ class ClientWebsocketService(
     private val objectMapper: ObjectMapper,
     private val eventPublisher: EventPublisher,
 ) {
-    private val sessions = mutableMapOf<Int, UserSessionDTO>()
+    private val sessions = mutableMapOf<Long, UserSessionDTO>()
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     private val closingMessage = TextMessage(objectMapper.writeValueAsString(mapOf("type" to "closing")))
 
@@ -34,7 +34,7 @@ class ClientWebsocketService(
         println("Connections: ${sessions.size}")
     }
 
-    fun removeConnection(clientId: Int) {
+    fun removeConnection(clientId: Long) {
         val session = sessions.remove(clientId)
 
         if (session != null) {

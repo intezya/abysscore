@@ -44,7 +44,7 @@ class AuthUtils {
     fun getUserInfoFromToken(token: String): UserAuthInfoDTO {
         val claims = getClaimsFromJwtToken(token)
         return UserAuthInfoDTO(
-            id = claims["sub"].toString().toInt(),
+            id = claims["sub"].toString().toLong(),
             username = claims["user"].toString(),
             hwid = claims["hwid"].toString(),
             accessLevel = claims["access_level"].toString().toInt(),

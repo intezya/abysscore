@@ -4,6 +4,7 @@ import com.intezya.abysscore.dto.event.UserActionEvent
 import com.intezya.abysscore.dto.user.UserAuthRequest
 import com.intezya.abysscore.dto.user.UserAuthResponse
 import com.intezya.abysscore.enum.UserActionEventType
+import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.utils.PasswordUtils
 import org.springframework.stereotype.Service
 
@@ -11,7 +12,8 @@ import org.springframework.stereotype.Service
 class UserService(
     private val passwordUtils: PasswordUtils,
     private val authenticationService: AuthenticationService,
-    private val eventPublisher: EventPublisher
+    private val eventPublisher: EventPublisher,
+    private val userRepository: UserRepository
 ) {
     companion object {
         private const val USER_EVENT_TOPIC = "user-action-events"
