@@ -20,16 +20,7 @@ class WebSecurityConfig {
 
     companion object {
         private val PUBLIC_PATHS = arrayOf(
-            "/account/register",
-            "/account/login",
-            "/api-docs",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-ui/index.html",
-            "/api-docs/swagger-config",
-            "/v3/api-docs/**",    // Added for OpenAPI 3
-            "/actuator/**",       // Added for monitoring endpoints
-            "/error"              // Added for error handling
+            "/**", // dev
         )
     }
 

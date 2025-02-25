@@ -2,6 +2,7 @@ package com.intezya.abysscore.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
+import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
@@ -23,6 +24,8 @@ data class ErrorResponse(
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+
     data class ApiError(
         val timestamp: String = java.time.OffsetDateTime.now().toString(),
         val status: Int,
@@ -102,6 +105,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception): ResponseEntity<ErrorResponse> {
+        logger.error(ex.message, ex.cause)
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             message = "An unexpected error occurred",
