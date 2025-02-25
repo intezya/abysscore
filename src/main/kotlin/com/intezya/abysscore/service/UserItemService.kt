@@ -1,6 +1,7 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.dto.event.ItemIssueEvent
+import com.intezya.abysscore.entity.Admin
 import com.intezya.abysscore.entity.GameItem
 import com.intezya.abysscore.entity.User
 import com.intezya.abysscore.entity.UserItem
@@ -26,13 +27,13 @@ class UserItemService(
         return userItemRepository.save(userItem)
     }
 
-    private fun issueByAdmin(user: User, item: GameItem, adminId: Long): UserItem {
+    private fun issueByAdmin(user: User, item: GameItem, admin: Admin): UserItem {
         val userItem = UserItem(
             user = user,
             gameItem = item,
             sourceType = ItemSourceType.SYSTEM,
         )
-        sendEvent(user.id!!, item.id!!, adminId)
+        sendEvent(user.id!!, item.id!!, admin.id!!)
         return userItemRepository.save(userItem)
     }
 
