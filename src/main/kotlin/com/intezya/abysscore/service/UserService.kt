@@ -5,9 +5,6 @@ import com.intezya.abysscore.dto.user.UserAuthRequest
 import com.intezya.abysscore.dto.user.UserAuthResponse
 import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.utils.PasswordUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,8 +13,6 @@ class UserService(
     private val authenticationService: AuthenticationService,
     private val eventPublisher: EventPublisher
 ) {
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-
     companion object {
         private const val USER_EVENT_TOPIC = "user-action-events"
     }
@@ -49,13 +44,9 @@ class UserService(
         return runCatching {
             authAction(request)
         }.onSuccess {
-            coroutineScope.launch {
-                sendEvent(request.username, ip, hashedHwid, true)
-            }
+            sendEvent(request.username, ip, hashedHwid, true)
         }.onFailure {
-            coroutineScope.launch {
-                sendEvent(request.username, ip, hashedHwid, false)
-            }
+            sendEvent(request.username, ip, hashedHwid, false)
         }.getOrThrow()
     }
 
