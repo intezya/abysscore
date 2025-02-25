@@ -24,7 +24,6 @@ class AuthTokenFilter : OncePerRequestFilter() {
             val jwt = parseJwt(request)
             if (jwt != null && authUtils.validateJwtToken(jwt)) {
                 val userInfo = authUtils.getUserInfoFromToken(jwt)
-
                 val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
                 val authentication = UsernamePasswordAuthenticationToken(
                     userInfo, null, authorities,
@@ -39,6 +38,9 @@ class AuthTokenFilter : OncePerRequestFilter() {
     }
 
     private fun parseJwt(request: HttpServletRequest): String? {
+        for (r in request.headerNames) {
+            println(request.getHeader(r))
+        }
         val headerAuth = request.getHeader("Authorization")
         return if (headerAuth?.startsWith("Bearer ") == true) {
             headerAuth.substring(7)

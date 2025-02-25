@@ -1,5 +1,6 @@
 package com.intezya.abysscore.entity
 
+import com.intezya.abysscore.dto.user_item.UserItemDTO
 import com.intezya.abysscore.enum.ItemSourceType
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -24,11 +25,21 @@ data class UserItem(
     val receivedFrom: Trade? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sourceType", nullable = false)
+    @Column(name = "source_type", nullable = false)
     val sourceType: ItemSourceType = ItemSourceType.SYSTEM,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
 ) {
     constructor() : this(null, User(), GameItem(), null, ItemSourceType.SYSTEM, LocalDateTime.now())
+
+    fun toDTO(): UserItemDTO {
+        return UserItemDTO(
+            id = id!!,
+            gameItem = gameItem,
+            receivedFrom = receivedFrom?.id,
+            sourceType = sourceType,
+            createdAt = createdAt,
+        )
+    }
 }

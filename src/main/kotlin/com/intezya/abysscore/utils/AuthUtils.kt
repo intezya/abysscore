@@ -98,9 +98,6 @@ class AuthUtils {
         for (header in headers) {
             val ip = session.handshakeHeaders[header]?.firstOrNull()
             if (!ip.isNullOrEmpty() && ip != "unknown") {
-                println(ip)
-            }
-            if (!ip.isNullOrEmpty() && ip != "unknown") {
                 return ip.split(",").first().trim()
             }
         }

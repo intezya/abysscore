@@ -1,6 +1,7 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.dto.event.ItemIssueEvent
+import com.intezya.abysscore.dto.user_item.UserItemDTO
 import com.intezya.abysscore.entity.Admin
 import com.intezya.abysscore.entity.GameItem
 import com.intezya.abysscore.entity.User
@@ -29,12 +30,13 @@ class UserItemService(
         private const val ITEM_ISSUE_EVENT_TOPIC = "item-issue-events"
     }
 
-    fun findAllUserItems(userId: Long, pageable: Pageable): Page<UserItem> {
-        return userItemRepository.findByUserId(userId, pageable)
+    fun findAllUserItems(userId: Long, pageable: Pageable): Page<UserItemDTO> {
+        val userItemsPage = userItemRepository.findByUserId(userId, pageable)
+        return userItemsPage.map { it.toDTO() }
     }
 
     @Transactional
-    fun issueForPlayerFromAdmin(username: String, itemId: Long, adminId: Long): UserItem {
+    fun issueForPlayerFromAdmin(username: String, itemId: Long, adminId: Long): UserItemDTO {
         val user = userRepository.findByUsername(username).orElseThrow {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "User with username $username not found")
         }
@@ -42,7 +44,7 @@ class UserItemService(
         val admin = adminRepository.findById(adminId).orElseThrow {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Admin with id $adminId not found")
         }
-        return issueByAdmin(user, gameItem, admin)
+        return issueByAdmin(user, gameItem, admin).toDTO()
     }
 
     private fun issueBySystem(user: User, item: GameItem): UserItem {
