@@ -1,25 +1,26 @@
 package com.intezya.abysscore.dto.game_item
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.intezya.abysscore.entity.GameItem
-import com.intezya.abysscore.enum.GameItemRarity
-import com.intezya.abysscore.enum.GameItemType
-import com.intezya.abysscore.utils.validator.ValidGameItemRarity
-import com.intezya.abysscore.utils.validator.ValidGameItemType
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 
-data class CreateGameItemRequest(
+data class CreateGameItemRequest @JsonCreator constructor(
     @field:NotBlank
     val name: String,
     @field:NotBlank
     val collection: String,
 
     @field:NotNull
-    @field:ValidGameItemType
-    val type: GameItemType,
+    @field:Min(0)
+    @field:Max(2)
+    val type: Int,
     @field:NotNull
-    @field:ValidGameItemRarity
-    val rarity: GameItemRarity,
+    @field:Min(0)
+    @field:Max(5)
+    val rarity: Int,
 ) {
     fun toEntity(): GameItem {
         return GameItem(null, name, collection, type, rarity)

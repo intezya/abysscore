@@ -1,7 +1,5 @@
 package com.intezya.abysscore.entity
 
-import com.intezya.abysscore.enum.GameItemRarity
-import com.intezya.abysscore.enum.GameItemType
 import jakarta.persistence.*
 
 @Entity
@@ -12,8 +10,8 @@ data class GameItem(
     var id: Long? = null,
     val name: String,
     val collection: String,
-    val type: GameItemType,
-    val rarity: GameItemRarity
+    val type: Int,
+    val rarity: Int,
 ) {
-    constructor() : this(null, "", "", GameItemType.BADGE, GameItemRarity.COMMON)
+    constructor() : this(null, "", "", 0, 0)
 }
