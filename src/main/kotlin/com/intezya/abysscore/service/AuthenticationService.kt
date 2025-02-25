@@ -1,8 +1,11 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.dto.admin.AdminAuthRequest
+import com.intezya.abysscore.dto.admin.AdminAuthResponse
 import com.intezya.abysscore.dto.user.UserAuthRequest
 import com.intezya.abysscore.dto.user.UserAuthResponse
 import com.intezya.abysscore.entity.User
+import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.utils.AuthUtils
 import com.intezya.abysscore.utils.PasswordUtils
@@ -15,6 +18,7 @@ class AuthenticationService(
     private val userRepository: UserRepository,
     private val passwordUtils: PasswordUtils,
     private val authUtils: AuthUtils,
+    private val adminRepository: AdminRepository,
 ) {
     fun register(request: UserAuthRequest): UserAuthResponse {
         return try {
@@ -50,5 +54,22 @@ class AuthenticationService(
         }
 
         return UserAuthResponse(token = authUtils.generateJwtToken(user))
+    }
+
+    fun authenticateAdmin(request: AdminAuthRequest): AdminAuthResponse {
+        authenticate(request.toUserAuthRequest())
+        val user = userRepository.findByUsername(request.username).orElseThrow {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+        }
+        val admin = adminRepository.findByUserId(user.id!!).orElseThrow {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+        }
+        return AdminAuthResponse(
+            token = authUtils.generateJwtToken(
+                user,
+                accessLevel = admin.accessLevel.value,
+                extraExpirationMs = 3600000, // 1h
+            )
+        )
     }
 }

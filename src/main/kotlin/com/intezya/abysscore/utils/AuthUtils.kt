@@ -20,14 +20,15 @@ class AuthUtils {
     @Value("\${jwt.expiration}")
     private var jwtExpirationMs: Int = 0
 
-    fun generateJwtToken(user: User): String {
+    fun generateJwtToken(user: User, accessLevel: Int = -1, extraExpirationMs: Int = jwtExpirationMs): String {
         return Jwts.builder()
             .setSubject(user.id.toString())
-            .claim("service", "com.intezya.abyssleague.auth")
+            .claim("service", "com.intezya.abysscore.auth")
             .claim("hwid", user.hwid)
             .claim("user", user.username)
+            .claim("access_level", accessLevel)
             .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + jwtExpirationMs))
+            .setExpiration(Date(Date().time + extraExpirationMs))
             .signWith(Keys.hmacShaKeyFor(jwtSecret.toByteArray()), SignatureAlgorithm.HS512)
             .compact()
     }
@@ -46,6 +47,7 @@ class AuthUtils {
             id = claims["sub"].toString().toInt(),
             username = claims["user"].toString(),
             hwid = claims["hwid"].toString(),
+            accessLevel = claims["access_level"].toString().toInt(),
         )
     }
 
