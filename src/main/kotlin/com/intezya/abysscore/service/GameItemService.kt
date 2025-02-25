@@ -17,13 +17,13 @@ class GameItemService(
         return gameItemRepository.save(createGameItemRequest.toEntity())
     }
 
-    fun getItem(itemId: Long): GameItem {
+    fun findById(itemId: Long): GameItem {
         return gameItemRepository.findById(itemId).orElseThrow {
             ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found with id: $itemId")
         }
     }
 
-    fun getAllItems(pageable: Pageable): Page<GameItem> {
+    fun findAll(pageable: Pageable): Page<GameItem> {
         return gameItemRepository.findAll(pageable)
     }
 

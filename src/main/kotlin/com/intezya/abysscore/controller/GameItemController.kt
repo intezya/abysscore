@@ -4,9 +4,10 @@ import com.intezya.abysscore.dto.game_item.CreateGameItemRequest
 import com.intezya.abysscore.entity.GameItem
 import com.intezya.abysscore.service.GameItemService
 import jakarta.validation.Valid
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -29,27 +30,14 @@ class GameItemController(
     }
 
     @GetMapping
-    fun getAllItems(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-        @RequestParam(defaultValue = "id") sortBy: String,
-        @RequestParam(defaultValue = "ASC") direction: String
-    ): ResponseEntity<Page<GameItem>> { // todo: add pagination
-        val sort = Sort.by(Sort.Direction.fromString(direction), sortBy)
-        val pageable = PageRequest.of(page, size, sort)
-        return ResponseEntity(
-            gameItemService.getAllItems(pageable),
-            HttpStatus.OK,
-        )
+    fun getAll(@ParameterObject pageable: Pageable): PagedModel<GameItem> {
+        val gameItems: Page<GameItem> = gameItemService.findAll(pageable)
+        return PagedModel(gameItems)
     }
 
-    @GetMapping("/{itemId}")
-    fun getItem(@PathVariable itemId: Long): ResponseEntity<GameItem> {
-        return ResponseEntity(
-            gameItemService.getItem(itemId),
-            HttpStatus.OK,
-        )
-    }
+    @GetMapping("/{id}")
+    fun getOne(@PathVariable id: Long): GameItem = gameItemService.findById(id)
+
 
     @PutMapping("/{itemId}")
     fun updateItem(
