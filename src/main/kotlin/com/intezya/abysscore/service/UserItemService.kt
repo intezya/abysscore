@@ -59,7 +59,7 @@ class UserItemService(
         val userItem = UserItem(
             user = user,
             gameItem = item,
-            sourceType = ItemSourceType.SYSTEM,
+            sourceType = ItemSourceType.ADMIN,
         )
         sendEvent(user.id!!, item.id!!, admin.id)
         return userItemRepository.save(userItem)
