@@ -21,7 +21,7 @@ data class UserItem(
     val gameItem: GameItem,
 
     @ManyToOne
-    @JoinColumn(name = "trade_id", nullable = false)
+    @JoinColumn(name = "trade_id")
     val receivedFrom: Trade? = null,
 
     @Enumerated(EnumType.STRING)
