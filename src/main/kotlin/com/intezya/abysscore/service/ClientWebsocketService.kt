@@ -15,11 +15,10 @@ class ClientWebsocketService(
     private val eventPublisher: EventPublisher,
 ) {
     private val sessions = mutableMapOf<Long, UserSessionDTO>()
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     private val closingMessage = TextMessage(objectMapper.writeValueAsString(mapOf("type" to "closing")))
 
     companion object {
-        private const val USER_EVENT_TOPIC = "user-action-events"
+        private const val EVENT_TOPIC = "auth-events"
     }
 
     fun addConnection(session: UserSessionDTO) {
@@ -44,7 +43,7 @@ class ClientWebsocketService(
         println("Connections: ${sessions.size}")
     }
 
-    fun sendEvent(session: UserSessionDTO, success: Boolean, connect: Boolean) {
+    private fun sendEvent(session: UserSessionDTO, success: Boolean, connect: Boolean) {
         val event = UserActionEvent(
             username = session.username,
             ip = session.ip,
@@ -53,8 +52,6 @@ class ClientWebsocketService(
             hwid = session.hwid,
         )
 
-        coroutineScope.run {
-            eventPublisher.sendActionEvent(event, event.username, USER_EVENT_TOPIC)
-        }
+        eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
     }
 }
