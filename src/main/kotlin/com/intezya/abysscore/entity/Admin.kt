@@ -1,6 +1,7 @@
 package com.intezya.abysscore.entity
 
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.utils.converters.AccessLevelConverter
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -8,22 +9,22 @@ import java.time.LocalDateTime
 @Table(name = "admins")
 data class Admin(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long,
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, updatable = false, unique = true)
+    @MapsId
+    @JoinColumn(name = "id")
     val user: User,
 
     @Column(nullable = false, updatable = false, unique = true)
     var telegramId: Long,
 
     @Column(nullable = false, updatable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = AccessLevelConverter::class)
     var accessLevel: AccessLevel = AccessLevel.ADMIN,
 
     @Column(nullable = false, updatable = false)
     val adminFrom: LocalDateTime = LocalDateTime.now(),
 ) {
-    constructor() : this(null, User(), 0, AccessLevel.ADMIN, LocalDateTime.now())
+    constructor() : this(0L, User(), 0, AccessLevel.ADMIN, LocalDateTime.now())
 }

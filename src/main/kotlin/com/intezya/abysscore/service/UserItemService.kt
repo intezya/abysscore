@@ -63,7 +63,7 @@ class UserItemService(
             gameItem = item,
             sourceType = ItemSourceType.SYSTEM,
         )
-        sendEvent(user.id!!, item.id!!, admin.id!!)
+        sendEvent(user.id!!, item.id!!, admin.id)
         return userItemRepository.save(userItem)
     }
 

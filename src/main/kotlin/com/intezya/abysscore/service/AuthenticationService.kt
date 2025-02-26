@@ -121,7 +121,7 @@ class AuthenticationService(
             val user = userRepository.findByUsername(request.username)
                 .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
 
-            val admin = adminRepository.findByUserId(user.id!!)
+            val admin = adminRepository.findById(user.id!!)
                 .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found") }
 
             AdminAuthResponse(
