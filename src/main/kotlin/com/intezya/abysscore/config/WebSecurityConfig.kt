@@ -21,8 +21,9 @@ class WebSecurityConfig {
     companion object {
         private val PUBLIC_PATHS = arrayOf(
 //            "/**", // dev
-            "/account/login",
             "/account/register",
+            "/account/login",
+            "/account/admin/login",
             "/swagger-ui/**",
             "/api-docs/**"
         )
