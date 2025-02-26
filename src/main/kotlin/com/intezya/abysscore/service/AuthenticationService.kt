@@ -24,7 +24,7 @@ class AuthenticationService(
     private val eventPublisher: EventPublisher,
 ) {
     companion object {
-        private const val USER_EVENT_TOPIC = "user-action-events"
+        private const val EVENT_TOPIC = "auth-events"
         private const val ADMIN_EXTRA_EXPIRATION_MS = 3_600_000 // 1 hour
     }
 
@@ -74,7 +74,7 @@ class AuthenticationService(
             hwid = hwid,
             isSuccess = isSuccess
         )
-        eventPublisher.sendActionEvent(event, event.username, USER_EVENT_TOPIC)
+        eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
     }
 
     private fun register(request: UserAuthRequest): UserAuthResponse {
