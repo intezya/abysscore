@@ -2,6 +2,7 @@ package com.intezya.abysscore.enum
 
 enum class AccessLevel(val value: Int) {
     USER(0),
+    VIEW_INVENTORY(2),
     ADMIN(3),
     CREATE_ITEM(13),
     GIVE_ITEM(15),

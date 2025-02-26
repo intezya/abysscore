@@ -9,7 +9,6 @@ import com.intezya.abysscore.entity.UserItem
 import com.intezya.abysscore.enum.ItemSourceType
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserItemRepository
-import com.intezya.abysscore.repository.UserRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -19,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserItemService(
-    private val userRepository: UserRepository,
+    private val userService: UserService,
     private val adminRepository: AdminRepository,
     private val gameItemService: GameItemService,
     private val userItemRepository: UserItemRepository,
@@ -31,15 +30,14 @@ class UserItemService(
     }
 
     fun findAllUserItems(userId: Long, pageable: Pageable): Page<UserItemDTO> {
+        userService.findUserWithThrow(userId)
         val userItemsPage = userItemRepository.findByUserId(userId, pageable)
         return userItemsPage.map { it.toDTO() }
     }
 
     @Transactional
     fun issueForPlayerFromAdmin(username: String, itemId: Long, adminId: Long): UserItemDTO {
-        val user = userRepository.findByUsername(username).orElseThrow {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "User with username $username not found")
-        }
+        val user = userService.findUserWithThrow(username)
         val gameItem = gameItemService.findById(itemId)
         val admin = adminRepository.findById(adminId).orElseThrow {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Admin with id $adminId not found")

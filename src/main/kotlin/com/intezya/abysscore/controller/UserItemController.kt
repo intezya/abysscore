@@ -25,6 +25,18 @@ class UserItemController(
         return PagedModel(userItemService.findAllUserItems(userAuthData.id, pageable))
     }
 
+    @GetMapping("/{userId}")
+    fun getUserInventory(
+        @ParameterObject pageable: Pageable,
+        @PathVariable userId: Long,
+    ): PagedModel<UserItemDTO> {
+        val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO
+        if (userAuthData.accessLevel < AccessLevel.VIEW_INVENTORY.value) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough access level")
+        }
+        return PagedModel(userItemService.findAllUserItems(userId, pageable))
+    }
+
     @PostMapping("/{username}")
     fun create(
         @PathVariable username: String,
