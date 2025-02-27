@@ -1,4 +1,4 @@
-package com.intezya.abysscore.utils
+package com.intezya.abysscore.utils.auth
 
 import com.intezya.abysscore.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.entity.User

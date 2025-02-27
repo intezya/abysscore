@@ -4,6 +4,7 @@ import com.intezya.abysscore.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.dto.user_item.UserItemDTO
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.service.UserItemService
+import com.intezya.abysscore.utils.security.RequiresAccessLevel
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Pageable
@@ -26,26 +27,21 @@ class UserItemController(
     }
 
     @GetMapping("/{userId}")
+    @RequiresAccessLevel(AccessLevel.VIEW_INVENTORY)
     fun getUserInventory(
         @ParameterObject pageable: Pageable,
         @PathVariable userId: Long,
     ): PagedModel<UserItemDTO> {
-        val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO
-        if (userAuthData.accessLevel < AccessLevel.VIEW_INVENTORY.value) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough access level")
-        }
         return PagedModel(userItemService.findAllUserItems(userId, pageable))
     }
 
     @PostMapping("/{username}")
+    @RequiresAccessLevel(AccessLevel.GIVE_ITEM)
     fun create(
         @PathVariable username: String,
         @RequestParam("item_id") gameItemId: Long,
     ): UserItemDTO {
         val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO
-        if (userAuthData.accessLevel < AccessLevel.GIVE_ITEM.value) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough access level")
-        }
         return userItemService.issueForPlayerFromAdmin(username, gameItemId, userAuthData.id)
     }
 }

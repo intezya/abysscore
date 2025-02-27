@@ -6,7 +6,7 @@ import com.intezya.abysscore.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.dto.user.UserAuthRequest
 import com.intezya.abysscore.dto.user.UserAuthResponse
 import com.intezya.abysscore.service.AuthenticationService
-import com.intezya.abysscore.utils.AuthUtils
+import com.intezya.abysscore.utils.auth.AuthUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.security.core.context.SecurityContextHolder

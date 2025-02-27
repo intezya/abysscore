@@ -1,6 +1,6 @@
 package com.intezya.abysscore.middleware
 
-import com.intezya.abysscore.utils.AuthUtils
+import com.intezya.abysscore.utils.auth.AuthUtils
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

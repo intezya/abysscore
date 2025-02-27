@@ -3,7 +3,7 @@ package com.intezya.abysscore.controller
 import com.intezya.abysscore.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.dto.websocket.UserSessionDTO
 import com.intezya.abysscore.service.ClientWebsocketService
-import com.intezya.abysscore.utils.AuthUtils
+import com.intezya.abysscore.utils.auth.AuthUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage

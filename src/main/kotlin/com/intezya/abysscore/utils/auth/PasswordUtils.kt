@@ -1,4 +1,4 @@
-package com.intezya.abysscore.utils
+package com.intezya.abysscore.utils.auth
 
 import de.mkammerer.argon2.Argon2
 import org.springframework.stereotype.Service

@@ -9,8 +9,8 @@ import com.intezya.abysscore.entity.User
 import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.utils.AuthUtils
-import com.intezya.abysscore.utils.PasswordUtils
+import com.intezya.abysscore.utils.auth.AuthUtils
+import com.intezya.abysscore.utils.auth.PasswordUtils
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException

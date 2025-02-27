@@ -1,7 +1,7 @@
 package com.intezya.abysscore.config
 
 import com.intezya.abysscore.controller.ClientWebsocketHandler
-import com.intezya.abysscore.utils.AuthUtils
+import com.intezya.abysscore.utils.auth.AuthUtils
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse

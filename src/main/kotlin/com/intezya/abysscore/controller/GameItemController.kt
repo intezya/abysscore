@@ -5,6 +5,7 @@ import com.intezya.abysscore.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.entity.GameItem
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.service.GameItemService
+import com.intezya.abysscore.utils.security.RequiresAccessLevel
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
@@ -24,15 +25,12 @@ class GameItemController(
     private val gameItemService: GameItemService,
 ) {
     @PostMapping("/create")
+    @RequiresAccessLevel(AccessLevel.CREATE_ITEM)
     fun createItem(
         @RequestBody
         @Valid
         request: CreateGameItemRequest,
     ): ResponseEntity<GameItem> {
-        val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO
-        if (userAuthData.accessLevel < AccessLevel.CREATE_ITEM.value) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough access level")
-        }
         return ResponseEntity(
             gameItemService.createGameItem(request),
             HttpStatus.CREATED,
@@ -48,16 +46,12 @@ class GameItemController(
     @GetMapping("/{id}")
     fun getOne(@PathVariable id: Long): GameItem = gameItemService.findById(id)
 
-
     @PutMapping("/{itemId}")
+    @RequiresAccessLevel(AccessLevel.UPDATE_ITEM)
     fun updateItem(
         @PathVariable itemId: Long,
         @RequestBody @Valid gameItem: CreateGameItemRequest,
     ): ResponseEntity<GameItem> {
-        val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO
-        if (userAuthData.accessLevel < AccessLevel.UPDATE_ITEM.value) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough access level")
-        }
         return ResponseEntity(
             gameItemService.updateItem(itemId, gameItem),
             HttpStatus.OK,
@@ -65,11 +59,8 @@ class GameItemController(
     }
 
     @DeleteMapping("/{itemId}")
+    @RequiresAccessLevel(AccessLevel.DELETE_ITEM)
     fun deleteItem(@PathVariable itemId: Long): ResponseEntity<Unit> {
-        val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO
-        if (userAuthData.accessLevel < AccessLevel.DELETE_ITEM.value) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not enough access level")
-        }
         gameItemService.deleteItem(itemId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
