@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.model.entity.dto.websocket.UserSessionDTO
+import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
 import com.intezya.abysscore.service.ClientWebsocketService
 import com.intezya.abysscore.utils.auth.AuthUtils
 import org.springframework.stereotype.Component

@@ -1,8 +1,8 @@
 package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.model.entity.dto.event.UserActionEvent
-import com.intezya.abysscore.model.entity.dto.websocket.UserSessionDTO
+import com.intezya.abysscore.model.dto.event.UserActionEvent
+import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
 import com.intezya.abysscore.enum.UserActionEventType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

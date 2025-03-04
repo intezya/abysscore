@@ -1,10 +1,10 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.model.entity.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.model.entity.dto.admin.AdminAuthResponse
-import com.intezya.abysscore.model.entity.dto.event.UserActionEvent
-import com.intezya.abysscore.model.entity.dto.user.UserAuthRequest
-import com.intezya.abysscore.model.entity.dto.user.UserAuthResponse
+import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
+import com.intezya.abysscore.model.dto.admin.AdminAuthResponse
+import com.intezya.abysscore.model.dto.event.UserActionEvent
+import com.intezya.abysscore.model.dto.user.UserAuthRequest
+import com.intezya.abysscore.model.dto.user.UserAuthResponse
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.repository.AdminRepository

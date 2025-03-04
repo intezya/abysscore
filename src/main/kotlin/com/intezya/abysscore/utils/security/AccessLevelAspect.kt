@@ -1,6 +1,6 @@
 package com.intezya.abysscore.utils.security
 
-import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before

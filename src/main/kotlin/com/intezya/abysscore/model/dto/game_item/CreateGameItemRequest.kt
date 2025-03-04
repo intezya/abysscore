@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.entity.dto.game_item
+package com.intezya.abysscore.model.dto.game_item
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.intezya.abysscore.model.entity.GameItem

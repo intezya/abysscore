@@ -1,7 +1,7 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.model.entity.dto.event.ItemIssueEvent
-import com.intezya.abysscore.model.entity.dto.user_item.UserItemDTO
+import com.intezya.abysscore.model.dto.event.ItemIssueEvent
+import com.intezya.abysscore.model.dto.user_item.UserItemDTO
 import com.intezya.abysscore.model.entity.Admin
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.model.entity.User

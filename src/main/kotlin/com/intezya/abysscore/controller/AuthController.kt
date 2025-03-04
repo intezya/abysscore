@@ -1,14 +1,15 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.entity.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.model.entity.dto.admin.AdminAuthResponse
-import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.model.entity.dto.user.UserAuthRequest
-import com.intezya.abysscore.model.entity.dto.user.UserAuthResponse
+import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
+import com.intezya.abysscore.model.dto.admin.AdminAuthResponse
+import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.dto.user.UserAuthRequest
+import com.intezya.abysscore.model.dto.user.UserAuthResponse
 import com.intezya.abysscore.service.AuthenticationService
 import com.intezya.abysscore.utils.auth.AuthUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
@@ -44,8 +45,9 @@ class AuthController(
     }
 
     @GetMapping("/info")
-    fun getUserInfo(): UserAuthInfoDTO {
-        val authentication = SecurityContextHolder.getContext().authentication
-        return authentication.principal as UserAuthInfoDTO
+    fun getUserInfo(
+        @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
+        ): UserAuthInfoDTO {
+        return userAuthData
     }
 }

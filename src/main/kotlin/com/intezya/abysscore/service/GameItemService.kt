@@ -1,6 +1,6 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.model.entity.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.repository.GameItemRepository
 import org.springframework.data.domain.Page

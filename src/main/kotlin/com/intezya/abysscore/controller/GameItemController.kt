@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.entity.dto.game_item.CreateGameItemRequest
-import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.service.GameItemService
