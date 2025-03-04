@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.dto.user_item.UserItemDTO
+import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.entity.dto.user_item.UserItemDTO
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.service.UserItemService
 import com.intezya.abysscore.utils.security.RequiresAccessLevel
@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException
 class UserItemController(
     private val userItemService: UserItemService,
 ) {
+    //го юзать openapi generator + contract first подход
     @GetMapping
     fun getAll(@ParameterObject pageable: Pageable): PagedModel<UserItemDTO> {
         val userAuthData = SecurityContextHolder.getContext().authentication.principal as UserAuthInfoDTO

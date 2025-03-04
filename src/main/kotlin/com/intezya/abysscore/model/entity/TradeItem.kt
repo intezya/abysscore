@@ -1,6 +1,6 @@
-import com.intezya.abysscore.entity.Trade
-import com.intezya.abysscore.entity.User
-import com.intezya.abysscore.entity.UserItem
+import com.intezya.abysscore.model.entity.Trade
+import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.UserItem
 import jakarta.persistence.*
 
 @Entity

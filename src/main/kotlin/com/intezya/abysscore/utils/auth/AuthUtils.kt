@@ -1,7 +1,7 @@
 package com.intezya.abysscore.utils.auth
 
-import com.intezya.abysscore.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.entity.User
+import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.entity.User
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm

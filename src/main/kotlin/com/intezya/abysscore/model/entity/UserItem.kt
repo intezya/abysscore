@@ -1,6 +1,6 @@
-package com.intezya.abysscore.entity
+package com.intezya.abysscore.model.entity
 
-import com.intezya.abysscore.dto.user_item.UserItemDTO
+import com.intezya.abysscore.model.entity.dto.user_item.UserItemDTO
 import com.intezya.abysscore.enum.ItemSourceType
 import jakarta.persistence.*
 import java.time.LocalDateTime

@@ -1,4 +1,4 @@
-package com.intezya.abysscore.entity
+package com.intezya.abysscore.model.entity
 
 import com.intezya.abysscore.enum.TradeStatus
 import jakarta.persistence.*

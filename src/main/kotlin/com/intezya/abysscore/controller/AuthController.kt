@@ -1,10 +1,10 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.dto.admin.AdminAuthResponse
-import com.intezya.abysscore.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.dto.user.UserAuthRequest
-import com.intezya.abysscore.dto.user.UserAuthResponse
+import com.intezya.abysscore.model.entity.dto.admin.AdminAuthRequest
+import com.intezya.abysscore.model.entity.dto.admin.AdminAuthResponse
+import com.intezya.abysscore.model.entity.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.model.entity.dto.user.UserAuthRequest
+import com.intezya.abysscore.model.entity.dto.user.UserAuthResponse
 import com.intezya.abysscore.service.AuthenticationService
 import com.intezya.abysscore.utils.auth.AuthUtils
 import jakarta.servlet.http.HttpServletRequest

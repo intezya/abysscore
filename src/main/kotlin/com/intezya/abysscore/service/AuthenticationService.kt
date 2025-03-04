@@ -1,11 +1,11 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.dto.admin.AdminAuthResponse
-import com.intezya.abysscore.dto.event.UserActionEvent
-import com.intezya.abysscore.dto.user.UserAuthRequest
-import com.intezya.abysscore.dto.user.UserAuthResponse
-import com.intezya.abysscore.entity.User
+import com.intezya.abysscore.model.entity.dto.admin.AdminAuthRequest
+import com.intezya.abysscore.model.entity.dto.admin.AdminAuthResponse
+import com.intezya.abysscore.model.entity.dto.event.UserActionEvent
+import com.intezya.abysscore.model.entity.dto.user.UserAuthRequest
+import com.intezya.abysscore.model.entity.dto.user.UserAuthResponse
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
+private const val EVENT_TOPIC = "auth-events"
+private const val ADMIN_EXTRA_EXPIRATION_MS = 3_600_000 // 1 hour
+
 @Service
 class AuthenticationService(
     private val userRepository: UserRepository,
@@ -23,11 +26,6 @@ class AuthenticationService(
     private val adminRepository: AdminRepository,
     private val eventPublisher: EventPublisher,
 ) {
-    companion object {
-        private const val EVENT_TOPIC = "auth-events"
-        private const val ADMIN_EXTRA_EXPIRATION_MS = 3_600_000 // 1 hour
-    }
-
     fun registerUser(request: UserAuthRequest, ip: String): UserAuthResponse =
         handleAuthRequest(
             request = request,
@@ -77,8 +75,8 @@ class AuthenticationService(
         eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
     }
 
-    private fun register(request: UserAuthRequest): UserAuthResponse {
-        return try {
+    private fun register(request: UserAuthRequest): UserAuthResponse =
+        runCatching {
             val user = User(
                 username = request.username,
                 password = passwordUtils.hashPassword(request.password),
@@ -86,18 +84,15 @@ class AuthenticationService(
             )
             userRepository.save(user)
             UserAuthResponse(token = authUtils.generateJwtToken(user))
-        } catch (ex: Exception) {
+        }.onFailure{ exception ->
             when {
-                ex.message?.contains("uc_users_username") == true ->
+                exception.message?.contains("uc_users_username") == true ->
                     throw ResponseStatusException(HttpStatus.CONFLICT, "User already exists")
 
-                ex.message?.contains("uc_users_hwid") == true ->
+                exception.message?.contains("uc_users_hwid") == true ->
                     throw ResponseStatusException(HttpStatus.CONFLICT, "Only 1 account allowed per device")
-
-                else -> throw ex
             }
-        }
-    }
+        }.getOrThrow()
 
     private fun authenticate(request: UserAuthRequest): UserAuthResponse {
         val user = userRepository.findByUsername(request.username)

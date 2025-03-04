@@ -1,4 +1,4 @@
-package com.intezya.abysscore.dto.event
+package com.intezya.abysscore.model.entity.dto.event
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.intezya.abysscore.enum.UserActionEventType

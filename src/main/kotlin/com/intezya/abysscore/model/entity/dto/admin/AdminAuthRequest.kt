@@ -1,9 +1,9 @@
-package com.intezya.abysscore.dto.user
+package com.intezya.abysscore.model.entity.dto.admin
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
-data class UserAuthRequest(
+data class AdminAuthRequest(
     @field:NotBlank
     @field:Size(min = 3, max = 20)
     val username: String,
@@ -12,5 +12,5 @@ data class UserAuthRequest(
     val password: String,
     @field:NotBlank
     // TODO: length
-    val hwid: String
+    val hwid: String,
 )

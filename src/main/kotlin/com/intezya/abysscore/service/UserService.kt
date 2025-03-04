@@ -1,6 +1,6 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.entity.User
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service

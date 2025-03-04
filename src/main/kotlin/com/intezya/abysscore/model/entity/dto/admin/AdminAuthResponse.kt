@@ -1,4 +1,4 @@
-package com.intezya.abysscore.dto.admin
+package com.intezya.abysscore.model.entity.dto.admin
 
 data class AdminAuthResponse(
     val token: String

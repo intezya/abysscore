@@ -1,4 +1,4 @@
-package com.intezya.abysscore.dto.user
+package com.intezya.abysscore.model.entity.dto.user
 
 data class UserAuthResponse(
     val token: String,

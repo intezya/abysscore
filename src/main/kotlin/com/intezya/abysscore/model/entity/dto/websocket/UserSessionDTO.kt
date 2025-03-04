@@ -1,4 +1,4 @@
-package com.intezya.abysscore.dto.websocket
+package com.intezya.abysscore.model.entity.dto.websocket
 
 import org.springframework.web.socket.WebSocketSession
 

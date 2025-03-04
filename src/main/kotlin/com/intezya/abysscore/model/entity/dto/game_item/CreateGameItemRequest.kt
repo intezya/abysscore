@@ -1,7 +1,7 @@
-package com.intezya.abysscore.dto.game_item
+package com.intezya.abysscore.model.entity.dto.game_item
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.intezya.abysscore.entity.GameItem
+import com.intezya.abysscore.model.entity.GameItem
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank

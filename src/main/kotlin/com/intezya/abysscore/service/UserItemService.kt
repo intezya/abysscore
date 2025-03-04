@@ -1,11 +1,11 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.dto.event.ItemIssueEvent
-import com.intezya.abysscore.dto.user_item.UserItemDTO
-import com.intezya.abysscore.entity.Admin
-import com.intezya.abysscore.entity.GameItem
-import com.intezya.abysscore.entity.User
-import com.intezya.abysscore.entity.UserItem
+import com.intezya.abysscore.model.entity.dto.event.ItemIssueEvent
+import com.intezya.abysscore.model.entity.dto.user_item.UserItemDTO
+import com.intezya.abysscore.model.entity.Admin
+import com.intezya.abysscore.model.entity.GameItem
+import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.UserItem
 import com.intezya.abysscore.enum.ItemSourceType
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserItemRepository
