@@ -25,7 +25,8 @@ class WebSecurityConfig {
             "/account/login",
             "/account/admin/login",
             "/swagger-ui/**",
-            "/api-docs/**"
+            "/api-docs/**",
+            "/swagger-ui.html"
         )
     }
 

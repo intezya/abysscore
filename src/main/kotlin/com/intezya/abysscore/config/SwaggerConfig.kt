@@ -44,7 +44,7 @@ class SwaggerConfig {
             .info(
                 Info()
                     .title("API Documentation")
-                    .description("API для вашего приложения")
+                    .description("API для приложения")
                     .version("1.0")
             )
             .addSecurityItem(
