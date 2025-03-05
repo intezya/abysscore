@@ -75,24 +75,24 @@ class AuthenticationService(
         eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
     }
 
-    private fun register(request: UserAuthRequest): UserAuthResponse =
-        runCatching {
-            val user = User(
-                username = request.username,
-                password = passwordUtils.hashPassword(request.password),
-                hwid = passwordUtils.hashHwid(request.hwid),
-            )
+    private fun register(request: UserAuthRequest): UserAuthResponse {
+        val user = User(
+            username = request.username,
+            password = passwordUtils.hashPassword(request.password),
+            hwid = passwordUtils.hashHwid(request.hwid),
+        )
+        try {
             userRepository.save(user)
-            UserAuthResponse(token = authUtils.generateJwtToken(user))
-        }.onFailure{ exception ->
-            when {
-                exception.message?.contains("uc_users_username") == true ->
-                    throw ResponseStatusException(HttpStatus.CONFLICT, "User already exists")
-
-                exception.message?.contains("uc_users_hwid") == true ->
-                    throw ResponseStatusException(HttpStatus.CONFLICT, "Only 1 account allowed per device")
+        } catch (e: Exception) {
+            if (e.message?.contains("uc_users_username") == true) {
+                throw ResponseStatusException(HttpStatus.CONFLICT, "User already exists")
             }
-        }.getOrThrow()
+            if (e.message?.contains("uc_users_hwid") == true) {
+                throw ResponseStatusException(HttpStatus.CONFLICT, "Only 1 account allowed per device")
+            }
+        }
+        return UserAuthResponse(token = authUtils.generateJwtToken(user))
+    }
 
     private fun authenticate(request: UserAuthRequest): UserAuthResponse {
         val user = userRepository.findByUsername(request.username)
