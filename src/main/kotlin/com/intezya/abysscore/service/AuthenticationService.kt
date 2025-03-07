@@ -1,12 +1,12 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
 import com.intezya.abysscore.model.dto.admin.AdminAuthResponse
 import com.intezya.abysscore.model.dto.event.UserActionEvent
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.dto.user.UserAuthResponse
 import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.utils.auth.AuthUtils
@@ -26,13 +26,14 @@ class AuthenticationService(
     private val adminRepository: AdminRepository,
     private val eventPublisher: EventPublisher,
 ) {
-    fun registerUser(request: UserAuthRequest, ip: String): UserAuthResponse =
-        handleAuthRequest(
+    fun registerUser(request: UserAuthRequest, ip: String): UserAuthResponse {
+        return handleAuthRequest(
             request = request,
             ip = ip,
             authAction = ::register,
             eventType = UserActionEventType.REGISTRATION
         )
+    }
 
     fun loginUser(request: UserAuthRequest, ip: String): UserAuthResponse =
         handleAuthRequest(

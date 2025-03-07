@@ -14,8 +14,8 @@ class EventPublisher(
 ) {
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 
-    fun <T> sendActionEvent(
-        event: T,
+    fun sendActionEvent(
+        event: Any,
         eventKey: String,
         topic: String,
     ) {

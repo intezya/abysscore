@@ -1,10 +1,10 @@
 package com.intezya.abysscore.utils.auth
 
 import de.mkammerer.argon2.Argon2
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import java.security.MessageDigest
 
-@Service
+@Component
 class PasswordUtils(
     private val argon2: Argon2,
 ) {
@@ -23,7 +23,7 @@ class PasswordUtils(
     }
 
     fun hashHwid(input: String): String {
-        val digest = MessageDigest.getInstance("SHA-512")
+        val digest = MessageDigest.getInstance("SHA-256")
         val hashedBytes = digest.digest(input.toByteArray(Charsets.UTF_8))
         return hashedBytes.joinToString("") { String.format("%02x", it) }
     }

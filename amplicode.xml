@@ -4,13 +4,4 @@
   <component name="AmplicodeJpaPluginProjectSettings">
     <option name="lastSelectedLanguage" value="Kotlin" />
   </component>
-  <component name="AmplicodePersistenceUnitSettings">
-    <persistence-units>
-      <persistence-unit name="Default">
-        <packages>
-          <package value="com.intezya.abysscore" />
-        </packages>
-      </persistence-unit>
-    </persistence-units>
-  </component>
 </project>

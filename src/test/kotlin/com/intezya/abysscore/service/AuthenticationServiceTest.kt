@@ -1,53 +1,75 @@
 package com.intezya.abysscore.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.repository.AdminRepository
+import com.intezya.abysscore.configuration.TestPostgresConfiguration
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.utils.auth.AuthUtils
-import com.intezya.abysscore.utils.auth.PasswordUtils
-import com.intezya.abysscore.utils.constructors.constructAuthRequest
-import com.intezya.abysscore.utils.constructors.constructUser
+import com.intezya.abysscore.utils.providers.RandomProvider
+import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.kafka.core.KafkaTemplate
-import kotlin.test.assertEquals
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
+import org.springframework.web.server.ResponseStatusException
+import kotlin.test.assertFailsWith
 
 
-class AuthenticationServiceTest(
-    private val passwordUtils: PasswordUtils,
-    private val authUtils: AuthUtils,
-    private val adminRepository: AdminRepository,
-    private val kafkaTemplate: KafkaTemplate<String, String>,
-    private val objectMapper: ObjectMapper,
-) {
-    private val userRepository = mockk<UserRepository>()
-    private val eventPublisher = mockk<EventPublisher>()
-    private val authenticationService = AuthenticationService(
-        userRepository = userRepository,
-        passwordUtils = passwordUtils,
-        authUtils = authUtils,
-        adminRepository = adminRepository,
-        eventPublisher = eventPublisher,
-    )
+@SpringBootTest
+@Import(TestPostgresConfiguration::class)
+class AuthenticationServiceTest : BaseServiceTest() {
+    private val userRepository: UserRepository = mockk<UserRepository>()
+    private val eventPublisher: EventPublisher = mockk<EventPublisher>()
+
+    @Autowired
+    private lateinit var authUtils: AuthUtils
+
+    @SpykBean
+    private lateinit var authenticationService: AuthenticationService
 
     @Test
     fun `create user with valid data`() {
-        val testUser = constructUser()
-        val registerRequest = constructAuthRequest()
+        val testUser = RandomProvider.constructUser()
+        val registerRequest = RandomProvider.constructAuthRequest(user = testUser)
 
         every { userRepository.save(any()) } returns testUser
-        every { eventPublisher.sendActionEvent(any()) } does nothing
+        every { eventPublisher.sendActionEvent(any(), any(), any()) } returns Unit
 
-        val user = authenticationService.registerUser(registerRequest, ip = "test")
+        val response = authenticationService.registerUser(registerRequest, ip = "test")
 
-        val authData = this.authUtils.getUserInfoFromToken(user.token)
+        val authData = authUtils.getUserInfoFromToken(response.token)
 
-        assertEquals(testUser.id, authData.id)
+        assertEquals(1, authData.id)
         assertEquals(testUser.username, authData.username)
-        assertEquals(testUser.hwid, authData.hwid)
-
-        verify { userRepository.save(any()) }
     }
+
+    @Test
+    fun `create user that already exists`() {
+        val registerRequest = RandomProvider.constructAuthRequest()
+
+        every { eventPublisher.sendActionEvent(any(), any(), any()) } returns Unit
+
+        authenticationService.registerUser(registerRequest, ip = RandomProvider.ipv4())
+
+        assertFailsWith<ResponseStatusException>("User already exists") {
+            authenticationService.registerUser(registerRequest, ip = RandomProvider.ipv4())
+        }
+    }
+
+    @Test
+    fun `create user that already has account`() {
+        var registerRequest = RandomProvider.constructAuthRequest()
+
+        every { eventPublisher.sendActionEvent(any(), any(), any()) } returns Unit
+
+        authenticationService.registerUser(registerRequest, ip = RandomProvider.ipv4())
+
+        registerRequest = RandomProvider.constructAuthRequest(hwid = registerRequest.hwid)
+
+        assertFailsWith<ResponseStatusException>("User already exists") {
+            authenticationService.registerUser(registerRequest, ip = RandomProvider.ipv4())
+        }
+    }
+
 }

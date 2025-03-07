@@ -48,12 +48,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
     implementation(kotlin("stdlib-jdk8"))
     testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.mockito", module = "mockito-core")
-    }
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.zaxxer:HikariCP:5.1.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.5")
+    testImplementation("org.testcontainers:postgresql:1.19.5")
+    testImplementation("org.testcontainers:testcontainers:1.19.5")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
+    implementation("io.github.serpro69:kotlin-faker:1.16.0")
 }
 
 kotlin {
