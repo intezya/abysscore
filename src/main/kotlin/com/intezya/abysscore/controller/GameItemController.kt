@@ -1,22 +1,19 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.service.GameItemService
 import com.intezya.abysscore.utils.security.RequiresAccessLevel
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
-import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/items")
@@ -38,7 +35,7 @@ class GameItemController(
     }
 
     @GetMapping
-    fun getAll(@ParameterObject pageable: Pageable): PagedModel<GameItem> {
+    fun getAll(@PageableDefault(size = 20) pageable: Pageable): PagedModel<GameItem> {
         val gameItems: Page<GameItem> = gameItemService.findAll(pageable)
         return PagedModel(gameItems)
     }
