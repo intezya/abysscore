@@ -58,6 +58,10 @@ dependencies {
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
     implementation("io.github.serpro69:kotlin-faker:1.16.0")
+    testImplementation("io.rest-assured:rest-assured:5.3.0")
+    testImplementation("io.rest-assured:kotlin-extensions:5.3.0")
+    testImplementation("io.rest-assured:json-path:5.3.0")
+    testImplementation("io.rest-assured:xml-path:5.3.0")
 }
 
 kotlin {

@@ -37,7 +37,7 @@ class AuthControllerTest {
     private lateinit var objectMapper: ObjectMapper
 
     private val testUsername = "testUser"
-    private val testPassword = "P@ssw0rd"
+    private val testPassword = "P_ssw0rd"
     private val testHwid = "test-hwid-123"
     private val testIp = "192.168.1.1"
     private val testToken = "jwt-token-123"

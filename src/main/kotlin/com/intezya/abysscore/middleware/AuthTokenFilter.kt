@@ -22,7 +22,7 @@ class AuthTokenFilter : OncePerRequestFilter() {
     ) {
         try {
             val jwt = parseJwt(request)
-            if (jwt != null && authUtils.validateJwtToken(jwt)) {
+            if (authUtils.validateJwtToken(jwt)) {
                 val userInfo = authUtils.getUserInfoFromToken(jwt)
                 val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
                 val authentication = UsernamePasswordAuthenticationToken(
@@ -37,10 +37,10 @@ class AuthTokenFilter : OncePerRequestFilter() {
         filterChain.doFilter(request, response)
     }
 
-    private fun parseJwt(request: HttpServletRequest): String? {
+    private fun parseJwt(request: HttpServletRequest): String {
         val headerAuth = request.getHeader("Authorization")
         return if (headerAuth?.startsWith("Bearer ") == true) {
             headerAuth.substring(7)
-        } else null
+        } else headerAuth
     }
 }

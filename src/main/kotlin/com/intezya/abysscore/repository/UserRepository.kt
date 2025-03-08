@@ -8,6 +8,6 @@ import java.util.*
 
 @Repository
 interface UserRepository : JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE LOWER(u.username) = :username")
+    @Query("SELECT u FROM User u WHERE LOWER(u.username) = LOWER(:username)")
     fun findByUsername(username: String): Optional<User>
 }

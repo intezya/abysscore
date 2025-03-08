@@ -26,7 +26,6 @@ class AuthController(
         return authenticationService.registerUser(userAuthRequest, authUtils.getClientIp(request))
     }
 
-
     @PostMapping("/login")
     fun loginUser(
         @RequestBody @Valid userAuthRequest: UserAuthRequest,

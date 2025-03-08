@@ -23,8 +23,8 @@ class RandomProvider {
         }
 
         fun constructAuthRequest(
-            username: String = f.name.firstName(),
-            password: String = f.random.nextUUID(),
+            username: String = f.name.firstName().take(16),
+            password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
             hwid: String = f.random.nextUUID(),
         ): UserAuthRequest {
             return UserAuthRequest(
