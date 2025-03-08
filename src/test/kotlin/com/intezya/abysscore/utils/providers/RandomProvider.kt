@@ -11,8 +11,8 @@ class RandomProvider {
         fun constructUser(
             id: Long? = null,
             username: String = f.name.firstName(),
-            password: String = f.random.nextUUID(),
-            hwid: String = f.random.nextUUID(),
+            password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
+            hwid: String? = f.random.nextUUID(),
         ): User {
             return User(
                 id = id,

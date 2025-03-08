@@ -1,12 +1,12 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.enum.ItemSourceType
 import com.intezya.abysscore.model.dto.event.ItemIssueEvent
 import com.intezya.abysscore.model.dto.user_item.UserItemDTO
 import com.intezya.abysscore.model.entity.Admin
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserItem
-import com.intezya.abysscore.enum.ItemSourceType
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserItemRepository
 import org.springframework.data.domain.Page
@@ -61,7 +61,7 @@ class UserItemService(
             gameItem = item,
             sourceType = ItemSourceType.ADMIN,
         )
-        sendEvent(user.id!!, item.id!!, admin.id)
+        sendEvent(user.id!!, item.id!!, admin.id!!)
         return userItemRepository.save(userItem)
     }
 

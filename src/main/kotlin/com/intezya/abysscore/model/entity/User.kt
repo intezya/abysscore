@@ -17,7 +17,7 @@ data class User(
     val password: String,
 
     @Column(unique = true)
-    val hwid: String?,
+    var hwid: String?,
 
     @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

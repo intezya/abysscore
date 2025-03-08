@@ -103,8 +103,13 @@ class AuthenticationService(
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password")
         }
 
-        if (user.hwid != null && !passwordUtils.verifyHwid(request.hwid, user.hwid)) {
+        if (user.hwid != null && !passwordUtils.verifyHwid(request.hwid, user.hwid!!)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid hardware ID")
+        }
+
+        if (user.hwid == null) {
+            user.hwid = passwordUtils.hashHwid(request.hwid)
+            userRepository.save(user)
         }
 
         return UserAuthResponse(token = authUtils.generateJwtToken(user))

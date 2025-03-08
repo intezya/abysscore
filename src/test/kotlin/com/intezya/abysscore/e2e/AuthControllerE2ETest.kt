@@ -2,8 +2,15 @@ package com.intezya.abysscore.e2e
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.configuration.TestPostgresConfiguration
+import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
+import com.intezya.abysscore.model.entity.Admin
+import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.repository.AdminRepository
+import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.service.AuthenticationService
 import com.intezya.abysscore.utils.auth.AuthUtils
+import com.intezya.abysscore.utils.auth.PasswordUtils
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
@@ -14,7 +21,7 @@ import io.restassured.module.kotlin.extensions.When
 import io.restassured.parsing.Parser
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -24,6 +31,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -38,6 +47,14 @@ class AuthControllerE2ETest {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    @Autowired
+    private lateinit var userRepository: UserRepository
+
+    @Autowired
+    private lateinit var adminRepository: AdminRepository
+
+    @Autowired
+    private lateinit var passwordUtils: PasswordUtils
 
     @LocalServerPort
     private var port: Int = 0
@@ -228,6 +245,41 @@ class AuthControllerE2ETest {
     }
 
     @Test
+    fun `should login user that have null hwid`() {
+        val userRegisterData = RandomProvider.constructUser()
+        val user = User(
+            username = userRegisterData.username,
+            password = passwordUtils.hashPassword(userRegisterData.password),
+            hwid = null
+        )
+        userRepository.save(user)
+
+        val loginRequest = RandomProvider.constructAuthRequest(
+            username = user.username,
+            password = userRegisterData.password,
+            hwid = UUID.randomUUID().toString()
+        )
+
+        val token = Given {
+            contentType(ContentType.JSON)
+            body(loginRequest)
+        } When {
+            post("/auth/login")
+        } Then {
+            statusCode(200)
+            body("token", notNullValue())
+        } Extract {
+            path<String>("token")
+        }
+
+        val authInfo = authUtils.getUserInfoFromToken(token)
+
+        assertNotNull(authInfo.hwid)
+        println(authInfo)
+        assertEquals(passwordUtils.hashHwid(loginRequest.hwid), authInfo.hwid)
+    }
+
+    @Test
     fun `should get user info by token`() {
         val user = RandomProvider.constructUser(id = 1L)
         val token = authUtils.generateJwtToken(user)
@@ -244,5 +296,23 @@ class AuthControllerE2ETest {
             body("hwid", equalTo(user.hwid))
             body("access_level", equalTo(-1))
         }
+    }
+
+    @Test
+    @Transactional
+    fun `should login as admin`() {
+        val user = RandomProvider.constructUser()
+        userRepository.save(user)
+        val freshUser = userRepository.findById(user.id!!).orElseThrow()
+        val admin = Admin(user = freshUser, telegramId = 123456789L, accessLevel = AccessLevel.DEV)
+        adminRepository.save(admin)
+
+        authenticationService.adminLogin(
+            AdminAuthRequest(
+                username = user.username,
+                password = user.password,
+                hwid = user.hwid!!,
+            ), "someip"
+        )
     }
 }

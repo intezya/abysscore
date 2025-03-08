@@ -9,9 +9,9 @@ import java.time.LocalDateTime
 @Table(name = "admins")
 data class Admin(
     @Id
-    var id: Long,
+    var id: Long? = null,
 
-    @OneToOne
+    @OneToOne(cascade = [CascadeType.MERGE])
     @MapsId
     @JoinColumn(name = "id")
     val user: User,
@@ -26,5 +26,5 @@ data class Admin(
     @Column(nullable = false, updatable = false)
     val adminFrom: LocalDateTime = LocalDateTime.now(),
 ) {
-    constructor() : this(0L, User(), 0, AccessLevel.ADMIN, LocalDateTime.now())
+    constructor() : this(null, User(), 0, AccessLevel.ADMIN, LocalDateTime.now())
 }
