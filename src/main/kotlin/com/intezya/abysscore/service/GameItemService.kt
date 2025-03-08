@@ -19,7 +19,7 @@ class GameItemService(
 
     fun findById(itemId: Long): GameItem {
         return gameItemRepository.findById(itemId).orElseThrow {
-            ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found with id: $itemId")
+            ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
         }
     }
 
@@ -29,7 +29,7 @@ class GameItemService(
 
     fun updateItem(itemId: Long, createGameItemRequest: CreateGameItemRequest): GameItem {
         if (!gameItemRepository.existsById(itemId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot update. Item not found with id: $itemId")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
         }
 
         val gameItem = createGameItemRequest.toEntity()
@@ -39,7 +39,7 @@ class GameItemService(
 
     fun deleteItem(itemId: Long) {
         if (!gameItemRepository.existsById(itemId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot delete. Item not found with id: $itemId")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
         }
         gameItemRepository.deleteById(itemId)
     }

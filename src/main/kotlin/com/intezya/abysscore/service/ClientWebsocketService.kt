@@ -1,11 +1,9 @@
 package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.model.dto.event.UserActionEvent
 import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
-import com.intezya.abysscore.enum.UserActionEventType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.TextMessage
 
@@ -30,7 +28,6 @@ class ClientWebsocketService(
         }
         sessions[session.id] = session
         sendEvent(session, success = true, connect = true)
-        println("Connections: ${sessions.size}")
     }
 
     fun removeConnection(clientId: Long) {
@@ -40,7 +37,6 @@ class ClientWebsocketService(
             session.connection.close()
             sendEvent(session, success = true, connect = false)
         }
-        println("Connections: ${sessions.size}")
     }
 
     private fun sendEvent(session: UserSessionDTO, success: Boolean, connect: Boolean) {
