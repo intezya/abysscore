@@ -10,11 +10,10 @@ import com.intezya.abysscore.utils.auth.AuthUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/auth")
 class AuthController(
     private val authenticationService: AuthenticationService,
     private val authUtils: AuthUtils,
@@ -47,7 +46,7 @@ class AuthController(
     @GetMapping("/info")
     fun getUserInfo(
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-        ): UserAuthInfoDTO {
+    ): UserAuthInfoDTO {
         return userAuthData
     }
 }

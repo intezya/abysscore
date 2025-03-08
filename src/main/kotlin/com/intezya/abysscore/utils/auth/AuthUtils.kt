@@ -10,15 +10,15 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketSession
+import java.security.MessageDigest
 import java.util.*
 
 @Component
-class AuthUtils {
-    @Value("\${jwt.secret}")
-    private lateinit var jwtSecret: String
-
-    @Value("\${jwt.expiration}")
-    private var jwtExpirationMs: Int = 0
+class AuthUtils(
+    @Value("\${jwt.secret}") private val jwtSecret: String,
+    @Value("\${jwt.expiration}") private val jwtExpirationMs: Int
+) {
+    private val hashedSecret: ByteArray by lazy { hashSHA512(jwtSecret) }
 
     fun generateJwtToken(user: User, accessLevel: Int = -1, extraExpirationMs: Int = jwtExpirationMs): String {
         return Jwts.builder()
@@ -29,13 +29,13 @@ class AuthUtils {
             .claim("access_level", accessLevel)
             .setIssuedAt(Date())
             .setExpiration(Date(Date().time + extraExpirationMs))
-            .signWith(Keys.hmacShaKeyFor(jwtSecret.toByteArray()), SignatureAlgorithm.HS512)
+            .signWith(Keys.hmacShaKeyFor(hashedSecret), SignatureAlgorithm.HS512)
             .compact()
     }
 
     fun getClaimsFromJwtToken(token: String): Claims {
         return Jwts.parserBuilder()
-            .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.toByteArray()))
+            .setSigningKey(Keys.hmacShaKeyFor(hashedSecret))
             .build()
             .parseClaimsJws(token)
             .body
@@ -102,5 +102,10 @@ class AuthUtils {
             }
         }
         return session.remoteAddress.toString()
+    }
+
+    private fun hashSHA512(input: String): ByteArray {
+        val md = MessageDigest.getInstance("SHA-512")
+        return md.digest(input.toByteArray())
     }
 }

@@ -26,14 +26,14 @@ class AuthenticationService(
     private val adminRepository: AdminRepository,
     private val eventPublisher: EventPublisher,
 ) {
-    fun registerUser(request: UserAuthRequest, ip: String): UserAuthResponse {
-        return handleAuthRequest(
+    fun registerUser(request: UserAuthRequest, ip: String): UserAuthResponse =
+        handleAuthRequest(
             request = request,
             ip = ip,
             authAction = ::register,
             eventType = UserActionEventType.REGISTRATION
         )
-    }
+
 
     fun loginUser(request: UserAuthRequest, ip: String): UserAuthResponse =
         handleAuthRequest(
@@ -77,13 +77,13 @@ class AuthenticationService(
     }
 
     private fun register(request: UserAuthRequest): UserAuthResponse {
-        val user = User(
+        var user = User(
             username = request.username,
             password = passwordUtils.hashPassword(request.password),
             hwid = passwordUtils.hashHwid(request.hwid),
         )
         try {
-            userRepository.save(user)
+            user = userRepository.save(user)
         } catch (e: Exception) {
             if (e.message?.contains("uc_users_username") == true) {
                 throw ResponseStatusException(HttpStatus.CONFLICT, "User already exists")
