@@ -1,30 +1,31 @@
 package com.intezya.abysscore.configuration
 
+import com.zaxxer.hikari.HikariDataSource
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
+import org.springframework.context.annotation.Bean
 import org.testcontainers.containers.PostgreSQLContainer
+import javax.sql.DataSource
 
 @TestConfiguration
 class TestPostgresConfiguration {
-    companion object {
-        private val postgres: PostgreSQLContainer<*> =
+    @Bean
+    fun dataSource(): DataSource {
+        val container =
             PostgreSQLContainer("postgres:17")
                 .withUsername("test")
                 .withPassword("test")
                 .withDatabaseName("testdb")
 
-        init {
-            postgres.start()
-        }
+        container.start()
 
-        @JvmStatic
-        @DynamicPropertySource
-        fun properties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.datasource.driver-class-name") { "org.postgresql.Driver" }
+        println("PostgreSQL container started: ${container.jdbcUrl}")
+
+        return HikariDataSource().apply {
+            jdbcUrl = container.jdbcUrl
+            username = container.username
+            password = container.password
+            driverClassName = "org.postgresql.Driver"
+            maximumPoolSize = 5
         }
     }
 }
