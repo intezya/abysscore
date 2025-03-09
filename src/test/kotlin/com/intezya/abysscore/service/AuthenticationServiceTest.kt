@@ -19,7 +19,6 @@ import java.util.*
 import kotlin.test.Test
 
 class AuthenticationServiceTest {
-
     @MockK
     private lateinit var userRepository: UserRepository
 
@@ -45,12 +44,13 @@ class AuthenticationServiceTest {
     private val hashedHwid = "hashedHwid123"
     private val testIp = "192.168.1.1"
     private val testToken = "jwt-token-123"
-    private val testUser = User(
-        id = 1L,
-        username = testUsername,
-        password = hashedPassword,
-        hwid = hashedHwid
-    )
+    private val testUser =
+        User(
+            id = 1L,
+            username = testUsername,
+            password = hashedPassword,
+            hwid = hashedHwid,
+        )
 
     @BeforeEach
     fun setup() {
@@ -91,13 +91,13 @@ class AuthenticationServiceTest {
 
         every { userRepository.save(any()) } throws exception
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            authenticationService.registerUser(request, testIp)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                authenticationService.registerUser(request, testIp)
+            }
 
         assertEquals(HttpStatus.CONFLICT, responseEx.statusCode)
         assertEquals("User already exists", responseEx.reason)
-
     }
 
     @Test
@@ -107,13 +107,13 @@ class AuthenticationServiceTest {
 
         every { userRepository.save(any()) } throws exception
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            authenticationService.registerUser(request, testIp)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                authenticationService.registerUser(request, testIp)
+            }
 
         assertEquals(HttpStatus.CONFLICT, responseEx.statusCode)
         assertEquals("Only 1 account allowed per device", responseEx.reason)
-
     }
 
     @Test
@@ -140,13 +140,13 @@ class AuthenticationServiceTest {
 
         every { userRepository.findByUsername(testUsername) } returns Optional.empty()
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            authenticationService.loginUser(request, testIp)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                authenticationService.loginUser(request, testIp)
+            }
 
         assertEquals(HttpStatus.NOT_FOUND, responseEx.statusCode)
         assertEquals("User not found", responseEx.reason)
-
     }
 
     @Test
@@ -156,13 +156,13 @@ class AuthenticationServiceTest {
         every { userRepository.findByUsername(testUsername) } returns Optional.of(testUser)
         every { passwordUtils.verifyPassword(testPassword, hashedPassword) } returns false
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            authenticationService.loginUser(request, testIp)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                authenticationService.loginUser(request, testIp)
+            }
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEx.statusCode)
         assertEquals("Invalid password", responseEx.reason)
-
     }
 
     @Test
@@ -172,12 +172,12 @@ class AuthenticationServiceTest {
         every { userRepository.findByUsername(testUsername) } returns Optional.of(testUser)
         every { passwordUtils.verifyHwid(testHwid, hashedHwid) } returns false
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            authenticationService.loginUser(request, testIp)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                authenticationService.loginUser(request, testIp)
+            }
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEx.statusCode)
         assertEquals("Invalid hardware ID", responseEx.reason)
-
     }
 }

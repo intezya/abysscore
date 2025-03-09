@@ -16,12 +16,17 @@ import java.util.*
 @Component
 class JwtUtils(
     @Value("\${jwt.secret}") private val jwtSecret: String,
-    @Value("\${jwt.expiration}") private val jwtExpirationMs: Int
+    @Value("\${jwt.expiration}") private val jwtExpirationMs: Int,
 ) {
     private val hashedSecret: ByteArray by lazy { hashSHA512(jwtSecret) }
 
-    fun generateJwtToken(user: User, accessLevel: Int = -1, extraExpirationMs: Int = jwtExpirationMs): String {
-        return Jwts.builder()
+    fun generateJwtToken(
+        user: User,
+        accessLevel: Int = -1,
+        extraExpirationMs: Int = jwtExpirationMs,
+    ): String =
+        Jwts
+            .builder()
             .setSubject(user.id.toString())
             .claim("service", "com.intezya.abysscore.auth")
             .claim("hwid", user.hwid)
@@ -31,15 +36,14 @@ class JwtUtils(
             .setExpiration(Date(Date().time + extraExpirationMs))
             .signWith(Keys.hmacShaKeyFor(hashedSecret), SignatureAlgorithm.HS512)
             .compact()
-    }
 
-    fun getClaimsFromJwtToken(token: String): Claims {
-        return Jwts.parserBuilder()
+    fun getClaimsFromJwtToken(token: String): Claims =
+        Jwts
+            .parserBuilder()
             .setSigningKey(Keys.hmacShaKeyFor(hashedSecret))
             .build()
             .parseClaimsJws(token)
             .body
-    }
 
     fun getUserInfoFromToken(token: String): UserAuthInfoDTO {
         val claims = getClaimsFromJwtToken(token)
@@ -61,17 +65,18 @@ class JwtUtils(
     }
 
     fun getClientIp(request: HttpServletRequest): String {
-        val headers = listOf(
-            "X-Forwarded-For",
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP",
-            "HTTP_X_FORWARDED_FOR",
-            "HTTP_X_FORWARDED",
-            "HTTP_FORWARDED_FOR",
-            "HTTP_FORWARDED",
-            "HTTP_CLIENT_IP",
-            "REMOTE_ADDR"
-        )
+        val headers =
+            listOf(
+                "X-Forwarded-For",
+                "Proxy-Client-IP",
+                "WL-Proxy-Client-IP",
+                "HTTP_X_FORWARDED_FOR",
+                "HTTP_X_FORWARDED",
+                "HTTP_FORWARDED_FOR",
+                "HTTP_FORWARDED",
+                "HTTP_CLIENT_IP",
+                "REMOTE_ADDR",
+            )
 
         for (header in headers) {
             val ip = request.getHeader(header)
@@ -83,17 +88,18 @@ class JwtUtils(
     }
 
     fun getClientIp(session: WebSocketSession): String {
-        val headers = listOf(
-            "X-Forwarded-For",
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP",
-            "HTTP_X_FORWARDED_FOR",
-            "HTTP_X_FORWARDED",
-            "HTTP_FORWARDED_FOR",
-            "HTTP_FORWARDED",
-            "HTTP_CLIENT_IP",
-            "REMOTE_ADDR"
-        )
+        val headers =
+            listOf(
+                "X-Forwarded-For",
+                "Proxy-Client-IP",
+                "WL-Proxy-Client-IP",
+                "HTTP_X_FORWARDED_FOR",
+                "HTTP_X_FORWARDED",
+                "HTTP_FORWARDED_FOR",
+                "HTTP_FORWARDED",
+                "HTTP_CLIENT_IP",
+                "REMOTE_ADDR",
+            )
 
         for (header in headers) {
             val ip = session.handshakeHeaders[header]?.firstOrNull()

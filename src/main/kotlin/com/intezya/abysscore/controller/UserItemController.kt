@@ -18,23 +18,19 @@ import org.springframework.web.bind.annotation.*
 class UserItemController(
     private val userItemService: UserItemService,
 ) {
-    //го юзать openapi generator + contract first подход
+    // го юзать openapi generator + contract first подход
     @GetMapping
     fun getAll(
         @ParameterObject pageable: Pageable,
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-    ): PagedModel<UserItemDTO> {
-        return PagedModel(userItemService.findAllUserItems(userAuthData.id, pageable))
-    }
+    ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(userAuthData.id, pageable))
 
     @GetMapping("/{userId}")
     @RequiresAccessLevel(AccessLevel.VIEW_INVENTORY)
     fun getUserInventory(
         @ParameterObject pageable: Pageable,
         @PathVariable userId: Long,
-    ): PagedModel<UserItemDTO> {
-        return PagedModel(userItemService.findAllUserItems(userId, pageable))
-    }
+    ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(userId, pageable))
 
     @PostMapping("/{username}")
     @RequiresAccessLevel(AccessLevel.GIVE_ITEM)
@@ -42,7 +38,5 @@ class UserItemController(
         @PathVariable username: String,
         @RequestParam("item_id") gameItemId: Long,
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-    ): UserItemDTO {
-        return userItemService.issueForPlayerFromAdmin(username, gameItemId, userAuthData.id)
-    }
+    ): UserItemDTO = userItemService.issueForPlayerFromAdmin(username, gameItemId, userAuthData.id)
 }

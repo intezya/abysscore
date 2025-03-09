@@ -13,11 +13,10 @@ class ArgonConfig {
     }
 
     @Bean
-    fun argon2(): Argon2 {
-        return Argon2Factory.create(
+    fun argon2(): Argon2 =
+        Argon2Factory.create(
             Argon2Factory.Argon2Types.ARGON2id, // Type of Argon2 variant
-            SALT_LENGTH,    // Salt length
-            HASH_LENGTH     // Hash length
+            SALT_LENGTH, // Salt length
+            HASH_LENGTH, // Hash length
         )
-    }
 }

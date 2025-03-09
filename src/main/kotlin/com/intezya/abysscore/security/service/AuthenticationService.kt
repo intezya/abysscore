@@ -19,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException
 private const val EVENT_TOPIC = "auth-events"
 private const val ADMIN_EXTRA_EXPIRATION_MS = 3_600_000 // 1 hour
 
-
 @Service
 class AuthenticationService(
     private val userRepository: UserRepository,
@@ -28,28 +27,33 @@ class AuthenticationService(
     private val adminRepository: AdminRepository,
     private val eventPublisher: EventPublisher,
 ) {
-    fun registerUser(request: UserAuthRequest, ip: String): UserAuthResponse =
+    fun registerUser(
+        request: UserAuthRequest,
+        ip: String,
+    ): UserAuthResponse =
         handleAuthRequest(
             request = request,
             ip = ip,
             authAction = ::register,
-            eventType = UserActionEventType.REGISTRATION
+            eventType = UserActionEventType.REGISTRATION,
         )
 
-
-    fun loginUser(request: UserAuthRequest, ip: String): UserAuthResponse =
+    fun loginUser(
+        request: UserAuthRequest,
+        ip: String,
+    ): UserAuthResponse =
         handleAuthRequest(
             request = request,
             ip = ip,
             authAction = ::authenticate,
-            eventType = UserActionEventType.LOGIN
+            eventType = UserActionEventType.LOGIN,
         )
 
     private fun handleAuthRequest(
         request: UserAuthRequest,
         ip: String,
         authAction: (UserAuthRequest) -> UserAuthResponse,
-        eventType: UserActionEventType
+        eventType: UserActionEventType,
     ): UserAuthResponse {
         val hashedHwid = passwordUtils.hashHwid(request.hwid)
         return runCatching {
@@ -66,24 +70,26 @@ class AuthenticationService(
         ip: String,
         hwid: String,
         eventType: UserActionEventType,
-        isSuccess: Boolean
+        isSuccess: Boolean,
     ) {
-        val event = UserActionEvent(
-            username = username,
-            ip = ip,
-            eventType = eventType,
-            hwid = hwid,
-            isSuccess = isSuccess
-        )
+        val event =
+            UserActionEvent(
+                username = username,
+                ip = ip,
+                eventType = eventType,
+                hwid = hwid,
+                isSuccess = isSuccess,
+            )
         eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
     }
 
     private fun register(request: UserAuthRequest): UserAuthResponse {
-        var user = User(
-            username = request.username,
-            password = passwordUtils.hashPassword(request.password),
-            hwid = passwordUtils.hashHwid(request.hwid),
-        )
+        var user =
+            User(
+                username = request.username,
+                password = passwordUtils.hashPassword(request.password),
+                hwid = passwordUtils.hashHwid(request.hwid),
+            )
         try {
             user = userRepository.save(user)
         } catch (e: Exception) {
@@ -98,8 +104,10 @@ class AuthenticationService(
     }
 
     private fun authenticate(request: UserAuthRequest): UserAuthResponse {
-        val user = userRepository.findByUsername(request.username)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
+        val user =
+            userRepository
+                .findByUsername(request.username)
+                .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
 
         if (!passwordUtils.verifyPassword(request.password, user.password)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password")
@@ -117,22 +125,30 @@ class AuthenticationService(
         return UserAuthResponse(token = jwtUtils.generateJwtToken(user))
     }
 
-    fun adminLogin(request: AdminAuthRequest, ip: String): AdminAuthResponse {
+    fun adminLogin(
+        request: AdminAuthRequest,
+        ip: String,
+    ): AdminAuthResponse {
         val hashedHwid = passwordUtils.hashHwid(request.hwid)
 
         return runCatching {
-            val user = userRepository.findByUsername(request.username)
-                .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
+            val user =
+                userRepository
+                    .findByUsername(request.username)
+                    .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
 
-            val admin = adminRepository.findById(user.id!!)
-                .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found") }
+            val admin =
+                adminRepository
+                    .findById(user.id!!)
+                    .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found") }
 
             AdminAuthResponse(
-                token = jwtUtils.generateJwtToken(
-                    user = user,
-                    accessLevel = admin.accessLevel.value,
-                    extraExpirationMs = ADMIN_EXTRA_EXPIRATION_MS
-                )
+                token =
+                    jwtUtils.generateJwtToken(
+                        user = user,
+                        accessLevel = admin.accessLevel.value,
+                        extraExpirationMs = ADMIN_EXTRA_EXPIRATION_MS,
+                    ),
             )
         }.onSuccess {
             publishUserActionEvent(request.username, ip, hashedHwid, UserActionEventType.ADMIN_LOGIN, true)
