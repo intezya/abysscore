@@ -24,7 +24,6 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test
-        continue-on-error: true
 
       - name: Save test reports
         if: always()
