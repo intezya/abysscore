@@ -1,5 +1,6 @@
 package com.intezya.abysscore.model.dto.user
 
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
@@ -7,19 +8,28 @@ import jakarta.validation.constraints.Size
 data class UserAuthRequest(
     @field:NotBlank
     @field:Size(min = 3, max = 20)
+    @field:Pattern(
+        regexp = "^[A-Za-z0-9_-]{3,20}\$",
+        message = "Username must be between 3 and 20 characters long and can only contain letters, digits, hyphens (-), and underscores (_).",
+    )
     val username: String,
+
     @field:NotBlank
     @field:Size(min = 8, max = 256)
     @field:Pattern(
-        regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d_-]{8,256}\$",
-        message = """
-            Password must be between 8 and 256 characters,
-            and include at least one uppercase letter,
-            one lowercase letter, and one digit
-        """,
+        regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,256}\$",
+        message = "Password must be between 8 and 256 characters, and include at least one uppercase letter, one lowercase letter, and one digit.",
+    )
+    @field:Schema(
+        example = "P@55W0rd",
+        description = "Password must be between 8 and 256 characters, and include at least one uppercase letter, one lowercase letter, and one digit.",
     )
     val password: String,
-    // TODO: length
+
     @field:NotBlank
+    @field:Schema(
+        example = "hwid_example_123456",
+        description = "Hardware ID (HWID) of the user.",
+    )
     val hwid: String,
 )
