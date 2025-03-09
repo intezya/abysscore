@@ -3,27 +3,30 @@ package com.intezya.abysscore.security.jwt
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.UserAuthInfoDTO
+import com.intezya.abysscore.utils.crypto.sha512
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketSession
-import java.security.Key
 import java.util.*
+import javax.crypto.SecretKey
 
+// TODO: rewrite code
 @Component
 class JwtUtils(
-    @Value("\${jwt.secret}") private val secret: String,
+    @Value("\${jwt.secret:}") private val rawSecret: String,
     @Value("\${jwt.expirationMinutes}") private val expirationMinutes: Int,
     @Value("\${jwt.issuer}") private val issuer: String,
     private val userRepository: UserRepository,
 ) {
-    private val secretKey: Key by lazy { Keys.hmacShaKeyFor(secret.toByteArray()) }
-    private val logger = LoggerFactory.getLogger(JwtUtils::class.java)
+    private val secret: SecretKey by lazy {
+        val key = sha512(rawSecret.takeUnless { it.isBlank() } ?: UUID.randomUUID().toString())
+        Keys.hmacShaKeyFor(key.toByteArray())
+    }
 
     fun generateJwtToken(
         user: User,
@@ -36,12 +39,12 @@ class JwtUtils(
         .claim("user", user.username)
         .setIssuedAt(Date())
         .setExpiration(Date(Date().time + extraExpirationMinutes * 60 * 1000))
-        .signWith(secretKey, SignatureAlgorithm.HS512)
+        .signWith(secret, SignatureAlgorithm.HS512)
         .compact()
 
     fun getClaimsFromJwtToken(token: String): Claims = Jwts
         .parserBuilder()
-        .setSigningKey(secretKey)
+        .setSigningKey(secret)
         .build()
         .parseClaimsJws(token)
         .body
