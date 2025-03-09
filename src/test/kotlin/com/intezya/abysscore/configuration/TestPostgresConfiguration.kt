@@ -18,8 +18,6 @@ class TestPostgresConfiguration {
 
         container.start()
 
-        println("PostgreSQL container started: ${container.jdbcUrl}")
-
         return HikariDataSource().apply {
             jdbcUrl = container.jdbcUrl
             username = container.username

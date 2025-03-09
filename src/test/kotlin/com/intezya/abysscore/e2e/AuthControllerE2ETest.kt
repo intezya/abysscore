@@ -21,6 +21,7 @@ import io.restassured.module.kotlin.extensions.When
 import io.restassured.parsing.Parser
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -61,6 +62,12 @@ class AuthControllerE2ETest {
         RestAssured.baseURI = "http://localhost"
         RestAssured.port = port
         RestAssured.defaultParser = Parser.JSON
+    }
+
+    @AfterEach
+    fun cleanUp() {
+        adminRepository.deleteAll()
+        userRepository.deleteAll()
     }
 
     @Test

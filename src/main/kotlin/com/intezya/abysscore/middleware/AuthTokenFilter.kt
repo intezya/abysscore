@@ -42,10 +42,10 @@ class AuthTokenFilter : OncePerRequestFilter() {
 
     private fun parseJwt(request: HttpServletRequest): String {
         val headerAuth = request.getHeader("Authorization")
-        return if (headerAuth?.startsWith("Bearer ") == true) {
-            headerAuth.substring(7)
-        } else {
-            headerAuth
+        return when {
+            headerAuth.isNullOrEmpty() -> ""
+            headerAuth.startsWith("Bearer ") -> headerAuth.substring(7)
+            else -> headerAuth
         }
     }
 }

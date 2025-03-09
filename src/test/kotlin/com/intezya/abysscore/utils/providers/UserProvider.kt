@@ -45,14 +45,14 @@ class UserProvider {
         @JvmStatic
         fun provideUsernameWithAnyCases(): Stream<Arguments> =
             Stream.of(
-                Arguments.of("username1", "USERNAME1"),
-                Arguments.of("username2", "userNAME2"),
-                Arguments.of("username3", "UsErNaMe3"),
-                Arguments.of("username4", "USERNAME4"),
-                Arguments.of("userNAME5", "USERname5"),
-                Arguments.of("uSeR_nAmE6", "UsEr_NaMe6"),
-                Arguments.of("User-1237", "user-1237"),
-                Arguments.of("UserName8", "userNAME8"),
+                Arguments.of("username", "USERNAME"),
+                Arguments.of("username", "userNAME"),
+                Arguments.of("username", "UsErNaMe"),
+                Arguments.of("username", "USERNAME"),
+                Arguments.of("userNAME", "USERname"),
+                Arguments.of("uSeR_nAmE", "UsEr_NaMe"),
+                Arguments.of("User-123", "user-123"),
+                Arguments.of("UserName", "userNAME"),
             )
 
         fun tokenWithAccess(
