@@ -14,6 +14,7 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.parsing.Parser
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -143,10 +144,9 @@ class GameItemControllerTest {
 
     @Test
     fun `shouldn't create game item without required level`() {
-        val token = generateTokenWithoutAccessLevel()
+        val token = generateToken()
         val request = RandomProvider.constructCreateGameItemRequest()
-        println(token)
-        println(request)
+
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
@@ -175,7 +175,7 @@ class GameItemControllerTest {
 
     @Test
     fun `get all should return list of items`() {
-        val token = generateToken(AccessLevel.DEV)
+        val token = generateToken()
         val request = RandomProvider.constructCreateGameItemRequest().toEntity()
         val n = 100
         for (i in 1..n) {
@@ -194,7 +194,7 @@ class GameItemControllerTest {
             } Extract {
                 response().jsonPath()
             }
-        response.prettyPrint()
+
         val content = response.getList<Map<String, Any>>("content")
         val page = response.getMap<String, String>("page")
 
@@ -202,8 +202,154 @@ class GameItemControllerTest {
         assertEquals(n, page["total_elements"])
     }
 
+    @Test
+    fun `get all shouldn't work without authorization`() {
+        Given {
+            contentType(ContentType.JSON)
+        } When {
+            get("/items")
+        } Then {
+            statusCode(401)
+        }
+    }
+
+    @Test
+    fun `get one should return item`() {
+        val token = generateToken()
+        val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+        gameItemRepository.save(gameItem)
+
+        Given {
+            header("Authorization", "Bearer $token")
+            contentType(ContentType.JSON)
+        } When {
+            get("/items/${gameItem.id}")
+        } Then {
+            statusCode(200)
+            body("id", equalTo(gameItem.id?.toInt()))
+            body("name", equalTo(gameItem.name))
+            body("collection", equalTo(gameItem.collection))
+            body("type", equalTo(gameItem.type))
+            body("rarity", equalTo(gameItem.rarity))
+        }
+    }
+
+    @Test
+    fun `get one shouldn't return item that not exist`() {
+        val token = generateToken()
+
+        Given {
+            header("Authorization", "Bearer $token")
+            contentType(ContentType.JSON)
+        } When {
+            get("/items/${1}")
+        } Then {
+            statusCode(404)
+        }
+    }
+
+    @Test
+    fun `get one shouldn't work without authorization`() {
+        Given {
+            contentType(ContentType.JSON)
+        } When {
+            get("/items/${1}")
+        } Then {
+            statusCode(401)
+        }
+    }
+
+    @Test
+    fun `put should work`() {
+        val token = generateToken(AccessLevel.DEV)
+        val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+        gameItemRepository.save(gameItem)
+
+        val request = RandomProvider.constructCreateGameItemRequest()
+
+        Given {
+            header("Authorization", "Bearer $token")
+            contentType(ContentType.JSON)
+            body(request)
+        } When {
+            put("/items/${gameItem.id}")
+        } Then {
+            statusCode(200)
+        }
+    }
+
+    @Test
+    fun `put shouldn't work if item doesn't exist`() {
+        val token = generateToken(AccessLevel.DEV)
+        val request = RandomProvider.constructCreateGameItemRequest()
+
+        Given {
+            header("Authorization", "Bearer $token")
+            contentType(ContentType.JSON)
+            body(request)
+        } When {
+            put("/items/1")
+        } Then {
+            statusCode(404)
+        }
+    }
+
+    @Test
+    fun `put shouldn't work without authorization`() {
+        Given {
+            contentType(ContentType.JSON)
+        } When {
+            put("/items/${1}")
+        } Then {
+            statusCode(401)
+        }
+    }
+
+    @Test
+    fun `delete should work`() {
+        val token = generateToken(AccessLevel.DEV)
+        val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+        gameItemRepository.save(gameItem)
+
+        Given {
+            header("Authorization", "Bearer $token")
+        } When {
+            delete("/items/${gameItem.id}")
+        } Then {
+            statusCode(204)
+        }
+    }
+
+    @Test
+    fun `delete shouldn't work if not found`() {
+        val token = generateToken(AccessLevel.DEV)
+
+        Given {
+            header("Authorization", "Bearer $token")
+        } When {
+            delete("/items/1")
+        } Then {
+            statusCode(404)
+        }
+    }
+
+    @Test
+    fun `delete shouldn't work without required level`() {
+        val token = generateToken(AccessLevel.USER)
+        val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+        gameItemRepository.save(gameItem)
+
+        Given {
+            header("Authorization", "Bearer $token")
+        } When {
+            delete("/items/${gameItem.id}")
+        } Then {
+            statusCode(403)
+        }
+    }
+
     private fun generateToken(accessLevel: AccessLevel): String {
-        var user =
+        val user =
             User(
                 id = null,
                 username = "username",
@@ -211,13 +357,9 @@ class GameItemControllerTest {
                 hwid = "hwid",
                 accessLevel = accessLevel,
             )
-        user = userRepository.save(user)
-        return jwtUtils.generateJwtToken(user)
-    }
-
-    private fun generateTokenWithoutAccessLevel(): String {
-        val user = RandomProvider.constructUser()
         userRepository.save(user)
         return jwtUtils.generateJwtToken(user)
     }
+
+    private fun generateToken(): String = generateToken(accessLevel = AccessLevel.USER)
 }

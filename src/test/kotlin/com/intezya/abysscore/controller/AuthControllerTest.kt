@@ -213,7 +213,7 @@ class AuthControllerTest {
                 username = registerRequest.username,
                 password = registerRequest.password,
             )
-        println(loginRequest)
+
         Given {
             contentType(ContentType.JSON)
             body(loginRequest)
