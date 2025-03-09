@@ -118,7 +118,7 @@ class UserItemServiceTest {
     fun `issueForPlayerFromAdmin should issue item and return DTO when all entities exist`() {
         val eventSlot = slot<ItemIssueEvent>()
 
-        val result = userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
+        val result = userItemService.issueForPlayerFromAdmin(testUserId, testItemId, testAdminId)
 
         assert(result.gameItem == testGameItem)
         assert(result.sourceType == ItemSourceType.ADMIN)
@@ -146,7 +146,7 @@ class UserItemServiceTest {
             )
 
         assertThrows<ResponseStatusException> {
-            userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
+            userItemService.issueForPlayerFromAdmin(testUserId, testItemId, testAdminId)
         }
 
         verifyMock { userService.findUserWithThrow(testUsername) }
@@ -165,7 +165,7 @@ class UserItemServiceTest {
             )
 
         assertThrows<ResponseStatusException> {
-            userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
+            userItemService.issueForPlayerFromAdmin(testUserId, testItemId, testAdminId)
         }
 
         verifyMock { userService.findUserWithThrow(testUsername) }
@@ -186,7 +186,7 @@ class UserItemServiceTest {
 
         val exception =
             assertThrows<ResponseStatusException> {
-                userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
+                userItemService.issueForPlayerFromAdmin(testUserId, testItemId, testAdminId)
             }
 
         assert(exception.statusCode == HttpStatus.NOT_FOUND)

@@ -35,11 +35,11 @@ class UserItemService(
 
     @Transactional
     fun issueForPlayerFromAdmin(
-        username: String,
+        userId: Long,
         itemId: Long,
         adminId: Long,
     ): UserItemDTO {
-        val user = userService.findUserWithThrow(username)
+        val user = userService.findUserWithThrow(userId)
         val gameItem = gameItemService.findById(itemId)
         val admin = userService.findUserWithThrow(adminId)
         return issueByAdmin(user, gameItem, admin).toDTO()

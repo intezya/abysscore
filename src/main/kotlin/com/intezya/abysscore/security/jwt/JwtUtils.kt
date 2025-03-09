@@ -64,7 +64,7 @@ class JwtUtils(
             getClaimsFromJwtToken(authToken)
             return true
         } catch (e: Exception) {
-            logger.error("JWT validation error: ${e.message}; $expirationMinutes", e)
+//            logger.error("JWT validation error: ${e.message}; $expirationMinutes", e)
             return false
         }
     }
