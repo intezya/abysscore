@@ -2,6 +2,7 @@ package com.intezya.abysscore.e2e
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.configuration.TestPostgresConfiguration
+import com.intezya.abysscore.configuration.TestSecurityConfig
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
 import com.intezya.abysscore.model.entity.Admin
@@ -36,7 +37,7 @@ import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Import(TestPostgresConfiguration::class)
+@Import(TestPostgresConfiguration::class, TestSecurityConfig::class)
 class AuthControllerE2ETest {
     @Autowired
     private lateinit var jwtUtils: JwtUtils
