@@ -1,0 +1,15 @@
+name: Reusable Gradle Tasks
+
+on:
+  workflow_call:
+
+jobs:
+  gradle-setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: ./.github/actions/setup-java
+
+      - name: Build Project
+        run: ./gradlew build -x test

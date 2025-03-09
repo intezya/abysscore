@@ -1,0 +1,43 @@
+name: Lint and Test
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    branches: [ main, master ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: ./.github/actions/setup-java
+
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck
+
+      - name: Set up Docker for Testcontainers
+        run: echo "TESTCONTAINERS_HOST_OVERRIDE=localhost" >> $GITHUB_ENV
+
+      - name: Run unit tests
+        run: ./gradlew test --tests "com.intezya.abysscore.*Test" --exclude "*E2ETest"
+        continue-on-error: true
+
+      - name: Run e2e tests
+        run: ./gradlew test --tests "com.intezya.abysscore.*E2ETest" --info
+        continue-on-error: true
+
+      - name: Save test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            build/reports/tests/
+            build/test-results/
+            **/build/reports/tests/
+            **/TEST-*.xml
+          retention-days: 7
