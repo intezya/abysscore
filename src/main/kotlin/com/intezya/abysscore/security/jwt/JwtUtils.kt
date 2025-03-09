@@ -15,25 +15,26 @@ import java.util.*
 
 @Component
 class JwtUtils(
-    @Value("\${jwt.secret}") private val jwtSecret: String,
-    @Value("\${jwt.expiration}") private val jwtExpirationMs: Int,
+    @Value("\${jwt.secret}") private val secret: String,
+    @Value("\${jwt.expirationMinutes}") private val expirationMinutes: Int,
+    @Value("\${jwt.issuer}") private val issuer: String,
 ) {
-    private val hashedSecret: ByteArray by lazy { hashSHA512(jwtSecret) }
+    private val hashedSecret: ByteArray by lazy { hashSHA512(secret) }
 
     fun generateJwtToken(
         user: User,
         accessLevel: Int = -1,
-        extraExpirationMs: Int = jwtExpirationMs,
+        extraExpirationMinutes: Int = expirationMinutes,
     ): String =
         Jwts
             .builder()
             .setSubject(user.id.toString())
-            .claim("service", "com.intezya.abysscore.auth")
+            .setIssuer(issuer)
             .claim("hwid", user.hwid)
             .claim("user", user.username)
             .claim("access_level", accessLevel)
             .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + extraExpirationMs))
+            .setExpiration(Date(Date().time + extraExpirationMinutes * 60 * 1000))
             .signWith(Keys.hmacShaKeyFor(hashedSecret), SignatureAlgorithm.HS512)
             .compact()
 
