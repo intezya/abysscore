@@ -1,19 +1,10 @@
 package com.intezya.abysscore.utils.providers
 
-import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.security.jwt.JwtUtils
 import org.junit.jupiter.params.provider.Arguments
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.TestConfiguration
 import java.util.stream.Stream
 
-@TestConfiguration
 class UserProvider {
     companion object {
-        @Autowired
-        private lateinit var jwtUtils: JwtUtils
-
         @JvmStatic
         fun provideInvalidUsername(): Stream<Arguments> =
             Stream.of(
@@ -53,15 +44,6 @@ class UserProvider {
                 Arguments.of("uSeR_nAmE", "UsEr_NaMe"),
                 Arguments.of("User-123", "user-123"),
                 Arguments.of("UserName", "userNAME"),
-            )
-
-        fun tokenWithAccess(
-            accessLevel: AccessLevel,
-            user: User = RandomProvider.constructUser(id = 1L),
-        ): String =
-            jwtUtils.generateJwtToken(
-                user = User(),
-                accessLevel = accessLevel.value,
             )
     }
 }

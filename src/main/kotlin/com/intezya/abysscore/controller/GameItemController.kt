@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 class GameItemController(
     private val gameItemService: GameItemService,
 ) {
-    @PostMapping("/create")
+    @PostMapping("")
     @RequiresAccessLevel(AccessLevel.CREATE_ITEM)
     fun createItem(
         @RequestBody

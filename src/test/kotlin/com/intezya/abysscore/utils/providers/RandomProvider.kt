@@ -1,5 +1,6 @@
 package com.intezya.abysscore.utils.providers
 
+import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.entity.User
 import io.github.serpro69.kfaker.faker
@@ -32,11 +33,17 @@ class RandomProvider {
                 hwid = hwid,
             )
 
-        fun constructAuthRequest(user: User): UserAuthRequest =
-            UserAuthRequest(
-                username = user.username,
-                password = user.password,
-                hwid = user.hwid!!,
+        fun constructCreateGameItemRequest(
+            name: String = f.marketing.unique.buzzwords(),
+            collection: String = f.marketing.unique.buzzwords(),
+            type: Int = f.random.nextInt(0, 2),
+            rarity: Int = f.random.nextInt(0, 5),
+        ): CreateGameItemRequest =
+            CreateGameItemRequest(
+                name = name,
+                collection = collection,
+                type = type,
+                rarity = rarity,
             )
 
         fun ipv4(): String = f.internet.iPv4Address()
