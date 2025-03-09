@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 private const val EVENT_TOPIC = "auth-events"
-private const val ADMIN_EXTRA_EXPIRATION_MS = 3_600_000 // 1 hour
+private const val ADMIN_EXTRA_EXPIRATION_MINUTES = 60 // 1 hour
 
 @Service
 class AuthenticationService(
@@ -147,7 +147,7 @@ class AuthenticationService(
                     jwtUtils.generateJwtToken(
                         user = user,
                         accessLevel = admin.accessLevel.value,
-                        extraExpirationMs = ADMIN_EXTRA_EXPIRATION_MS,
+                        extraExpirationMinutes = ADMIN_EXTRA_EXPIRATION_MINUTES,
                     ),
             )
         }.onSuccess {

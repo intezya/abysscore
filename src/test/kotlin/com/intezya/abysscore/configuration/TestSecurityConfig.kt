@@ -10,7 +10,8 @@ class TestSecurityConfig {
     @Bean
     fun jwtUtils(): JwtUtils =
         JwtUtils(
-            jwtSecret = UUID.randomUUID().toString(),
-            jwtExpirationMs = 10000000,
+            secret = UUID.randomUUID().toString(),
+            expirationMinutes = 1000,
+            issuer = "com.intezya.test",
         )
 }
