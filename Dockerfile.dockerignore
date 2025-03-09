@@ -8,3 +8,4 @@
 !*.gradle.kts
 !gradle.properties
 !gradlew
+!.editorconfig
