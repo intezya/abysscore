@@ -45,7 +45,5 @@ class RandomProvider {
                 type = type,
                 rarity = rarity,
             )
-
-        fun ipv4(): String = f.internet.iPv4Address()
     }
 }

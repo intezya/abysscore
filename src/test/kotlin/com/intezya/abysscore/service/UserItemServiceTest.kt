@@ -123,7 +123,7 @@ class UserItemServiceTest {
         assert(result.gameItem == testGameItem)
         assert(result.sourceType == ItemSourceType.ADMIN)
 
-        verifyMock { userService.findUserWithThrow(testUsername) }
+        verifyMock { userService.findUserWithThrow(testUserId) }
         verifyMock { gameItemService.findById(testItemId) }
         verifyMock { userService.findUserWithThrow(testAdminId) }
         verifyMock { userItemRepository.save(any()) }
@@ -139,7 +139,7 @@ class UserItemServiceTest {
 
     @Test
     fun `issueForPlayerFromAdmin should throw exception when user does not exist`() {
-        every { userService.findUserWithThrow(testUsername) } throws
+        every { userService.findUserWithThrow(testUserId) } throws
             ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "User not found",
@@ -149,9 +149,8 @@ class UserItemServiceTest {
             userItemService.issueForPlayerFromAdmin(testUserId, testItemId, testAdminId)
         }
 
-        verifyMock { userService.findUserWithThrow(testUsername) }
+        verifyMock { userService.findUserWithThrow(testUserId) }
         verifyMock(exactly = 0) { gameItemService.findById(any()) }
-        verifyMock(exactly = 0) { userService.findUserWithThrow(any<Long>()) }
         verifyMock(exactly = 0) { userItemRepository.save(any()) }
         verifyMock(exactly = 0) { eventPublisher.sendActionEvent(any(), any(), any()) }
     }
@@ -168,9 +167,9 @@ class UserItemServiceTest {
             userItemService.issueForPlayerFromAdmin(testUserId, testItemId, testAdminId)
         }
 
-        verifyMock { userService.findUserWithThrow(testUsername) }
+        verifyMock { userService.findUserWithThrow(testUserId) }
         verifyMock { gameItemService.findById(testItemId) }
-        verifyMock(exactly = 0) { userService.findUserWithThrow(any<Long>()) }
+        verifyMock { userService.findUserWithThrow(any<Long>()) }
         verifyMock(exactly = 0) { userItemRepository.save(any()) }
         verifyMock(exactly = 0) { eventPublisher.sendActionEvent(any(), any(), any()) }
     }
@@ -192,7 +191,7 @@ class UserItemServiceTest {
         assert(exception.statusCode == HttpStatus.NOT_FOUND)
         assert(exception.reason == "User not found")
 
-        verifyMock { userService.findUserWithThrow(testUsername) }
+        verifyMock { userService.findUserWithThrow(testUserId) }
         verifyMock { gameItemService.findById(testItemId) }
         verifyMock { userService.findUserWithThrow(testAdminId) }
         verifyMock(exactly = 0) { userItemRepository.save(any()) }
