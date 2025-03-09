@@ -1,5 +1,3 @@
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
-
 plugins {
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
@@ -91,10 +89,15 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-configure<KtlintExtension> {
-    version.set("1.5.0")
-}
-
 ktlint {
     version.set("1.5.0")
+    android.set(false)
+    ignoreFailures.set(false)
+    enableExperimentalRules.set(true)
+    additionalEditorconfig.set(
+        mapOf(),
+    )
+    filter {
+        exclude { element -> element.file.path.contains("generated/a") }
+    }
 }
