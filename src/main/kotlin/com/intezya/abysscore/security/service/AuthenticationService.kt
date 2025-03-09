@@ -1,13 +1,10 @@
 package com.intezya.abysscore.security.service
 
 import com.intezya.abysscore.enum.UserActionEventType
-import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.model.dto.admin.AdminAuthResponse
 import com.intezya.abysscore.model.dto.event.UserActionEvent
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.dto.user.UserAuthResponse
 import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.jwt.JwtUtils
 import com.intezya.abysscore.security.password.PasswordUtils
@@ -24,7 +21,6 @@ class AuthenticationService(
     private val userRepository: UserRepository,
     private val passwordUtils: PasswordUtils,
     private val jwtUtils: JwtUtils,
-    private val adminRepository: AdminRepository,
     private val eventPublisher: EventPublisher,
 ) {
     fun registerUser(
@@ -123,37 +119,5 @@ class AuthenticationService(
         }
 
         return UserAuthResponse(token = jwtUtils.generateJwtToken(user))
-    }
-
-    fun adminLogin(
-        request: AdminAuthRequest,
-        ip: String,
-    ): AdminAuthResponse {
-        val hashedHwid = passwordUtils.hashHwid(request.hwid)
-
-        return runCatching {
-            val user =
-                userRepository
-                    .findByUsername(request.username)
-                    .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
-
-            val admin =
-                adminRepository
-                    .findById(user.id!!)
-                    .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found") }
-
-            AdminAuthResponse(
-                token =
-                    jwtUtils.generateJwtToken(
-                        user = user,
-                        accessLevel = admin.accessLevel.value,
-                        extraExpirationMinutes = ADMIN_EXTRA_EXPIRATION_MINUTES,
-                    ),
-            )
-        }.onSuccess {
-            publishUserActionEvent(request.username, ip, hashedHwid, UserActionEventType.ADMIN_LOGIN, true)
-        }.onFailure {
-            publishUserActionEvent(request.username, ip, hashedHwid, UserActionEventType.ADMIN_LOGIN, false)
-        }.getOrThrow()
     }
 }

@@ -1,7 +1,5 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.model.dto.admin.AdminAuthResponse
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.dto.user.UserAuthResponse
 import com.intezya.abysscore.security.dto.UserAuthInfoDTO
@@ -29,12 +27,6 @@ class AuthController(
         @RequestBody @Valid userAuthRequest: UserAuthRequest,
         request: HttpServletRequest,
     ): UserAuthResponse = authenticationService.loginUser(userAuthRequest, jwtUtils.getClientIp(request))
-
-    @PostMapping("/admin/login")
-    fun loginAdmin(
-        @RequestBody @Valid adminAuthRequest: AdminAuthRequest,
-        request: HttpServletRequest,
-    ): AdminAuthResponse = authenticationService.adminLogin(adminAuthRequest, jwtUtils.getClientIp(request))
 
     @GetMapping("/info")
     fun getUserInfo(

@@ -2,7 +2,6 @@ package com.intezya.abysscore.service
 
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.jwt.JwtUtils
 import com.intezya.abysscore.security.password.PasswordUtils
@@ -27,9 +26,6 @@ class AuthenticationServiceTest {
 
     @MockK
     private lateinit var jwtUtils: JwtUtils
-
-    @MockK
-    private lateinit var adminRepository: AdminRepository
 
     @MockK
     private lateinit var eventPublisher: EventPublisher

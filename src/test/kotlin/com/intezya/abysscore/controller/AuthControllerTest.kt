@@ -1,11 +1,7 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.configuration.TestPostgresConfiguration
-import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
-import com.intezya.abysscore.model.entity.Admin
 import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.jwt.JwtUtils
 import com.intezya.abysscore.security.password.PasswordUtils
@@ -31,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -48,9 +43,6 @@ class AuthControllerTest {
     private lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var adminRepository: AdminRepository
-
-    @Autowired
     private lateinit var passwordUtils: PasswordUtils
 
     @LocalServerPort
@@ -65,7 +57,6 @@ class AuthControllerTest {
 
     @AfterEach
     fun cleanUp() {
-        adminRepository.deleteAll()
         userRepository.deleteAll()
     }
 
@@ -314,24 +305,5 @@ class AuthControllerTest {
             body("hwid", equalTo(user.hwid))
             body("access_level", equalTo(-1))
         }
-    }
-
-    @Test
-    @Transactional
-    fun `should login as admin`() {
-        val user = RandomProvider.constructUser()
-        userRepository.save(user)
-        val freshUser = userRepository.findById(user.id!!).orElseThrow()
-        val admin = Admin(user = freshUser, telegramId = 123456789L, accessLevel = AccessLevel.DEV)
-        adminRepository.save(admin)
-
-        authenticationService.adminLogin(
-            AdminAuthRequest(
-                username = user.username,
-                password = user.password,
-                hwid = user.hwid!!,
-            ),
-            "someip",
-        )
     }
 }

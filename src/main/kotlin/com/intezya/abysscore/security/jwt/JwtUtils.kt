@@ -1,6 +1,7 @@
 package com.intezya.abysscore.security.jwt
 
 import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -19,13 +20,13 @@ class JwtUtils(
     @Value("\${jwt.secret}") private val secret: String,
     @Value("\${jwt.expirationMinutes}") private val expirationMinutes: Int,
     @Value("\${jwt.issuer}") private val issuer: String,
+    private val userRepository: UserRepository,
 ) {
     private val secretKey: Key by lazy { Keys.hmacShaKeyFor(secret.toByteArray()) }
     private val logger = LoggerFactory.getLogger(JwtUtils::class.java)
 
     fun generateJwtToken(
         user: User,
-        accessLevel: Int = -1,
         extraExpirationMinutes: Int = expirationMinutes,
     ): String =
         Jwts
@@ -34,7 +35,6 @@ class JwtUtils(
             .setIssuer(issuer)
             .claim("hwid", user.hwid)
             .claim("user", user.username)
-            .claim("access_level", accessLevel)
             .setIssuedAt(Date())
             .setExpiration(Date(Date().time + extraExpirationMinutes * 60 * 1000))
             .signWith(secretKey, SignatureAlgorithm.HS512)
@@ -50,11 +50,12 @@ class JwtUtils(
 
     fun getUserInfoFromToken(token: String): UserAuthInfoDTO {
         val claims = getClaimsFromJwtToken(token)
+        val id = claims["sub"].toString().toLong()
         return UserAuthInfoDTO(
-            id = claims["sub"].toString().toLong(),
+            id = id,
             username = claims["user"].toString(),
             hwid = claims["hwid"].toString(),
-            accessLevel = claims["access_level"].toString().toInt(),
+            accessLevel = getAccessLevel(id),
         )
     }
 
@@ -113,4 +114,12 @@ class JwtUtils(
         }
         return session.remoteAddress.toString()
     }
+
+    private fun getAccessLevel(userId: Long) =
+        // TODO: redis cache
+        userRepository
+            .findById(userId)
+            .orElse(null)
+            ?.accessLevel
+            ?.value ?: -1
 }

@@ -2,7 +2,9 @@ package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.configuration.TestPostgresConfiguration
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.GameItemRepository
+import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.jwt.JwtUtils
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.RestAssured
@@ -32,6 +34,9 @@ class GameItemControllerTest {
     private lateinit var jwtUtils: JwtUtils
 
     @Autowired
+    private lateinit var userRepository: UserRepository
+
+    @Autowired
     private lateinit var gameItemRepository: GameItemRepository
 
     @LocalServerPort
@@ -46,6 +51,7 @@ class GameItemControllerTest {
 
     @AfterEach
     fun cleanUp() {
+        userRepository.deleteAll()
         gameItemRepository.deleteAll()
     }
 
@@ -56,7 +62,7 @@ class GameItemControllerTest {
 
     @Test
     fun `should create game item`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
         val request = RandomProvider.constructCreateGameItemRequest()
 
         Given {
@@ -73,7 +79,7 @@ class GameItemControllerTest {
 
     @Test
     fun `shouldn't create game item with blank name`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
         val request = RandomProvider.constructCreateGameItemRequest(name = "")
 
         Given {
@@ -89,7 +95,7 @@ class GameItemControllerTest {
 
     @Test
     fun `shouldn't create game item with blank collection`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
         val request = RandomProvider.constructCreateGameItemRequest(collection = "")
 
         Given {
@@ -105,7 +111,7 @@ class GameItemControllerTest {
 
     @Test
     fun `shouldn't create game item with invalid type`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
         val request = RandomProvider.constructCreateGameItemRequest(type = -1)
 
         Given {
@@ -121,7 +127,7 @@ class GameItemControllerTest {
 
     @Test
     fun `shouldn't create game item with invalid rarity`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
         val request = RandomProvider.constructCreateGameItemRequest(rarity = -1)
 
         Given {
@@ -137,7 +143,7 @@ class GameItemControllerTest {
 
     @Test
     fun `shouldn't create game item without required level`() {
-        val token = generateToken(accessLevel = -1)
+        val token = generateTokenWithoutAccessLevel()
         val request = RandomProvider.constructCreateGameItemRequest()
         println(token)
         println(request)
@@ -154,7 +160,7 @@ class GameItemControllerTest {
 
     @Test
     fun `get all should return empty list`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
 
         Given {
             header("Authorization", "Bearer $token")
@@ -169,7 +175,7 @@ class GameItemControllerTest {
 
     @Test
     fun `get all should return list of items`() {
-        val token = generateToken(AccessLevel.DEV.value)
+        val token = generateToken(AccessLevel.DEV)
         val request = RandomProvider.constructCreateGameItemRequest().toEntity()
         val n = 100
         for (i in 1..n) {
@@ -196,6 +202,22 @@ class GameItemControllerTest {
         assertEquals(n, page["total_elements"])
     }
 
-    private fun generateToken(accessLevel: Int): String =
-        jwtUtils.generateJwtToken(user = RandomProvider.constructUser(id = 1), accessLevel = accessLevel)
+    private fun generateToken(accessLevel: AccessLevel): String {
+        var user =
+            User(
+                id = null,
+                username = "username",
+                password = "password",
+                hwid = "hwid",
+                accessLevel = accessLevel,
+            )
+        user = userRepository.save(user)
+        return jwtUtils.generateJwtToken(user)
+    }
+
+    private fun generateTokenWithoutAccessLevel(): String {
+        val user = RandomProvider.constructUser()
+        userRepository.save(user)
+        return jwtUtils.generateJwtToken(user)
+    }
 }

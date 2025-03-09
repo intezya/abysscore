@@ -1,4 +1,4 @@
-package com.intezya.abysscore.utils.converters
+package com.intezya.abysscore.utils.converter
 
 import com.intezya.abysscore.enum.AccessLevel
 import jakarta.persistence.AttributeConverter
