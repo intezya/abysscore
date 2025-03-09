@@ -35,17 +35,18 @@ class AuthTokenFilter : OncePerRequestFilter() {
                 SecurityContextHolder.getContext().authentication = authentication
             }
         } catch (e: Exception) {
-            logger.error("Cannot set user authentication: {}", e)
+//            logger.error("Cannot set user authentication: {}", e)
         }
         filterChain.doFilter(request, response)
     }
 
     private fun parseJwt(request: HttpServletRequest): String {
         val headerAuth = request.getHeader("Authorization")
-        return if (headerAuth?.startsWith("Bearer ") == true) {
-            headerAuth.substring(7)
-        } else {
-            headerAuth
+
+        return when {
+            headerAuth.isNullOrEmpty() -> ""
+            headerAuth.startsWith("Bearer ") -> headerAuth.substring(7)
+            else -> headerAuth
         }
     }
 }

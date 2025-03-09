@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.*
 class UserItemController(
     private val userItemService: UserItemService,
 ) {
-    // го юзать openapi generator + contract first подход
-    @GetMapping
-    fun getAll(
+    @GetMapping("")
+    fun getSelfInventory(
         @ParameterObject pageable: Pageable,
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
     ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(userAuthData.id, pageable))
@@ -32,11 +31,11 @@ class UserItemController(
         @PathVariable userId: Long,
     ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(userId, pageable))
 
-    @PostMapping("/{username}")
+    @PostMapping("/{userId}")
     @RequiresAccessLevel(AccessLevel.GIVE_ITEM)
     fun create(
-        @PathVariable username: String,
+        @PathVariable userId: Long,
         @RequestParam("item_id") gameItemId: Long,
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-    ): UserItemDTO = userItemService.issueForPlayerFromAdmin(username, gameItemId, userAuthData.id)
+    ): UserItemDTO = userItemService.issueForPlayerFromAdmin(userId, gameItemId, userAuthData.id)
 }

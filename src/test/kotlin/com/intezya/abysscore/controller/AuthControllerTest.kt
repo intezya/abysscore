@@ -1,141 +1,275 @@
 package com.intezya.abysscore.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.model.dto.user.UserAuthRequest
-import com.intezya.abysscore.model.dto.user.UserAuthResponse
-import com.intezya.abysscore.security.dto.UserAuthInfoDTO
-import com.intezya.abysscore.security.jwt.JwtUtils
-import com.intezya.abysscore.security.service.AuthenticationService
-import io.mockk.MockKAnnotations
-import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.slot
-import io.mockk.verify
-import jakarta.servlet.http.HttpServletRequest
-import org.junit.jupiter.api.BeforeEach
+import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.utils.providers.RandomProvider
+import io.restassured.http.ContentType
+import io.restassured.module.kotlin.extensions.Extract
+import io.restassured.module.kotlin.extensions.Given
+import io.restassured.module.kotlin.extensions.Then
+import io.restassured.module.kotlin.extensions.When
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.http.HttpStatus
+import java.util.*
 
-class AuthControllerTest {
-    @MockK
-    private lateinit var authenticationService: AuthenticationService
+class AuthControllerTest : BaseApiTest() {
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Nested
+    inner class Registration {
+        @Test
+        fun `should register valid user`() {
+            val request = RandomProvider.constructAuthRequest()
 
-    @MockK
-    private lateinit var jwtUtils: JwtUtils
+            val token =
+                Given {
+                    contentType(ContentType.JSON)
+                    body(request)
+                } When {
+                    post("/auth/register")
+                } Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("token", notNullValue())
+                } Extract {
+                    path<String>("token")
+                }
 
-    @InjectMockKs
-    private lateinit var authController: AuthController
+            assertTrue(jwtUtils.validateJwtToken(token))
+        }
 
-    private lateinit var mockMvc: MockMvc
-    private lateinit var objectMapper: ObjectMapper
+        @ParameterizedTest
+        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideInvalidUsername")
+        fun `shouldn't register user with invalid username`(invalidUsername: String) {
+            val request = RandomProvider.constructAuthRequest(username = invalidUsername)
 
-    private val testUsername = "testUser"
-    private val testPassword = "P_ssw0rd"
-    private val testHwid = "test-hwid-123"
-    private val testIp = "192.168.1.1"
-    private val testToken = "jwt-token-123"
-    private val testUserId = 1L
-
-    @BeforeEach
-    fun setup() {
-        MockKAnnotations.init(this)
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build()
-        objectMapper = ObjectMapper()
-
-        every { jwtUtils.getClientIp(any<HttpServletRequest>()) } returns "192.168.1.1"
-    }
-
-    @Test
-    fun `registerUser should return user auth response when valid request`() {
-        // Given
-        val userAuthRequest = UserAuthRequest(testUsername, testPassword, testHwid)
-        val userAuthResponse = UserAuthResponse(testToken)
-        val requestSlot = slot<UserAuthRequest>()
-
-        every {
-            authenticationService.registerUser(capture(requestSlot), testIp)
-        } returns userAuthResponse
-
-        // When/Then
-        mockMvc
-            .perform(
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
                 post("/auth/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(userAuthRequest)),
-            ).andExpect(status().isOk)
-            .andExpect(jsonPath("$.token").value(testToken))
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.value())
+            }
+        }
 
-        // Verify captured request
-        assert(requestSlot.captured.username == testUsername)
-        assert(requestSlot.captured.password == testPassword)
-        assert(requestSlot.captured.hwid == testHwid)
+        @ParameterizedTest
+        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideInvalidPassword")
+        fun `shouldn't register user with invalid password`(invalidPassword: String) {
+            val request = RandomProvider.constructAuthRequest(password = invalidPassword)
 
-        verify { jwtUtils.getClientIp(any<HttpServletRequest>()) }
-        verify { authenticationService.registerUser(any(), testIp) }
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/auth/register")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.value())
+            }
+        }
+
+        @Test
+        fun `shouldn't register user that already exists with username`() {
+            val registered = RandomProvider.constructAuthRequest()
+
+            authenticationService.registerUser(registered, "someip")
+
+            val request = RandomProvider.constructAuthRequest(username = registered.username)
+
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/auth/register")
+            } Then {
+                statusCode(HttpStatus.CONFLICT.value())
+            }
+        }
+
+        @Test
+        fun `shouldn't register user that already has account on device`() {
+            val registered = RandomProvider.constructAuthRequest()
+
+            authenticationService.registerUser(registered, "someip")
+
+            val request = RandomProvider.constructAuthRequest(hwid = registered.hwid)
+
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/auth/register")
+            } Then {
+                statusCode(HttpStatus.CONFLICT.value())
+            }
+        }
     }
 
-    @Test
-    fun `loginUser should return user auth response when valid credentials`() {
-        // Given
-        val userAuthRequest = UserAuthRequest(testUsername, testPassword, testHwid)
-        val userAuthResponse = UserAuthResponse(testToken)
-        val requestSlot = slot<UserAuthRequest>()
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Nested
+    inner class Login {
+        @Test
+        fun `should login valid user`() {
+            val request = RandomProvider.constructAuthRequest()
+            authenticationService.registerUser(request, "someip")
 
-        every {
-            authenticationService.loginUser(capture(requestSlot), testIp)
-        } returns userAuthResponse
+            val token =
+                Given {
+                    contentType(ContentType.JSON)
+                    body(request)
+                } When {
+                    post("/auth/login")
+                } Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("token", notNullValue())
+                } Extract {
+                    path<String>("token")
+                }
 
-        // When/Then
-        mockMvc
-            .perform(
+            assertTrue(jwtUtils.validateJwtToken(token))
+        }
+
+        @Test
+        fun `shouldn't login user that not found`() {
+            val request = RandomProvider.constructAuthRequest()
+
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
                 post("/auth/login")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(userAuthRequest)),
-            ).andExpect(status().isOk)
-            .andExpect(jsonPath("$.token").value(testToken))
+            } Then {
+                statusCode(HttpStatus.NOT_FOUND.value())
+            }
+        }
 
-        // Verify captured request
-        assert(requestSlot.captured.username == testUsername)
-        assert(requestSlot.captured.password == testPassword)
-        assert(requestSlot.captured.hwid == testHwid)
+        @Test
+        fun `shouldn't login user with invalid password`() {
+            val registerRequest = RandomProvider.constructAuthRequest()
+            authenticationService.registerUser(registerRequest, "someip")
 
-        verify { jwtUtils.getClientIp(any<HttpServletRequest>()) }
-        verify { authenticationService.loginUser(any(), testIp) }
+            val loginRequest = RandomProvider.constructAuthRequest(username = registerRequest.username)
+
+            Given {
+                contentType(ContentType.JSON)
+                body(loginRequest)
+            } When {
+                post("/auth/login")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.value())
+            }
+        }
+
+        @Test
+        fun `shouldn't login user with invalid hwid`() {
+            val registerRequest = RandomProvider.constructAuthRequest()
+            authenticationService.registerUser(registerRequest, "someip")
+
+            val loginRequest =
+                RandomProvider.constructAuthRequest(
+                    username = registerRequest.username,
+                    password = registerRequest.password,
+                )
+
+            Given {
+                contentType(ContentType.JSON)
+                body(loginRequest)
+            } When {
+                post("/auth/login")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.value())
+            }
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideUsernameWithAnyCases")
+        fun `should login user with any username case`(
+            original: String,
+            target: String,
+        ) {
+            val registerRequest = RandomProvider.constructAuthRequest(username = original)
+            authenticationService.registerUser(registerRequest, "someip")
+
+            val loginRequest =
+                RandomProvider.constructAuthRequest(
+                    username = target,
+                    password = registerRequest.password,
+                    hwid = registerRequest.hwid,
+                )
+
+            Given {
+                contentType(ContentType.JSON)
+                body(loginRequest)
+            } When {
+                post("/auth/login")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+            }
+        }
+
+        @Test
+        fun `should login user that have null hwid`() {
+            val userRegisterData = RandomProvider.constructUser()
+            val user =
+                User(
+                    username = userRegisterData.username,
+                    password = passwordUtils.hashPassword(userRegisterData.password),
+                    hwid = null,
+                )
+            userRepository.save(user)
+
+            val loginRequest =
+                RandomProvider.constructAuthRequest(
+                    username = user.username,
+                    password = userRegisterData.password,
+                    hwid = UUID.randomUUID().toString(),
+                )
+
+            val token =
+                Given {
+                    contentType(ContentType.JSON)
+                    body(loginRequest)
+                } When {
+                    post("/auth/login")
+                } Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("token", notNullValue())
+                } Extract {
+                    path<String>("token")
+                }
+
+            val authInfo = jwtUtils.getUserInfoFromToken(token)
+
+            assertNotNull(authInfo.hwid)
+            assertEquals(passwordUtils.hashHwid(loginRequest.hwid), authInfo.hwid)
+        }
     }
 
-    @Test
-    fun `getUserInfo should return authentication principal`() {
-        // Given
-        val userAuthInfo = UserAuthInfoDTO(testUserId, testUsername, testHwid)
+    @Nested
+    inner class UserInfo {
+        @Test
+        fun `should get user info by token`() {
+            val user = RandomProvider.constructUser(id = 1L)
+            val token = jwtUtils.generateJwtToken(user)
 
-        // When
-        val result = authController.getUserInfo(userAuthInfo)
+            Given {
+                header("Authorization", "Bearer $token")
+            } When {
+                get("/auth/info")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+                contentType(ContentType.JSON)
+                body("id", equalTo(user.id?.toInt()))
+                body("username", equalTo(user.username))
+                body("hwid", equalTo(user.hwid))
+                body("access_level", equalTo(-1))
+            }
+        }
 
-        // Then
-        assert(result === userAuthInfo)
-        assert(result.id == testUserId)
-        assert(result.username == testUsername)
-        assert(result.hwid == testHwid)
-    }
-
-    @Test
-    fun `registerUser should handle bad request on invalid input`() {
-        // This test would require adding an exception handler or using a WebMvcTest approach
-        // For a unit test, we can just confirm the controller would call the service
-        // with invalid inputs and handle the resulting exception appropriately
-
-        val invalidRequest = UserAuthRequest("", "", "") // Empty fields
-
-        every {
-            authenticationService.registerUser(invalidRequest, testIp)
-        } throws Exception("Validation failed")
-
-        // Verification of exception handling would be done in an integration test
+        // TODO: add test with invalid token
     }
 }

@@ -14,36 +14,34 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class SwaggerConfig {
     @Bean
-    fun snakeCaseObjectMapper(): ObjectMapper =
-        Json.mapper().apply {
-            propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
-        }
+    fun snakeCaseObjectMapper(): ObjectMapper = Json.mapper().apply {
+        propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
+    }
 
     @Bean
     fun modelResolver(snakeCaseObjectMapper: ObjectMapper): ModelResolver = ModelResolver(snakeCaseObjectMapper)
 
     @Bean
-    fun openAPI(): OpenAPI =
-        OpenAPI()
-            .components(
-                Components()
-                    .addSecuritySchemes(
-                        "bearer-jwt",
-                        io.swagger.v3.oas.models.security
-                            .SecurityScheme()
-                            .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
-                            .scheme("bearer")
-                            .bearerFormat("JWT")
-                            .`in`(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
-                            .name("Authorization"),
-                    ),
-            ).info(
-                Info()
-                    .title("API Documentation")
-                    .description("API для приложения")
-                    .version("1.0"),
-            ).addSecurityItem(
-                SecurityRequirement()
-                    .addList("bearer-jwt", emptyList()),
-            )
+    fun openAPI(): OpenAPI = OpenAPI()
+        .components(
+            Components()
+                .addSecuritySchemes(
+                    "bearer-jwt",
+                    io.swagger.v3.oas.models.security
+                        .SecurityScheme()
+                        .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .`in`(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
+                        .name("Authorization"),
+                ),
+        ).info(
+            Info()
+                .title("API Documentation")
+                .description("API для приложения")
+                .version("1.0"),
+        ).addSecurityItem(
+            SecurityRequirement()
+                .addList("bearer-jwt", emptyList()),
+        )
 }

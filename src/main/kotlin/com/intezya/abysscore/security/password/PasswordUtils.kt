@@ -1,8 +1,10 @@
 package com.intezya.abysscore.security.password
 
+import com.intezya.abysscore.utils.crypto.decodeFromBase64
+import com.intezya.abysscore.utils.crypto.encodeToBase64
+import com.intezya.abysscore.utils.crypto.sha256
 import de.mkammerer.argon2.Argon2
 import org.springframework.stereotype.Component
-import java.security.MessageDigest
 
 @Component
 class PasswordUtils(
@@ -14,18 +16,14 @@ class PasswordUtils(
         private const val PARALLELISM = 4
     }
 
-    fun hashPassword(password: String): String = argon2.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray())
+    fun hashPassword(password: String): String = encodeToBase64(argon2.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray()))
 
     fun verifyPassword(
         raw: String,
         hash: String,
-    ): Boolean = argon2.verify(hash, raw.toCharArray())
+    ): Boolean = argon2.verify(decodeFromBase64(hash), raw.toCharArray())
 
-    fun hashHwid(input: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashedBytes = digest.digest(input.toByteArray(Charsets.UTF_8))
-        return hashedBytes.joinToString("") { String.format("%02x", it) }
-    }
+    fun hashHwid(input: String): String = encodeToBase64(sha256(input))
 
     fun verifyHwid(
         raw: String,

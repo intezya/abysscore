@@ -1,4 +1,7 @@
 root = true
 
 [*.{kt,kts}]
-ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_no-wildcard-imports  = disabled
+ktlint_max_line_length               = 120
+ktlint_code_style                    = intellij_idea
+ktlint_ignore_back_ticked_identifier = true

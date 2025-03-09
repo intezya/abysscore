@@ -1,174 +1,326 @@
 package com.intezya.abysscore.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
-import com.intezya.abysscore.model.entity.GameItem
-import com.intezya.abysscore.service.GameItemService
-import io.mockk.*
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import com.intezya.abysscore.configuration.TestPostgresConfiguration
+import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.utils.providers.RandomProvider
+import io.restassured.http.ContentType
+import io.restassured.module.kotlin.extensions.Extract
+import io.restassured.module.kotlin.extensions.Given
+import io.restassured.module.kotlin.extensions.Then
+import io.restassured.module.kotlin.extensions.When
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.web.server.ResponseStatusException
+import org.springframework.test.context.ActiveProfiles
+import kotlin.test.Test
 
-class GameItemControllerTest {
-    @MockK
-    private lateinit var gameItemService: GameItemService
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@Import(TestPostgresConfiguration::class)
+class GameItemControllerTest : BaseApiTest() {
+    @Nested
+    inner class GameItemCreate {
+        @Test
+        fun `should create game item`() {
+            val token = generateToken(AccessLevel.DEV)
+            val request = RandomProvider.constructCreateGameItemRequest()
 
-    @InjectMockKs
-    private lateinit var gameItemController: GameItemController
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/items")
+            } Then {
+                statusCode(201)
+                body("id", notNullValue())
+            }
+        }
 
-    private lateinit var mockMvc: MockMvc
-    private lateinit var objectMapper: ObjectMapper
+        @Test
+        fun `shouldn't create game item with blank name`() {
+            val token = generateToken(AccessLevel.DEV)
+            val request = RandomProvider.constructCreateGameItemRequest(name = "")
 
-    private val testItemId = 1L
-    private val testItemName = "Test Item"
-    private val testCollection = "Test Collection"
-    private val testType = 1
-    private val testRarity = 3
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/items")
+            } Then {
+                statusCode(400)
+            }
+        }
 
-    @BeforeEach
-    fun setup() {
-        MockKAnnotations.init(this)
-        mockMvc = MockMvcBuilders.standaloneSetup(gameItemController).build()
-        objectMapper = ObjectMapper()
+        @Test
+        fun `shouldn't create game item with blank collection`() {
+            val token = generateToken(AccessLevel.DEV)
+            val request = RandomProvider.constructCreateGameItemRequest(collection = "")
+
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/items")
+            } Then {
+                statusCode(400)
+            }
+        }
+
+        @Test
+        fun `shouldn't create game item with invalid type`() {
+            val token = generateToken(AccessLevel.DEV)
+            val request = RandomProvider.constructCreateGameItemRequest(type = -1)
+
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/items")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.value())
+            }
+        }
+
+        @Test
+        fun `shouldn't create game item with invalid rarity`() {
+            val token = generateToken(AccessLevel.DEV)
+            val request = RandomProvider.constructCreateGameItemRequest(rarity = -1)
+
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/items")
+            } Then {
+                statusCode(HttpStatus.BAD_REQUEST.value())
+            }
+        }
+
+        @Test
+        fun `shouldn't create game item without required level`() {
+            val token = generateToken()
+            val request = RandomProvider.constructCreateGameItemRequest()
+
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/items")
+            } Then {
+                statusCode(HttpStatus.FORBIDDEN.value())
+            }
+        }
     }
 
-    @Test
-    fun `createItem should return created game item`() {
-        // Given
-        val createRequest = CreateGameItemRequest(testItemName, testCollection, testType, testRarity)
-        val createdItem = GameItem(testItemId, testItemName, testCollection, testType, testRarity)
-        val requestSlot = slot<CreateGameItemRequest>()
+    @Nested
+    inner class GameItemGetAll {
+        @Test
+        fun `get all should return empty list`() {
+            val token = generateToken(AccessLevel.DEV)
 
-        every { gameItemService.createGameItem(capture(requestSlot)) } returns createdItem
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                get("/items")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+                body("content", notNullValue())
+            }
+        }
 
-        // When/Then
-        mockMvc
-            .perform(
-                post("/items/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(createRequest)),
-            ).andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value(testItemId))
-            .andExpect(jsonPath("$.name").value(testItemName))
-            .andExpect(jsonPath("$.collection").value(testCollection))
-            .andExpect(jsonPath("$.type").value(testType))
-            .andExpect(jsonPath("$.rarity").value(testRarity))
+        @Test
+        fun `get all should return list of items`() {
+            val token = generateToken()
+            val request = RandomProvider.constructCreateGameItemRequest().toEntity()
+            val n = 100
+            for (i in 1..n) {
+                gameItemRepository.save(request.copy())
+            }
 
-        // Verify captured request
-        assert(requestSlot.captured.name == testItemName)
-        assert(requestSlot.captured.collection == testCollection)
-        assert(requestSlot.captured.type == testType)
-        assert(requestSlot.captured.rarity == testRarity)
+            val response =
+                Given {
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.JSON)
+                } When {
+                    get("/items")
+                } Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("content", notNullValue())
+                } Extract {
+                    response().jsonPath()
+                }
 
-        verify { gameItemService.createGameItem(any()) }
+            val content = response.getList<Map<String, Any>>("content")
+            val page = response.getMap<String, String>("page")
+
+            assertEquals(page["size"], content.size)
+            assertEquals(n, page["total_elements"])
+        }
+
+        @Test
+        fun `get all shouldn't work without authorization`() {
+            Given {
+                contentType(ContentType.JSON)
+            } When {
+                get("/items")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.value())
+            }
+        }
     }
 
-//    @Test
-//    fun `getAll should return paged list of game items`() {
-//        // Given
-//        val pageable = PageRequest.of(0, 10)
-//        val testItems = listOf(GameItem(testItemId, testItemName, testCollection, testType, testRarity))
-//        val page = PageImpl(testItems, pageable, testItems.size.toLong())
-//
-//        every { gameItemService.findAll(any()) } returns page
-//
-//        // When/Then
-//        mockMvc.perform(get("/items"))
-//            .andExpect(status().isOk)
-//            .andExpect(jsonPath("$.content[0].id").value(testItemId))
-//            .andExpect(jsonPath("$.content[0].name").value(testItemName))
-//            .andExpect(jsonPath("$.totalElements").value(testItems.size))
-//
-//        verify { gameItemService.findAll(any()) }
-//    }
+    @Nested
+    inner class GameItemGetOne {
+        @Test
+        fun `get one should return item`() {
+            val token = generateToken()
+            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+            gameItemRepository.save(gameItem)
 
-    @Test
-    fun `getOne should return single game item`() {
-        // Given
-        val testItem = GameItem(testItemId, testItemName, testCollection, testType, testRarity)
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                get("/items/${gameItem.id}")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+                body("id", equalTo(gameItem.id?.toInt()))
+                body("name", equalTo(gameItem.name))
+                body("collection", equalTo(gameItem.collection))
+                body("type", equalTo(gameItem.type))
+                body("rarity", equalTo(gameItem.rarity))
+            }
+        }
 
-        every { gameItemService.findById(testItemId) } returns testItem
+        @Test
+        fun `get one shouldn't return item that not exist`() {
+            val token = generateToken()
 
-        // When/Then
-        mockMvc
-            .perform(get("/items/$testItemId"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(testItemId))
-            .andExpect(jsonPath("$.name").value(testItemName))
-            .andExpect(jsonPath("$.collection").value(testCollection))
-            .andExpect(jsonPath("$.type").value(testType))
-            .andExpect(jsonPath("$.rarity").value(testRarity))
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                get("/items/${1}")
+            } Then {
+                statusCode(HttpStatus.NOT_FOUND.value())
+            }
+        }
 
-        verify { gameItemService.findById(testItemId) }
+        @Test
+        fun `get one shouldn't work without authorization`() {
+            Given {
+                contentType(ContentType.JSON)
+            } When {
+                get("/items/${1}")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.value())
+            }
+        }
     }
 
-    @Test
-    fun `getOne should handle not found exception`() {
-        // Given
-        every { gameItemService.findById(testItemId) } throws
-            ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Item not found",
-            )
+    @Nested
+    inner class GameItemPut {
+        @Test
+        fun `put should work`() {
+            val token = generateToken(AccessLevel.DEV)
+            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+            gameItemRepository.save(gameItem)
 
-        // When/Then
-        mockMvc
-            .perform(get("/items/$testItemId"))
-            .andExpect(status().isNotFound)
+            val request = RandomProvider.constructCreateGameItemRequest()
 
-        verify { gameItemService.findById(testItemId) }
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                put("/items/${gameItem.id}")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+            }
+        }
+
+        @Test
+        fun `put shouldn't work if item doesn't exist`() {
+            val token = generateToken(AccessLevel.DEV)
+            val request = RandomProvider.constructCreateGameItemRequest()
+
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                put("/items/1")
+            } Then {
+                statusCode(HttpStatus.NOT_FOUND.value())
+            }
+        }
+
+        @Test
+        fun `put shouldn't work without authorization`() {
+            Given {
+                contentType(ContentType.JSON)
+            } When {
+                put("/items/${1}")
+            } Then {
+                statusCode(HttpStatus.UNAUTHORIZED.value())
+            }
+        }
     }
 
-    @Test
-    fun `updateItem should return updated game item`() {
-        // Given
-        val updateRequest = CreateGameItemRequest("Updated Item", "Updated Collection", 2, 4)
-        val updatedItem = GameItem(testItemId, "Updated Item", "Updated Collection", 2, 4)
-        val requestSlot = slot<CreateGameItemRequest>()
+    @Nested
+    inner class GameItemDelete {
+        @Test
+        fun `delete should work`() {
+            val token = generateToken(AccessLevel.DEV)
+            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+            gameItemRepository.save(gameItem)
 
-        every { gameItemService.updateItem(testItemId, capture(requestSlot)) } returns updatedItem
+            Given {
+                header("Authorization", "Bearer $token")
+            } When {
+                delete("/items/${gameItem.id}")
+            } Then {
+                statusCode(HttpStatus.NO_CONTENT.value())
+            }
+        }
 
-        // When/Then
-        mockMvc
-            .perform(
-                put("/items/$testItemId")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateRequest)),
-            ).andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(testItemId))
-            .andExpect(jsonPath("$.name").value("Updated Item"))
-            .andExpect(jsonPath("$.collection").value("Updated Collection"))
-            .andExpect(jsonPath("$.type").value(2))
-            .andExpect(jsonPath("$.rarity").value(4))
+        @Test
+        fun `delete shouldn't work if not found`() {
+            val token = generateToken(AccessLevel.DEV)
 
-        // Verify captured request
-        assert(requestSlot.captured.name == "Updated Item")
-        assert(requestSlot.captured.collection == "Updated Collection")
-        assert(requestSlot.captured.type == 2)
-        assert(requestSlot.captured.rarity == 4)
+            Given {
+                header("Authorization", "Bearer $token")
+            } When {
+                delete("/items/1")
+            } Then {
+                statusCode(HttpStatus.NOT_FOUND.value())
+            }
+        }
 
-        verify { gameItemService.updateItem(testItemId, any()) }
-    }
+        @Test
+        fun `delete shouldn't work without required level`() {
+            val token = generateToken(AccessLevel.USER)
+            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
+            gameItemRepository.save(gameItem)
 
-    @Test
-    fun `deleteItem should return no content status`() {
-        // Given
-        justRun { gameItemService.deleteItem(testItemId) }
-
-        // When/Then
-        mockMvc
-            .perform(delete("/items/$testItemId"))
-            .andExpect(status().isNoContent)
-
-        verify { gameItemService.deleteItem(testItemId) }
+            Given {
+                header("Authorization", "Bearer $token")
+            } When {
+                delete("/items/${gameItem.id}")
+            } Then {
+                statusCode(HttpStatus.FORBIDDEN.value())
+            }
+        }
     }
 }

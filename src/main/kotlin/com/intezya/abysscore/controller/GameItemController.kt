@@ -21,17 +21,16 @@ import org.springframework.web.bind.annotation.*
 class GameItemController(
     private val gameItemService: GameItemService,
 ) {
-    @PostMapping("/create")
+    @PostMapping("")
     @RequiresAccessLevel(AccessLevel.CREATE_ITEM)
     fun createItem(
         @RequestBody
         @Valid
         request: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> =
-        ResponseEntity(
-            gameItemService.createGameItem(request),
-            HttpStatus.CREATED,
-        )
+    ): ResponseEntity<GameItem> = ResponseEntity(
+        gameItemService.createGameItem(request),
+        HttpStatus.CREATED,
+    )
 
     @GetMapping
     fun getAll(
@@ -51,11 +50,10 @@ class GameItemController(
     fun updateItem(
         @PathVariable itemId: Long,
         @RequestBody @Valid gameItem: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> =
-        ResponseEntity(
-            gameItemService.updateItem(itemId, gameItem),
-            HttpStatus.OK,
-        )
+    ): ResponseEntity<GameItem> = ResponseEntity(
+        gameItemService.updateItem(itemId, gameItem),
+        HttpStatus.OK,
+    )
 
     @DeleteMapping("/{itemId}")
     @RequiresAccessLevel(AccessLevel.DELETE_ITEM)

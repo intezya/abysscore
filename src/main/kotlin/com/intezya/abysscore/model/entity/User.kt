@@ -1,5 +1,7 @@
 package com.intezya.abysscore.model.entity
 
+import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.utils.converter.AccessLevelConverter
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -19,8 +21,11 @@ data class User(
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false, updatable = false)
+    @Convert(converter = AccessLevelConverter::class)
+    var accessLevel: AccessLevel = AccessLevel.USER,
 ) {
-    constructor() : this(null, "", "", "", LocalDateTime.now(), LocalDateTime.now())
+    constructor() : this(null, "", "", "", LocalDateTime.now(), LocalDateTime.now(), AccessLevel.USER)
 
     @PreUpdate
     fun onUpdate() {

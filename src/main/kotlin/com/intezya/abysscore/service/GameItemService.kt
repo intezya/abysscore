@@ -15,10 +15,9 @@ class GameItemService(
 ) {
     fun createGameItem(createGameItemRequest: CreateGameItemRequest): GameItem = gameItemRepository.save(createGameItemRequest.toEntity())
 
-    fun findById(itemId: Long): GameItem =
-        gameItemRepository.findById(itemId).orElseThrow {
-            ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
-        }
+    fun findById(itemId: Long): GameItem = gameItemRepository.findById(itemId).orElseThrow {
+        ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
+    }
 
     fun findAll(pageable: Pageable): Page<GameItem> = gameItemRepository.findAll(pageable)
 
