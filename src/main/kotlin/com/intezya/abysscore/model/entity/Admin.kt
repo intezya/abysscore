@@ -10,19 +10,15 @@ import java.time.LocalDateTime
 data class Admin(
     @Id
     var id: Long? = null,
-
     @OneToOne(cascade = [CascadeType.MERGE])
     @MapsId
     @JoinColumn(name = "id")
     val user: User,
-
     @Column(nullable = false, updatable = false, unique = true)
     var telegramId: Long,
-
     @Column(nullable = false, updatable = false)
     @Convert(converter = AccessLevelConverter::class)
     var accessLevel: AccessLevel = AccessLevel.ADMIN,
-
     @Column(nullable = false, updatable = false)
     val adminFrom: LocalDateTime = LocalDateTime.now(),
 ) {

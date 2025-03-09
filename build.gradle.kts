@@ -1,9 +1,12 @@
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+
 plugins {
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.autonomousapps.dependency-analysis") version "2.10.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
 group = "com.intezya"
@@ -86,4 +89,12 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+configure<KtlintExtension> {
+    version.set("1.5.0")
+}
+
+ktlint {
+    version.set("1.5.0")
 }

@@ -17,41 +17,40 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig {
-
     companion object {
-        private val PUBLIC_PATHS = arrayOf(
+        private val PUBLIC_PATHS =
+            arrayOf(
 //            "/**", // dev
-            "/auth/register",
-            "/auth/login",
-            "/auth/admin/login",
-            "/swagger-ui/**",
-            "/api-docs/**",
-            "/swagger-ui.html"
-        )
+                "/auth/register",
+                "/auth/login",
+                "/auth/admin/login",
+                "/swagger-ui/**",
+                "/api-docs/**",
+                "/swagger-ui.html",
+            )
     }
 
     @Bean
-    fun authenticationJwtTokenFilter(): AuthTokenFilter {
-        return AuthTokenFilter()
-    }
+    fun authenticationJwtTokenFilter(): AuthTokenFilter = AuthTokenFilter()
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .cors { it.disable() }    // Disable CORS if not needed
-            .csrf { it.disable() }    // Disable CSRF for REST APIs
+            .cors { it.disable() } // Disable CORS if not needed
+            .csrf { it.disable() } // Disable CSRF for REST APIs
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers(*PUBLIC_PATHS).permitAll()  // Public paths configuration
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // Allow OPTIONS requests
-                    .anyRequest().authenticated()
-            }
-            .addFilterBefore(
+                    .requestMatchers(*PUBLIC_PATHS)
+                    .permitAll() // Public paths configuration
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll() // Allow OPTIONS requests
+                    .anyRequest()
+                    .authenticated()
+            }.addFilterBefore(
                 authenticationJwtTokenFilter(),
-                UsernamePasswordAuthenticationFilter::class.java
-            )
-            .exceptionHandling {
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).exceptionHandling {
                 it.authenticationEntryPoint { _, response, _ ->
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized")
                 }
@@ -62,11 +61,12 @@ class WebSecurityConfig {
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
-        val configuration = CorsConfiguration().apply {
-            allowedOrigins = listOf("*")
-            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            allowedHeaders = listOf("*")
-        }
+        val configuration =
+            CorsConfiguration().apply {
+                allowedOrigins = listOf("*")
+                allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                allowedHeaders = listOf("*")
+            }
         return UrlBasedCorsConfigurationSource().apply {
             registerCorsConfiguration("/**", configuration)
         }

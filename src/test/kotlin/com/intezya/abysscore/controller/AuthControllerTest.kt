@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 class AuthControllerTest {
-
     @MockK
     private lateinit var authenticationService: AuthenticationService
 
@@ -64,12 +63,12 @@ class AuthControllerTest {
         } returns userAuthResponse
 
         // When/Then
-        mockMvc.perform(
-            post("/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userAuthRequest))
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(userAuthRequest)),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.token").value(testToken))
 
         // Verify captured request
@@ -93,12 +92,12 @@ class AuthControllerTest {
         } returns userAuthResponse
 
         // When/Then
-        mockMvc.perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userAuthRequest))
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(userAuthRequest)),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.token").value(testToken))
 
         // Verify captured request
@@ -127,11 +126,11 @@ class AuthControllerTest {
 
     @Test
     fun `registerUser should handle bad request on invalid input`() {
-        // This test would require adding an exception handler or using a WebMvcTest approach 
+        // This test would require adding an exception handler or using a WebMvcTest approach
         // For a unit test, we can just confirm the controller would call the service
         // with invalid inputs and handle the resulting exception appropriately
 
-        val invalidRequest = UserAuthRequest("", "", "")  // Empty fields
+        val invalidRequest = UserAuthRequest("", "", "") // Empty fields
 
         every {
             authenticationService.registerUser(invalidRequest, testIp)

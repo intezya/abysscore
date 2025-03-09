@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.service.GameItemService
 import io.mockk.*
@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.server.ResponseStatusException
 
 class GameItemControllerTest {
-
     @MockK
     private lateinit var gameItemService: GameItemService
 
@@ -52,12 +51,12 @@ class GameItemControllerTest {
         every { gameItemService.createGameItem(capture(requestSlot)) } returns createdItem
 
         // When/Then
-        mockMvc.perform(
-            post("/items/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createRequest))
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/items/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createRequest)),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").value(testItemId))
             .andExpect(jsonPath("$.name").value(testItemName))
             .andExpect(jsonPath("$.collection").value(testCollection))
@@ -100,7 +99,8 @@ class GameItemControllerTest {
         every { gameItemService.findById(testItemId) } returns testItem
 
         // When/Then
-        mockMvc.perform(get("/items/$testItemId"))
+        mockMvc
+            .perform(get("/items/$testItemId"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(testItemId))
             .andExpect(jsonPath("$.name").value(testItemName))
@@ -114,13 +114,15 @@ class GameItemControllerTest {
     @Test
     fun `getOne should handle not found exception`() {
         // Given
-        every { gameItemService.findById(testItemId) } throws ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "Item not found"
-        )
+        every { gameItemService.findById(testItemId) } throws
+            ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Item not found",
+            )
 
         // When/Then
-        mockMvc.perform(get("/items/$testItemId"))
+        mockMvc
+            .perform(get("/items/$testItemId"))
             .andExpect(status().isNotFound)
 
         verify { gameItemService.findById(testItemId) }
@@ -136,12 +138,12 @@ class GameItemControllerTest {
         every { gameItemService.updateItem(testItemId, capture(requestSlot)) } returns updatedItem
 
         // When/Then
-        mockMvc.perform(
-            put("/items/$testItemId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateRequest))
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                put("/items/$testItemId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updateRequest)),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(testItemId))
             .andExpect(jsonPath("$.name").value("Updated Item"))
             .andExpect(jsonPath("$.collection").value("Updated Collection"))
@@ -163,7 +165,8 @@ class GameItemControllerTest {
         justRun { gameItemService.deleteItem(testItemId) }
 
         // When/Then
-        mockMvc.perform(delete("/items/$testItemId"))
+        mockMvc
+            .perform(delete("/items/$testItemId"))
             .andExpect(status().isNoContent)
 
         verify { gameItemService.deleteItem(testItemId) }

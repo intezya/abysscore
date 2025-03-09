@@ -1,6 +1,6 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.repository.GameItemRepository
 import io.mockk.*
@@ -24,13 +24,14 @@ class GameItemServiceTest {
     @InjectMockKs
     private lateinit var gameItemService: GameItemService
 
-    private val gameItem = GameItem(
-        id = 1L,
-        name = "test",
-        collection = "test",
-        type = 1,
-        rarity = 1,
-    )
+    private val gameItem =
+        GameItem(
+            id = 1L,
+            name = "test",
+            collection = "test",
+            type = 1,
+            rarity = 1,
+        )
 
     @BeforeEach
     fun setup() {
@@ -39,15 +40,15 @@ class GameItemServiceTest {
         every { gameItemRepository.save(any()) } returns gameItem
     }
 
-
     @Test
     fun `create item successfully`() {
-        val testCreateItemRequest = CreateGameItemRequest(
-            name = "test",
-            collection = "test",
-            type = 1,
-            rarity = 1,
-        )
+        val testCreateItemRequest =
+            CreateGameItemRequest(
+                name = "test",
+                collection = "test",
+                type = 1,
+                rarity = 1,
+            )
 
         val result = gameItemService.createGameItem(testCreateItemRequest)
 
@@ -81,9 +82,10 @@ class GameItemServiceTest {
     fun `find item not found`() {
         every { gameItemRepository.findById(any()) } returns Optional.empty()
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            gameItemService.findById(gameItem.id ?: 1L)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                gameItemService.findById(gameItem.id ?: 1L)
+            }
 
         assertEquals(HttpStatus.NOT_FOUND, responseEx.statusCode)
         assertEquals("Item not found", responseEx.reason)
@@ -107,20 +109,22 @@ class GameItemServiceTest {
     @Test
     fun `update item successfully`() {
         val itemId = 1L
-        val createGameItemRequest = CreateGameItemRequest(
-            name = "Updated Item",
-            collection = "Updated Collection",
-            type = 2,
-            rarity = 3
-        )
+        val createGameItemRequest =
+            CreateGameItemRequest(
+                name = "Updated Item",
+                collection = "Updated Collection",
+                type = 2,
+                rarity = 3,
+            )
 
         every { gameItemRepository.existsById(itemId) } returns true
-        every { gameItemRepository.save(any()) } returns gameItem.copy(
-            name = createGameItemRequest.name,
-            collection = createGameItemRequest.collection,
-            type = createGameItemRequest.type,
-            rarity = createGameItemRequest.rarity
-        )
+        every { gameItemRepository.save(any()) } returns
+            gameItem.copy(
+                name = createGameItemRequest.name,
+                collection = createGameItemRequest.collection,
+                type = createGameItemRequest.type,
+                rarity = createGameItemRequest.rarity,
+            )
 
         val result = gameItemService.updateItem(itemId, createGameItemRequest)
 
@@ -137,18 +141,20 @@ class GameItemServiceTest {
     @Test
     fun `update item not found`() {
         val itemId = 1L
-        val createGameItemRequest = CreateGameItemRequest(
-            name = "Updated Item",
-            collection = "Updated Collection",
-            type = 2,
-            rarity = 3
-        )
+        val createGameItemRequest =
+            CreateGameItemRequest(
+                name = "Updated Item",
+                collection = "Updated Collection",
+                type = 2,
+                rarity = 3,
+            )
 
         every { gameItemRepository.existsById(itemId) } returns false
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            gameItemService.updateItem(itemId, createGameItemRequest)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                gameItemService.updateItem(itemId, createGameItemRequest)
+            }
 
         assertEquals(HttpStatus.NOT_FOUND, responseEx.statusCode)
         assertEquals("Item not found", responseEx.reason)
@@ -173,9 +179,10 @@ class GameItemServiceTest {
 
         every { gameItemRepository.existsById(itemId) } returns false
 
-        val responseEx = assertThrows<ResponseStatusException> {
-            gameItemService.deleteItem(itemId)
-        }
+        val responseEx =
+            assertThrows<ResponseStatusException> {
+                gameItemService.deleteItem(itemId)
+            }
 
         assertEquals(HttpStatus.NOT_FOUND, responseEx.statusCode)
         assertEquals("Item not found", responseEx.reason)

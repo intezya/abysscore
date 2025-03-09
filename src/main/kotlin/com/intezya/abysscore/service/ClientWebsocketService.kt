@@ -39,14 +39,19 @@ class ClientWebsocketService(
         }
     }
 
-    private fun sendEvent(session: UserSessionDTO, success: Boolean, connect: Boolean) {
-        val event = UserActionEvent(
-            username = session.username,
-            ip = session.ip,
-            eventType = if (connect) UserActionEventType.CLIENT_WEBSOCKET_CONNECT else UserActionEventType.CLIENT_WEBSOCKET_DISCONNECT,
-            isSuccess = success,
-            hwid = session.hwid,
-        )
+    private fun sendEvent(
+        session: UserSessionDTO,
+        success: Boolean,
+        connect: Boolean,
+    ) {
+        val event =
+            UserActionEvent(
+                username = session.username,
+                ip = session.ip,
+                eventType = if (connect) UserActionEventType.CLIENT_WEBSOCKET_CONNECT else UserActionEventType.CLIENT_WEBSOCKET_DISCONNECT,
+                isSuccess = success,
+                hwid = session.hwid,
+            )
 
         eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
     }

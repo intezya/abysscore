@@ -22,30 +22,22 @@ class AuthController(
     fun registerUser(
         @RequestBody @Valid userAuthRequest: UserAuthRequest,
         request: HttpServletRequest,
-    ): UserAuthResponse {
-        return authenticationService.registerUser(userAuthRequest, jwtUtils.getClientIp(request))
-    }
+    ): UserAuthResponse = authenticationService.registerUser(userAuthRequest, jwtUtils.getClientIp(request))
 
     @PostMapping("/login")
     fun loginUser(
         @RequestBody @Valid userAuthRequest: UserAuthRequest,
         request: HttpServletRequest,
-    ): UserAuthResponse {
-        return authenticationService.loginUser(userAuthRequest, jwtUtils.getClientIp(request))
-    }
+    ): UserAuthResponse = authenticationService.loginUser(userAuthRequest, jwtUtils.getClientIp(request))
 
     @PostMapping("/admin/login")
     fun loginAdmin(
         @RequestBody @Valid adminAuthRequest: AdminAuthRequest,
         request: HttpServletRequest,
-    ): AdminAuthResponse {
-        return authenticationService.adminLogin(adminAuthRequest, jwtUtils.getClientIp(request))
-    }
+    ): AdminAuthResponse = authenticationService.adminLogin(adminAuthRequest, jwtUtils.getClientIp(request))
 
     @GetMapping("/info")
     fun getUserInfo(
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-    ): UserAuthInfoDTO {
-        return userAuthData
-    }
+    ): UserAuthInfoDTO = userAuthData
 }

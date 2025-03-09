@@ -9,19 +9,14 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-
     @Column(unique = true)
     val username: String,
-
     @Column(nullable = false)
     val password: String,
-
     @Column(unique = true)
     var hwid: String?,
-
     @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {

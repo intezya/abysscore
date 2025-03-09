@@ -17,9 +17,8 @@ import java.time.LocalDateTime
 data class ErrorResponse(
     val status: Int,
     val message: String,
-    val timestamp: LocalDateTime
+    val timestamp: LocalDateTime,
 )
-
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
@@ -27,7 +26,10 @@ class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     data class ApiError(
-        val timestamp: String = java.time.OffsetDateTime.now().toString(),
+        val timestamp: String =
+            java.time.OffsetDateTime
+                .now()
+                .toString(),
         val status: Int,
         val error: String,
         val message: String,
@@ -41,13 +43,14 @@ class GlobalExceptionHandler {
         request: HttpServletRequest,
     ): ResponseEntity<ApiError> {
         val errors = ex.bindingResult.fieldErrors.groupBy({ it.field }, { it.defaultMessage ?: "Invalid value" })
-        val apiError = ApiError(
-            status = HttpStatus.BAD_REQUEST.value(),
-            error = "Validation Failed",
-            message = "Invalid request parameters",
-            path = request.requestURI,
-            details = errors
-        )
+        val apiError =
+            ApiError(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "Validation Failed",
+                message = "Invalid request parameters",
+                path = request.requestURI,
+                details = errors,
+            )
 
         return ResponseEntity(apiError, HttpStatus.BAD_REQUEST)
     }
@@ -59,13 +62,14 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ApiError> {
         val errors = ex.cause?.message?.let { mapOf("message" to listOf(it)) } ?: emptyMap()
         println(errors)
-        val apiError = ApiError(
-            status = HttpStatus.BAD_REQUEST.value(),
-            error = "Bad Request",
-            message = "Malformed JSON request",
-            path = request.requestURI,
-            details = errors
-        )
+        val apiError =
+            ApiError(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "Bad Request",
+                message = "Malformed JSON request",
+                path = request.requestURI,
+                details = errors,
+            )
 
         return ResponseEntity(apiError, HttpStatus.BAD_REQUEST)
     }
@@ -77,13 +81,14 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ApiError> {
         val errors = ex.constraintViolations.groupBy({ it.propertyPath.last().name }, { it.message })
 
-        val apiError = ApiError(
-            status = HttpStatus.BAD_REQUEST.value(),
-            error = "Validation Failed",
-            message = "Constraint violations",
-            path = request.requestURI,
-            details = errors
-        )
+        val apiError =
+            ApiError(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "Validation Failed",
+                message = "Constraint violations",
+                path = request.requestURI,
+                details = errors,
+            )
 
         return ResponseEntity(apiError, HttpStatus.BAD_REQUEST)
     }
@@ -93,12 +98,13 @@ class GlobalExceptionHandler {
         ex: ResponseStatusException,
         request: HttpServletRequest,
     ): ResponseEntity<ApiError> {
-        val apiError = ApiError(
-            status = ex.statusCode.value(),
-            error = ex.statusCode.toString(),
-            message = ex.reason ?: "No message available",
-            path = request.requestURI
-        )
+        val apiError =
+            ApiError(
+                status = ex.statusCode.value(),
+                error = ex.statusCode.toString(),
+                message = ex.reason ?: "No message available",
+                path = request.requestURI,
+            )
 
         return ResponseEntity(apiError, ex.statusCode)
     }
@@ -106,11 +112,12 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception): ResponseEntity<ErrorResponse> {
         logger.error(ex.message, ex.cause)
-        val errorResponse = ErrorResponse(
-            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            message = "An unexpected error occurred",
-            timestamp = LocalDateTime.now()
-        )
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                message = "An unexpected error occurred",
+                timestamp = LocalDateTime.now(),
+            )
         return ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }

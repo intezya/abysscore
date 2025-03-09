@@ -1,7 +1,7 @@
-package com.intezya.abysscore.model.dto.user_item
+package com.intezya.abysscore.model.dto.useritem
 
-import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.enum.ItemSourceType
+import com.intezya.abysscore.model.entity.GameItem
 import java.time.LocalDateTime
 
 data class UserItemDTO(

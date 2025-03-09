@@ -19,15 +19,20 @@ class ClientWebsocketHandler(
         clientWebsocketService.addConnection(getUserSession(session))
     }
 
-    override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {}
+    override fun handleTextMessage(
+        session: WebSocketSession,
+        message: TextMessage,
+    ) {
+    }
 
-    override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
+    override fun afterConnectionClosed(
+        session: WebSocketSession,
+        status: CloseStatus,
+    ) {
         clientWebsocketService.removeConnection(getUserInfo(session).id)
     }
 
-    private fun getUserInfo(session: WebSocketSession): UserAuthInfoDTO {
-        return session.attributes["user_info"] as UserAuthInfoDTO
-    }
+    private fun getUserInfo(session: WebSocketSession): UserAuthInfoDTO = session.attributes["user_info"] as UserAuthInfoDTO
 
     private fun getUserSession(session: WebSocketSession): UserSessionDTO {
         val userInfo = getUserInfo(session)

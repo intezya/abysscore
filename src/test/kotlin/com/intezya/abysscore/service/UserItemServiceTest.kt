@@ -23,7 +23,6 @@ import java.util.*
 import io.mockk.verify as verifyMock
 
 class UserItemServiceTest {
-
     @MockK
     private lateinit var userService: UserService
 
@@ -61,13 +60,14 @@ class UserItemServiceTest {
         testAdmin = Admin(id = testAdminId, user = User(), telegramId = 123456789L)
         testGameItem =
             GameItem(id = testItemId, name = "Test Item", collection = "Test Collection", type = 1, rarity = 3)
-        testUserItem = UserItem(
-            id = 1L,
-            user = testUser,
-            gameItem = testGameItem,
-            sourceType = ItemSourceType.ADMIN,
-            createdAt = LocalDateTime.now()
-        )
+        testUserItem =
+            UserItem(
+                id = 1L,
+                user = testUser,
+                gameItem = testGameItem,
+                sourceType = ItemSourceType.ADMIN,
+                createdAt = LocalDateTime.now(),
+            )
 
         every { userService.findUserWithThrow(testUserId) } returns testUser
         every { userService.findUserWithThrow(testUsername) } returns testUser
@@ -93,10 +93,11 @@ class UserItemServiceTest {
 
     @Test
     fun `findAllUserItems should throw exception when user does not exist`() {
-        every { userService.findUserWithThrow(testUserId) } throws ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "User not found"
-        )
+        every { userService.findUserWithThrow(testUserId) } throws
+            ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "User not found",
+            )
 
         assertThrows<ResponseStatusException> {
             userItemService.findAllUserItems(testUserId, testPageable)
@@ -131,10 +132,11 @@ class UserItemServiceTest {
 
     @Test
     fun `issueForPlayerFromAdmin should throw exception when user does not exist`() {
-        every { userService.findUserWithThrow(testUsername) } throws ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "User not found"
-        )
+        every { userService.findUserWithThrow(testUsername) } throws
+            ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "User not found",
+            )
 
         assertThrows<ResponseStatusException> {
             userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
@@ -149,10 +151,11 @@ class UserItemServiceTest {
 
     @Test
     fun `issueForPlayerFromAdmin should throw exception when item does not exist`() {
-        every { gameItemService.findById(testItemId) } throws ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "Item not found"
-        )
+        every { gameItemService.findById(testItemId) } throws
+            ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Item not found",
+            )
 
         assertThrows<ResponseStatusException> {
             userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
@@ -169,9 +172,10 @@ class UserItemServiceTest {
     fun `issueForPlayerFromAdmin should throw exception when admin does not exist`() {
         every { adminRepository.findById(testAdminId) } returns Optional.empty()
 
-        val exception = assertThrows<ResponseStatusException> {
-            userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
-        }
+        val exception =
+            assertThrows<ResponseStatusException> {
+                userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testAdminId)
+            }
 
         assert(exception.statusCode == HttpStatus.NOT_FOUND)
         assert(exception.reason == "Admin with id $testAdminId not found")

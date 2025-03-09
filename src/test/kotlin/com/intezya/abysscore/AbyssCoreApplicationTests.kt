@@ -7,9 +7,7 @@ import org.springframework.context.annotation.Import
 @SpringBootTest
 @Import(TestPostgresConfiguration::class)
 class AbyssCoreApplicationTests {
-
-//    @Test
+    //    @Test
 //    fun contextLoads() {
 //    }
-
 }

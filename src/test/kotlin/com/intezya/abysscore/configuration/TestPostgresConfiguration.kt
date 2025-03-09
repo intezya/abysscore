@@ -12,9 +12,10 @@ import javax.sql.DataSource
 @TestConfiguration
 class TestPostgresConfiguration {
     companion object {
-        private val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:17").apply {
-            start()
-        }
+        private val postgres: PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:17").apply {
+                start()
+            }
 
         @JvmStatic
         @DynamicPropertySource
@@ -26,17 +27,14 @@ class TestPostgresConfiguration {
     }
 
     @Bean
-    fun dataSource(): DataSource {
-        return HikariDataSource().apply {
+    fun dataSource(): DataSource =
+        HikariDataSource().apply {
             jdbcUrl = postgres.jdbcUrl
             username = postgres.username
             password = postgres.password
             maximumPoolSize = 5
         }
-    }
 
     @Bean
-    fun jdbcTemplate(dataSource: DataSource): JdbcTemplate {
-        return JdbcTemplate(dataSource)
-    }
+    fun jdbcTemplate(dataSource: DataSource): JdbcTemplate = JdbcTemplate(dataSource)
 }

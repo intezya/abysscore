@@ -11,12 +11,11 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class JacksonConfig {
     @Bean
-    fun objectMapper(): ObjectMapper {
-        return ObjectMapper().apply {
+    fun objectMapper(): ObjectMapper =
+        ObjectMapper().apply {
             registerModule(KotlinModule.Builder().build())
             registerModule(JavaTimeModule())
             disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
         }
-    }
 }

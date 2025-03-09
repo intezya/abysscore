@@ -12,10 +12,14 @@ data class UserAuthRequest(
     @field:Size(min = 8, max = 256)
     @field:Pattern(
         regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d_-]{8,256}\$",
-        message = "Password must be between 8 and 256 characters, and include at least one uppercase letter, one lowercase letter, and one digit"
+        message = """
+            Password must be between 8 and 256 characters,
+            and include at least one uppercase letter,
+            one lowercase letter, and one digit
+        """,
     )
     val password: String,
-    @field:NotBlank
     // TODO: length
-    val hwid: String
+    @field:NotBlank
+    val hwid: String,
 )

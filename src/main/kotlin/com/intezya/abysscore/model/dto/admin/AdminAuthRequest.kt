@@ -10,7 +10,7 @@ data class AdminAuthRequest(
     @field:NotBlank
     @field:Size(min = 8)
     val password: String,
-    @field:NotBlank
     // TODO: length
+    @field:NotBlank
     val hwid: String,
 )

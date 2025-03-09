@@ -4,5 +4,5 @@ enum class TradeStatus {
     PENDING,
     ACCEPTED,
     DECLINED,
-    CANCELED
+    CANCELED,
 }

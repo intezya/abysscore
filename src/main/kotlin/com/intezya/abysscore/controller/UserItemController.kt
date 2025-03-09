@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.dto.user_item.UserItemDTO
+import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import com.intezya.abysscore.service.UserItemService

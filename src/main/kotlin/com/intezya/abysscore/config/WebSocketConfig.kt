@@ -15,38 +15,39 @@ import org.springframework.web.socket.server.HandshakeInterceptor
 @EnableWebSocket
 class WebSocketConfig(
     private val jwtUtils: JwtUtils,
-    private val clientWebsocketHandler: ClientWebsocketHandler
+    private val clientWebsocketHandler: ClientWebsocketHandler,
 ) : WebSocketConfigurer {
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry
             .addHandler(clientWebsocketHandler, "/websocket/hubs/client")
             .setAllowedOrigins("*")
-            .addInterceptors(object : HandshakeInterceptor {
-                override fun beforeHandshake(
-                    request: ServerHttpRequest,
-                    response: ServerHttpResponse,
-                    wsHandler: WebSocketHandler,
-                    attributes: MutableMap<String, Any>
-                ): Boolean {
-                    val token = request.headers.getFirst("Authorization")?.removePrefix("Bearer ")
-                        ?: return false
+            .addInterceptors(
+                object : HandshakeInterceptor {
+                    override fun beforeHandshake(
+                        request: ServerHttpRequest,
+                        response: ServerHttpResponse,
+                        wsHandler: WebSocketHandler,
+                        attributes: MutableMap<String, Any>,
+                    ): Boolean {
+                        val token =
+                            request.headers.getFirst("Authorization")?.removePrefix("Bearer ")
+                                ?: return false
 
-                    // Validation skipped cause it autovalidates in WebSecurity (as middleware)
-                    val userInfo = jwtUtils.getUserInfoFromToken(token)
-                    attributes["user_info"] = userInfo
-                    return true
-                }
+                        // Validation skipped cause it autovalidates in WebSecurity (as middleware)
+                        val userInfo = jwtUtils.getUserInfoFromToken(token)
+                        attributes["user_info"] = userInfo
+                        return true
+                    }
 
-                override fun afterHandshake(
-                    request: ServerHttpRequest,
-                    response: ServerHttpResponse,
-                    wsHandler: WebSocketHandler,
-                    exception: Exception?
-                ) {
-                    // No-op
-                }
-            })
+                    override fun afterHandshake(
+                        request: ServerHttpRequest,
+                        response: ServerHttpResponse,
+                        wsHandler: WebSocketHandler,
+                        exception: Exception?,
+                    ) {
+                        // No-op
+                    }
+                },
+            )
     }
-
-
 }

@@ -13,43 +13,37 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class SwaggerConfig {
-
     @Bean
-    fun snakeCaseObjectMapper(): ObjectMapper {
-        return Json.mapper().apply {
+    fun snakeCaseObjectMapper(): ObjectMapper =
+        Json.mapper().apply {
             propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
         }
-    }
 
     @Bean
-    fun modelResolver(snakeCaseObjectMapper: ObjectMapper): ModelResolver {
-        return ModelResolver(snakeCaseObjectMapper)
-    }
+    fun modelResolver(snakeCaseObjectMapper: ObjectMapper): ModelResolver = ModelResolver(snakeCaseObjectMapper)
 
     @Bean
-    fun openAPI(): OpenAPI {
-        return OpenAPI()
+    fun openAPI(): OpenAPI =
+        OpenAPI()
             .components(
                 Components()
                     .addSecuritySchemes(
                         "bearer-jwt",
-                        io.swagger.v3.oas.models.security.SecurityScheme()
+                        io.swagger.v3.oas.models.security
+                            .SecurityScheme()
                             .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
                             .scheme("bearer")
                             .bearerFormat("JWT")
                             .`in`(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
-                            .name("Authorization")
-                    )
-            )
-            .info(
+                            .name("Authorization"),
+                    ),
+            ).info(
                 Info()
                     .title("API Documentation")
                     .description("API для приложения")
-                    .version("1.0")
-            )
-            .addSecurityItem(
+                    .version("1.0"),
+            ).addSecurityItem(
                 SecurityRequirement()
-                    .addList("bearer-jwt", emptyList())
+                    .addList("bearer-jwt", emptyList()),
             )
-    }
 }

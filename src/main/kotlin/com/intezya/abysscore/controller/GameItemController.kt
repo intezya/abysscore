@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.service.GameItemService
@@ -27,37 +27,41 @@ class GameItemController(
         @RequestBody
         @Valid
         request: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> {
-        return ResponseEntity(
+    ): ResponseEntity<GameItem> =
+        ResponseEntity(
             gameItemService.createGameItem(request),
             HttpStatus.CREATED,
         )
-    }
 
     @GetMapping
-    fun getAll(@PageableDefault(size = 20) pageable: Pageable): PagedModel<GameItem> {
+    fun getAll(
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): PagedModel<GameItem> {
         val gameItems: Page<GameItem> = gameItemService.findAll(pageable)
         return PagedModel(gameItems)
     }
 
     @GetMapping("/{id}")
-    fun getOne(@PathVariable id: Long): GameItem = gameItemService.findById(id)
+    fun getOne(
+        @PathVariable id: Long,
+    ): GameItem = gameItemService.findById(id)
 
     @PutMapping("/{itemId}")
     @RequiresAccessLevel(AccessLevel.UPDATE_ITEM)
     fun updateItem(
         @PathVariable itemId: Long,
         @RequestBody @Valid gameItem: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> {
-        return ResponseEntity(
+    ): ResponseEntity<GameItem> =
+        ResponseEntity(
             gameItemService.updateItem(itemId, gameItem),
             HttpStatus.OK,
         )
-    }
 
     @DeleteMapping("/{itemId}")
     @RequiresAccessLevel(AccessLevel.DELETE_ITEM)
-    fun deleteItem(@PathVariable itemId: Long): ResponseEntity<Unit> {
+    fun deleteItem(
+        @PathVariable itemId: Long,
+    ): ResponseEntity<Unit> {
         gameItemService.deleteItem(itemId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }

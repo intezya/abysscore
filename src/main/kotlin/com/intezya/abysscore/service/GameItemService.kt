@@ -1,6 +1,6 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
+import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.repository.GameItemRepository
 import org.springframework.data.domain.Page
@@ -13,21 +13,19 @@ import org.springframework.web.server.ResponseStatusException
 class GameItemService(
     private val gameItemRepository: GameItemRepository,
 ) {
-    fun createGameItem(createGameItemRequest: CreateGameItemRequest): GameItem {
-        return gameItemRepository.save(createGameItemRequest.toEntity())
-    }
+    fun createGameItem(createGameItemRequest: CreateGameItemRequest): GameItem = gameItemRepository.save(createGameItemRequest.toEntity())
 
-    fun findById(itemId: Long): GameItem {
-        return gameItemRepository.findById(itemId).orElseThrow {
+    fun findById(itemId: Long): GameItem =
+        gameItemRepository.findById(itemId).orElseThrow {
             ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
         }
-    }
 
-    fun findAll(pageable: Pageable): Page<GameItem> {
-        return gameItemRepository.findAll(pageable)
-    }
+    fun findAll(pageable: Pageable): Page<GameItem> = gameItemRepository.findAll(pageable)
 
-    fun updateItem(itemId: Long, createGameItemRequest: CreateGameItemRequest): GameItem {
+    fun updateItem(
+        itemId: Long,
+        createGameItemRequest: CreateGameItemRequest,
+    ): GameItem {
         if (!gameItemRepository.existsById(itemId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
         }

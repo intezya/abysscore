@@ -70,17 +70,18 @@ class AuthControllerE2ETest {
     fun `should register valid user`() {
         val request = RandomProvider.constructAuthRequest()
         println(request)
-        val token = Given {
-            contentType(ContentType.JSON)
-            body(request)
-        } When {
-            post("/auth/register")
-        } Then {
-            statusCode(200)
-            body("token", notNullValue())
-        } Extract {
-            path<String>("token")
-        }
+        val token =
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/auth/register")
+            } Then {
+                statusCode(200)
+                body("token", notNullValue())
+            } Extract {
+                path<String>("token")
+            }
 
         assertTrue(jwtUtils.validateJwtToken(token))
     }
@@ -156,17 +157,18 @@ class AuthControllerE2ETest {
         val request = RandomProvider.constructAuthRequest()
         authenticationService.registerUser(request, "someip")
 
-        val token = Given {
-            contentType(ContentType.JSON)
-            body(request)
-        } When {
-            post("/auth/login")
-        } Then {
-            statusCode(200)
-            body("token", notNullValue())
-        } Extract {
-            path<String>("token")
-        }
+        val token =
+            Given {
+                contentType(ContentType.JSON)
+                body(request)
+            } When {
+                post("/auth/login")
+            } Then {
+                statusCode(200)
+                body("token", notNullValue())
+            } Extract {
+                path<String>("token")
+            }
 
         assertTrue(jwtUtils.validateJwtToken(token))
     }
@@ -207,10 +209,11 @@ class AuthControllerE2ETest {
         val registerRequest = RandomProvider.constructAuthRequest()
         authenticationService.registerUser(registerRequest, "someip")
 
-        val loginRequest = RandomProvider.constructAuthRequest(
-            username = registerRequest.username,
-            password = registerRequest.password
-        )
+        val loginRequest =
+            RandomProvider.constructAuthRequest(
+                username = registerRequest.username,
+                password = registerRequest.password,
+            )
         println(loginRequest)
         Given {
             contentType(ContentType.JSON)
@@ -224,15 +227,19 @@ class AuthControllerE2ETest {
 
     @ParameterizedTest
     @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideUsernameWithAnyCases")
-    fun `should login user with any username case`(original: String, target: String) {
+    fun `should login user with any username case`(
+        original: String,
+        target: String,
+    ) {
         val registerRequest = RandomProvider.constructAuthRequest(username = original)
         authenticationService.registerUser(registerRequest, "someip")
 
-        val loginRequest = RandomProvider.constructAuthRequest(
-            username = target,
-            password = registerRequest.password,
-            hwid = registerRequest.hwid
-        )
+        val loginRequest =
+            RandomProvider.constructAuthRequest(
+                username = target,
+                password = registerRequest.password,
+                hwid = registerRequest.hwid,
+            )
 
         Given {
             contentType(ContentType.JSON)
@@ -247,30 +254,33 @@ class AuthControllerE2ETest {
     @Test
     fun `should login user that have null hwid`() {
         val userRegisterData = RandomProvider.constructUser()
-        val user = User(
-            username = userRegisterData.username,
-            password = passwordUtils.hashPassword(userRegisterData.password),
-            hwid = null
-        )
+        val user =
+            User(
+                username = userRegisterData.username,
+                password = passwordUtils.hashPassword(userRegisterData.password),
+                hwid = null,
+            )
         userRepository.save(user)
 
-        val loginRequest = RandomProvider.constructAuthRequest(
-            username = user.username,
-            password = userRegisterData.password,
-            hwid = UUID.randomUUID().toString()
-        )
+        val loginRequest =
+            RandomProvider.constructAuthRequest(
+                username = user.username,
+                password = userRegisterData.password,
+                hwid = UUID.randomUUID().toString(),
+            )
 
-        val token = Given {
-            contentType(ContentType.JSON)
-            body(loginRequest)
-        } When {
-            post("/auth/login")
-        } Then {
-            statusCode(200)
-            body("token", notNullValue())
-        } Extract {
-            path<String>("token")
-        }
+        val token =
+            Given {
+                contentType(ContentType.JSON)
+                body(loginRequest)
+            } When {
+                post("/auth/login")
+            } Then {
+                statusCode(200)
+                body("token", notNullValue())
+            } Extract {
+                path<String>("token")
+            }
 
         val authInfo = jwtUtils.getUserInfoFromToken(token)
 
@@ -312,7 +322,8 @@ class AuthControllerE2ETest {
                 username = user.username,
                 password = user.password,
                 hwid = user.hwid!!,
-            ), "someip"
+            ),
+            "someip",
         )
     }
 }

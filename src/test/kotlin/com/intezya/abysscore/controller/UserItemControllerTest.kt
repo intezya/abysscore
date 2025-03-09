@@ -2,7 +2,7 @@ package com.intezya.abysscore.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.enum.ItemSourceType
-import com.intezya.abysscore.model.dto.user_item.UserItemDTO
+import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import com.intezya.abysscore.service.UserItemService
@@ -25,7 +25,6 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 
 class UserItemControllerTest {
-
     @MockK
     private lateinit var userItemService: UserItemService
 
@@ -56,13 +55,14 @@ class UserItemControllerTest {
         // Given
         val pageable = PageRequest.of(0, 10)
         val userAuthData = UserAuthInfoDTO(testUserId, testUsername, testHwid, testAccessLevel)
-        val testUserItemDTO = UserItemDTO(
-            testUserItemId,
-            testGameItem,
-            null,
-            testSourceType,
-            LocalDateTime.now()
-        )
+        val testUserItemDTO =
+            UserItemDTO(
+                testUserItemId,
+                testGameItem,
+                null,
+                testSourceType,
+                LocalDateTime.now(),
+            )
         val page: Page<UserItemDTO> = PageImpl(listOf(testUserItemDTO), pageable, 1)
         val pageableSlot = slot<Pageable>()
 
@@ -84,13 +84,14 @@ class UserItemControllerTest {
     fun `getUserInventory should return user items for specified user`() {
         // Given
         val pageable = PageRequest.of(0, 10)
-        val testUserItemDTO = UserItemDTO(
-            testUserItemId,
-            testGameItem,
-            null,
-            testSourceType,
-            LocalDateTime.now()
-        )
+        val testUserItemDTO =
+            UserItemDTO(
+                testUserItemId,
+                testGameItem,
+                null,
+                testSourceType,
+                LocalDateTime.now(),
+            )
         val page: Page<UserItemDTO> = PageImpl(listOf(testUserItemDTO), pageable, 1)
         val pageableSlot = slot<Pageable>()
 
@@ -112,13 +113,14 @@ class UserItemControllerTest {
     fun `create should issue item to player from admin`() {
         // Given
         val userAuthData = UserAuthInfoDTO(testUserId, testUsername, testHwid, testAccessLevel)
-        val testUserItemDTO = UserItemDTO(
-            testUserItemId,
-            testGameItem,
-            null,
-            testSourceType,
-            LocalDateTime.now()
-        )
+        val testUserItemDTO =
+            UserItemDTO(
+                testUserItemId,
+                testGameItem,
+                null,
+                testSourceType,
+                LocalDateTime.now(),
+            )
 
         every {
             userItemService.issueForPlayerFromAdmin(testUsername, testItemId, testUserId)

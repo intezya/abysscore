@@ -18,16 +18,19 @@ class AuthTokenFilter : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         try {
             val jwt = parseJwt(request)
             if (jwtUtils.validateJwtToken(jwt)) {
                 val userInfo = jwtUtils.getUserInfoFromToken(jwt)
                 val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
-                val authentication = UsernamePasswordAuthenticationToken(
-                    userInfo, null, authorities,
-                )
+                val authentication =
+                    UsernamePasswordAuthenticationToken(
+                        userInfo,
+                        null,
+                        authorities,
+                    )
                 authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
                 SecurityContextHolder.getContext().authentication = authentication
             }
@@ -41,6 +44,8 @@ class AuthTokenFilter : OncePerRequestFilter() {
         val headerAuth = request.getHeader("Authorization")
         return if (headerAuth?.startsWith("Bearer ") == true) {
             headerAuth.substring(7)
-        } else headerAuth
+        } else {
+            headerAuth
+        }
     }
 }

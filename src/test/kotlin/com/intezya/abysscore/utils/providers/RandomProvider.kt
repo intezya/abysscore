@@ -13,38 +13,32 @@ class RandomProvider {
             username: String = f.name.firstName(),
             password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
             hwid: String? = f.random.nextUUID(),
-        ): User {
-            return User(
+        ): User =
+            User(
                 id = id,
                 username = username,
                 password = password,
                 hwid = hwid,
             )
-        }
 
         fun constructAuthRequest(
             username: String = f.name.firstName().take(16),
             password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
             hwid: String = f.random.nextUUID(),
-        ): UserAuthRequest {
-            return UserAuthRequest(
+        ): UserAuthRequest =
+            UserAuthRequest(
                 username = username,
                 password = password,
                 hwid = hwid,
             )
-        }
 
-        fun constructAuthRequest(
-            user: User,
-        ): UserAuthRequest {
-            return UserAuthRequest(
+        fun constructAuthRequest(user: User): UserAuthRequest =
+            UserAuthRequest(
                 username = user.username,
                 password = user.password,
                 hwid = user.hwid!!,
             )
-        }
 
         fun ipv4(): String = f.internet.iPv4Address()
-
     }
 }
