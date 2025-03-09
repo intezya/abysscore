@@ -33,6 +33,16 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
+      - name: Save test reports
+        if: always()  # Сохраняем отчеты даже если тесты не прошли
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: |
+            build/reports/tests/
+            build/test-results/
+          retention-days: 7
+
   build-and-push:
     if: |
       (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) ||
@@ -57,6 +67,16 @@ jobs:
         run: |
           ./gradlew ktlintCheck
           ./gradlew test
+
+      - name: Save test reports for main/master
+        if: github.event_name == 'push' && always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports-main
+          path: |
+            build/reports/tests/
+            build/test-results/
+          retention-days: 7
 
       - name: Build with Gradle
         run: ./gradlew build
