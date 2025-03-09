@@ -10,13 +10,11 @@ import org.springframework.web.server.ResponseStatusException
 class UserService(
     private val userRepository: UserRepository,
 ) {
-    fun findUserWithThrow(userId: Long): User =
-        userRepository.findById(userId).orElseThrow {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
-        }
+    fun findUserWithThrow(userId: Long): User = userRepository.findById(userId).orElseThrow {
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+    }
 
-    fun findUserWithThrow(username: String): User =
-        userRepository.findByUsername(username).orElseThrow {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
-        }
+    fun findUserWithThrow(username: String): User = userRepository.findByUsername(username).orElseThrow {
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+    }
 }

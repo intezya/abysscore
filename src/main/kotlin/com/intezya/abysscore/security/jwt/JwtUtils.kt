@@ -28,25 +28,23 @@ class JwtUtils(
     fun generateJwtToken(
         user: User,
         extraExpirationMinutes: Int = expirationMinutes,
-    ): String =
-        Jwts
-            .builder()
-            .setSubject(user.id.toString())
-            .setIssuer(issuer)
-            .claim("hwid", user.hwid)
-            .claim("user", user.username)
-            .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + extraExpirationMinutes * 60 * 1000))
-            .signWith(secretKey, SignatureAlgorithm.HS512)
-            .compact()
+    ): String = Jwts
+        .builder()
+        .setSubject(user.id.toString())
+        .setIssuer(issuer)
+        .claim("hwid", user.hwid)
+        .claim("user", user.username)
+        .setIssuedAt(Date())
+        .setExpiration(Date(Date().time + extraExpirationMinutes * 60 * 1000))
+        .signWith(secretKey, SignatureAlgorithm.HS512)
+        .compact()
 
-    fun getClaimsFromJwtToken(token: String): Claims =
-        Jwts
-            .parserBuilder()
-            .setSigningKey(secretKey)
-            .build()
-            .parseClaimsJws(token)
-            .body
+    fun getClaimsFromJwtToken(token: String): Claims = Jwts
+        .parserBuilder()
+        .setSigningKey(secretKey)
+        .build()
+        .parseClaimsJws(token)
+        .body
 
     fun getUserInfoFromToken(token: String): UserAuthInfoDTO {
         val claims = getClaimsFromJwtToken(token)
@@ -115,8 +113,7 @@ class JwtUtils(
         return session.remoteAddress.toString()
     }
 
-    private fun getAccessLevel(userId: Long) =
-        // TODO: redis cache
+    private fun getAccessLevel(userId: Long) = // TODO: redis cache
         userRepository
             .findById(userId)
             .orElse(null)

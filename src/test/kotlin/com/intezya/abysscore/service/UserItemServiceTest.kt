@@ -181,7 +181,7 @@ class UserItemServiceTest {
                 HttpStatus.NOT_FOUND,
                 "User not found",
             )
-        )
+            )
 
         val exception =
             assertThrows<ResponseStatusException> {

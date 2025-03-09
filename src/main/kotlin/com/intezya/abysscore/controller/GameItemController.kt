@@ -27,11 +27,10 @@ class GameItemController(
         @RequestBody
         @Valid
         request: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> =
-        ResponseEntity(
-            gameItemService.createGameItem(request),
-            HttpStatus.CREATED,
-        )
+    ): ResponseEntity<GameItem> = ResponseEntity(
+        gameItemService.createGameItem(request),
+        HttpStatus.CREATED,
+    )
 
     @GetMapping
     fun getAll(
@@ -51,11 +50,10 @@ class GameItemController(
     fun updateItem(
         @PathVariable itemId: Long,
         @RequestBody @Valid gameItem: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> =
-        ResponseEntity(
-            gameItemService.updateItem(itemId, gameItem),
-            HttpStatus.OK,
-        )
+    ): ResponseEntity<GameItem> = ResponseEntity(
+        gameItemService.updateItem(itemId, gameItem),
+        HttpStatus.OK,
+    )
 
     @DeleteMapping("/{itemId}")
     @RequiresAccessLevel(AccessLevel.DELETE_ITEM)

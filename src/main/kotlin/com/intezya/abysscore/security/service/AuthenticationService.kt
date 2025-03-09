@@ -26,24 +26,22 @@ class AuthenticationService(
     fun registerUser(
         request: UserAuthRequest,
         ip: String,
-    ): UserAuthResponse =
-        handleAuthRequest(
-            request = request,
-            ip = ip,
-            authAction = ::register,
-            eventType = UserActionEventType.REGISTRATION,
-        )
+    ): UserAuthResponse = handleAuthRequest(
+        request = request,
+        ip = ip,
+        authAction = ::register,
+        eventType = UserActionEventType.REGISTRATION,
+    )
 
     fun loginUser(
         request: UserAuthRequest,
         ip: String,
-    ): UserAuthResponse =
-        handleAuthRequest(
-            request = request,
-            ip = ip,
-            authAction = ::authenticate,
-            eventType = UserActionEventType.LOGIN,
-        )
+    ): UserAuthResponse = handleAuthRequest(
+        request = request,
+        ip = ip,
+        authAction = ::authenticate,
+        eventType = UserActionEventType.LOGIN,
+    )
 
     private fun handleAuthRequest(
         request: UserAuthRequest,

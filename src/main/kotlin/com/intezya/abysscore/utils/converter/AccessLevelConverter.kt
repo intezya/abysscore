@@ -8,9 +8,8 @@ import jakarta.persistence.Converter
 class AccessLevelConverter : AttributeConverter<AccessLevel, Int> {
     override fun convertToDatabaseColumn(attribute: AccessLevel): Int = attribute.value
 
-    override fun convertToEntityAttribute(dbData: Int): AccessLevel =
-        AccessLevel.entries
-            .filter { it.value <= dbData }
-            .maxByOrNull { it.value }
-            ?: throw IllegalArgumentException("Unknown access level: $dbData")
+    override fun convertToEntityAttribute(dbData: Int): AccessLevel = AccessLevel.entries
+        .filter { it.value <= dbData }
+        .maxByOrNull { it.value }
+        ?: throw IllegalArgumentException("Unknown access level: $dbData")
 }

@@ -28,12 +28,11 @@ data class UserItem(
 ) {
     constructor() : this(null, User(), GameItem(), null, ItemSourceType.SYSTEM, LocalDateTime.now())
 
-    fun toDTO(): UserItemDTO =
-        UserItemDTO(
-            id = id!!,
-            gameItem = gameItem,
-            receivedFrom = receivedFrom?.id,
-            sourceType = sourceType,
-            createdAt = createdAt,
-        )
+    fun toDTO(): UserItemDTO = UserItemDTO(
+        id = id!!,
+        gameItem = gameItem,
+        receivedFrom = receivedFrom?.id,
+        sourceType = sourceType,
+        createdAt = createdAt,
+    )
 }
