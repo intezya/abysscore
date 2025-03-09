@@ -2,9 +2,9 @@ package com.intezya.abysscore.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.enum.ItemSourceType
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.model.dto.user_item.UserItemDTO
 import com.intezya.abysscore.model.entity.GameItem
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import com.intezya.abysscore.service.UserItemService
 import io.mockk.MockKAnnotations
 import io.mockk.every

@@ -1,4 +1,4 @@
-package com.intezya.abysscore.service
+package com.intezya.abysscore.security.service
 
 import com.intezya.abysscore.enum.UserActionEventType
 import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
@@ -9,8 +9,9 @@ import com.intezya.abysscore.model.dto.user.UserAuthResponse
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.utils.auth.AuthUtils
-import com.intezya.abysscore.utils.auth.PasswordUtils
+import com.intezya.abysscore.security.jwt.JwtUtils
+import com.intezya.abysscore.security.password.PasswordUtils
+import com.intezya.abysscore.service.EventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -18,11 +19,12 @@ import org.springframework.web.server.ResponseStatusException
 private const val EVENT_TOPIC = "auth-events"
 private const val ADMIN_EXTRA_EXPIRATION_MS = 3_600_000 // 1 hour
 
+
 @Service
 class AuthenticationService(
     private val userRepository: UserRepository,
     private val passwordUtils: PasswordUtils,
-    private val authUtils: AuthUtils,
+    private val jwtUtils: JwtUtils,
     private val adminRepository: AdminRepository,
     private val eventPublisher: EventPublisher,
 ) {
@@ -92,7 +94,7 @@ class AuthenticationService(
                 throw ResponseStatusException(HttpStatus.CONFLICT, "Only 1 account allowed per device")
             }
         }
-        return UserAuthResponse(token = authUtils.generateJwtToken(user))
+        return UserAuthResponse(token = jwtUtils.generateJwtToken(user))
     }
 
     private fun authenticate(request: UserAuthRequest): UserAuthResponse {
@@ -112,7 +114,7 @@ class AuthenticationService(
             userRepository.save(user)
         }
 
-        return UserAuthResponse(token = authUtils.generateJwtToken(user))
+        return UserAuthResponse(token = jwtUtils.generateJwtToken(user))
     }
 
     fun adminLogin(request: AdminAuthRequest, ip: String): AdminAuthResponse {
@@ -126,7 +128,7 @@ class AuthenticationService(
                 .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found") }
 
             AdminAuthResponse(
-                token = authUtils.generateJwtToken(
+                token = jwtUtils.generateJwtToken(
                     user = user,
                     accessLevel = admin.accessLevel.value,
                     extraExpirationMs = ADMIN_EXTRA_EXPIRATION_MS

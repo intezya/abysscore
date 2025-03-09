@@ -1,11 +1,11 @@
 package com.intezya.abysscore.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.dto.user.UserAuthResponse
-import com.intezya.abysscore.service.AuthenticationService
-import com.intezya.abysscore.utils.auth.AuthUtils
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
+import com.intezya.abysscore.security.jwt.JwtUtils
+import com.intezya.abysscore.security.service.AuthenticationService
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -28,7 +28,7 @@ class AuthControllerTest {
     private lateinit var authenticationService: AuthenticationService
 
     @MockK
-    private lateinit var authUtils: AuthUtils
+    private lateinit var jwtUtils: JwtUtils
 
     @InjectMockKs
     private lateinit var authController: AuthController
@@ -49,7 +49,7 @@ class AuthControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build()
         objectMapper = ObjectMapper()
 
-        every { authUtils.getClientIp(any<HttpServletRequest>()) } returns "192.168.1.1"
+        every { jwtUtils.getClientIp(any<HttpServletRequest>()) } returns "192.168.1.1"
     }
 
     @Test
@@ -77,7 +77,7 @@ class AuthControllerTest {
         assert(requestSlot.captured.password == testPassword)
         assert(requestSlot.captured.hwid == testHwid)
 
-        verify { authUtils.getClientIp(any<HttpServletRequest>()) }
+        verify { jwtUtils.getClientIp(any<HttpServletRequest>()) }
         verify { authenticationService.registerUser(any(), testIp) }
     }
 
@@ -106,7 +106,7 @@ class AuthControllerTest {
         assert(requestSlot.captured.password == testPassword)
         assert(requestSlot.captured.hwid == testHwid)
 
-        verify { authUtils.getClientIp(any<HttpServletRequest>()) }
+        verify { jwtUtils.getClientIp(any<HttpServletRequest>()) }
         verify { authenticationService.loginUser(any(), testIp) }
     }
 

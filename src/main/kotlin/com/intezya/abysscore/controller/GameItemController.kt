@@ -3,8 +3,8 @@ package com.intezya.abysscore.controller
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.game_item.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
+import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.service.GameItemService
-import com.intezya.abysscore.utils.security.RequiresAccessLevel
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page

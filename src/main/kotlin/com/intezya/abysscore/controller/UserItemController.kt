@@ -1,19 +1,16 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
-import com.intezya.abysscore.model.dto.user_item.UserItemDTO
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.model.dto.user_item.UserItemDTO
+import com.intezya.abysscore.security.annotations.RequiresAccessLevel
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import com.intezya.abysscore.service.UserItemService
-import com.intezya.abysscore.utils.security.RequiresAccessLevel
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PagedModel
-import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/account/inventory")
@@ -26,7 +23,7 @@ class UserItemController(
     fun getAll(
         @ParameterObject pageable: Pageable,
         @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-        ): PagedModel<UserItemDTO> {
+    ): PagedModel<UserItemDTO> {
         return PagedModel(userItemService.findAllUserItems(userAuthData.id, pageable))
     }
 

@@ -1,7 +1,7 @@
 package com.intezya.abysscore.config
 
 import com.intezya.abysscore.controller.ClientWebsocketHandler
-import com.intezya.abysscore.utils.auth.AuthUtils
+import com.intezya.abysscore.security.jwt.JwtUtils
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
@@ -14,7 +14,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor
 @Configuration
 @EnableWebSocket
 class WebSocketConfig(
-    private val authUtils: AuthUtils,
+    private val jwtUtils: JwtUtils,
     private val clientWebsocketHandler: ClientWebsocketHandler
 ) : WebSocketConfigurer {
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
@@ -32,7 +32,7 @@ class WebSocketConfig(
                         ?: return false
 
                     // Validation skipped cause it autovalidates in WebSecurity (as middleware)
-                    val userInfo = authUtils.getUserInfoFromToken(token)
+                    val userInfo = jwtUtils.getUserInfoFromToken(token)
                     attributes["user_info"] = userInfo
                     return true
                 }

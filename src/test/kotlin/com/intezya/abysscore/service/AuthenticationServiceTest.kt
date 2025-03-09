@@ -4,8 +4,9 @@ import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.utils.auth.AuthUtils
-import com.intezya.abysscore.utils.auth.PasswordUtils
+import com.intezya.abysscore.security.jwt.JwtUtils
+import com.intezya.abysscore.security.password.PasswordUtils
+import com.intezya.abysscore.security.service.AuthenticationService
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -26,7 +27,7 @@ class AuthenticationServiceTest {
     private lateinit var passwordUtils: PasswordUtils
 
     @MockK
-    private lateinit var authUtils: AuthUtils
+    private lateinit var jwtUtils: JwtUtils
 
     @MockK
     private lateinit var adminRepository: AdminRepository
@@ -60,7 +61,7 @@ class AuthenticationServiceTest {
         every { passwordUtils.verifyPassword(any(), any()) } returns true
         every { passwordUtils.verifyHwid(any(), any()) } returns true
 
-        every { authUtils.generateJwtToken(any()) } returns testToken
+        every { jwtUtils.generateJwtToken(any()) } returns testToken
 
         every { eventPublisher.sendActionEvent(any(), any(), any()) } just Runs
     }
@@ -77,7 +78,7 @@ class AuthenticationServiceTest {
             userRepository.save(any())
             passwordUtils.hashPassword(testPassword)
             passwordUtils.hashHwid(testHwid)
-            authUtils.generateJwtToken(testUser)
+            jwtUtils.generateJwtToken(testUser)
         }
 
         assertEquals(testToken, response.token)
@@ -127,7 +128,7 @@ class AuthenticationServiceTest {
             userRepository.findByUsername(testUsername)
             passwordUtils.verifyPassword(testPassword, hashedPassword)
             passwordUtils.verifyHwid(testHwid, hashedHwid)
-            authUtils.generateJwtToken(testUser)
+            jwtUtils.generateJwtToken(testUser)
         }
 
         assertEquals(testToken, response.token)

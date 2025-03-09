@@ -1,4 +1,4 @@
-package com.intezya.abysscore.utils.auth
+package com.intezya.abysscore.security.password
 
 import de.mkammerer.argon2.Argon2
 import org.springframework.stereotype.Component

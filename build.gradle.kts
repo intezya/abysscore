@@ -62,6 +62,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 
     // Test dependencies
+    testImplementation(kotlin("test"))
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

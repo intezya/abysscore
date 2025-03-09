@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.dto.user
+package com.intezya.abysscore.security.dto
 
 data class UserAuthInfoDTO(
     val id: Long,

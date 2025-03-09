@@ -1,4 +1,4 @@
-package com.intezya.abysscore.utils.security
+package com.intezya.abysscore.security.annotations
 
 import com.intezya.abysscore.enum.AccessLevel
 

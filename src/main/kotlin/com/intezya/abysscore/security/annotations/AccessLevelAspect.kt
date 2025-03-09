@@ -1,6 +1,6 @@
-package com.intezya.abysscore.utils.security
+package com.intezya.abysscore.security.annotations
 
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException
 @Component
 class AccessLevelAspect {
 
-    @Before("@annotation(com.intezya.abysscore.utils.security.RequiresAccessLevel)")
+    @Before("@annotation(com.intezya.abysscore.security.annotations.RequiresAccessLevel)")
     fun checkAccessLevel(joinPoint: JoinPoint) {
         val signature = joinPoint.signature as MethodSignature
         val method = signature.method

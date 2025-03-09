@@ -1,7 +1,7 @@
-package com.intezya.abysscore.utils.auth
+package com.intezya.abysscore.security.jwt
 
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -14,7 +14,7 @@ import java.security.MessageDigest
 import java.util.*
 
 @Component
-class AuthUtils(
+class JwtUtils(
     @Value("\${jwt.secret}") private val jwtSecret: String,
     @Value("\${jwt.expiration}") private val jwtExpirationMs: Int
 ) {

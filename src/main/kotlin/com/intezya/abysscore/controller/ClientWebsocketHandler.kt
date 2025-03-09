@@ -1,9 +1,9 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
+import com.intezya.abysscore.security.jwt.JwtUtils
 import com.intezya.abysscore.service.ClientWebsocketService
-import com.intezya.abysscore.utils.auth.AuthUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -13,7 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 @Component
 class ClientWebsocketHandler(
     private val clientWebsocketService: ClientWebsocketService,
-    private val authUtils: AuthUtils,
+    private val jwtUtils: JwtUtils,
 ) : TextWebSocketHandler() {
     override fun afterConnectionEstablished(session: WebSocketSession) {
         clientWebsocketService.addConnection(getUserSession(session))
@@ -34,7 +34,7 @@ class ClientWebsocketHandler(
         return UserSessionDTO(
             id = userInfo.id,
             username = userInfo.username,
-            ip = authUtils.getClientIp(session),
+            ip = jwtUtils.getClientIp(session),
             hwid = userInfo.hwid,
             connection = session,
         )

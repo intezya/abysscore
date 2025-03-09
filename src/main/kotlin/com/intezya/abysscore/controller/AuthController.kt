@@ -2,11 +2,11 @@ package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.model.dto.admin.AdminAuthRequest
 import com.intezya.abysscore.model.dto.admin.AdminAuthResponse
-import com.intezya.abysscore.model.dto.user.UserAuthInfoDTO
 import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.dto.user.UserAuthResponse
-import com.intezya.abysscore.service.AuthenticationService
-import com.intezya.abysscore.utils.auth.AuthUtils
+import com.intezya.abysscore.security.dto.UserAuthInfoDTO
+import com.intezya.abysscore.security.jwt.JwtUtils
+import com.intezya.abysscore.security.service.AuthenticationService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/auth")
 class AuthController(
     private val authenticationService: AuthenticationService,
-    private val authUtils: AuthUtils,
+    private val jwtUtils: JwtUtils,
 ) {
     @PostMapping("/register")
     fun registerUser(
         @RequestBody @Valid userAuthRequest: UserAuthRequest,
         request: HttpServletRequest,
     ): UserAuthResponse {
-        return authenticationService.registerUser(userAuthRequest, authUtils.getClientIp(request))
+        return authenticationService.registerUser(userAuthRequest, jwtUtils.getClientIp(request))
     }
 
     @PostMapping("/login")
@@ -31,7 +31,7 @@ class AuthController(
         @RequestBody @Valid userAuthRequest: UserAuthRequest,
         request: HttpServletRequest,
     ): UserAuthResponse {
-        return authenticationService.loginUser(userAuthRequest, authUtils.getClientIp(request))
+        return authenticationService.loginUser(userAuthRequest, jwtUtils.getClientIp(request))
     }
 
     @PostMapping("/admin/login")
@@ -39,7 +39,7 @@ class AuthController(
         @RequestBody @Valid adminAuthRequest: AdminAuthRequest,
         request: HttpServletRequest,
     ): AdminAuthResponse {
-        return authenticationService.adminLogin(adminAuthRequest, authUtils.getClientIp(request))
+        return authenticationService.adminLogin(adminAuthRequest, jwtUtils.getClientIp(request))
     }
 
     @GetMapping("/info")

@@ -1,6 +1,6 @@
 package com.intezya.abysscore.middleware
 
-import com.intezya.abysscore.utils.auth.AuthUtils
+import com.intezya.abysscore.security.jwt.JwtUtils
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 class AuthTokenFilter : OncePerRequestFilter() {
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var jwtUtils: JwtUtils
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -22,8 +22,8 @@ class AuthTokenFilter : OncePerRequestFilter() {
     ) {
         try {
             val jwt = parseJwt(request)
-            if (authUtils.validateJwtToken(jwt)) {
-                val userInfo = authUtils.getUserInfoFromToken(jwt)
+            if (jwtUtils.validateJwtToken(jwt)) {
+                val userInfo = jwtUtils.getUserInfoFromToken(jwt)
                 val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
                 val authentication = UsernamePasswordAuthenticationToken(
                     userInfo, null, authorities,

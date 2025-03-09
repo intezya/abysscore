@@ -8,9 +8,9 @@ import com.intezya.abysscore.model.entity.Admin
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.AdminRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.service.AuthenticationService
-import com.intezya.abysscore.utils.auth.AuthUtils
-import com.intezya.abysscore.utils.auth.PasswordUtils
+import com.intezya.abysscore.security.jwt.JwtUtils
+import com.intezya.abysscore.security.password.PasswordUtils
+import com.intezya.abysscore.security.service.AuthenticationService
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
@@ -39,7 +39,7 @@ import java.util.*
 @Import(TestPostgresConfiguration::class)
 class AuthControllerE2ETest {
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var jwtUtils: JwtUtils
 
     @Autowired
     private lateinit var authenticationService: AuthenticationService
@@ -82,7 +82,7 @@ class AuthControllerE2ETest {
             path<String>("token")
         }
 
-        assertTrue(authUtils.validateJwtToken(token))
+        assertTrue(jwtUtils.validateJwtToken(token))
     }
 
     @ParameterizedTest
@@ -168,7 +168,7 @@ class AuthControllerE2ETest {
             path<String>("token")
         }
 
-        assertTrue(authUtils.validateJwtToken(token))
+        assertTrue(jwtUtils.validateJwtToken(token))
     }
 
     @Test
@@ -272,7 +272,7 @@ class AuthControllerE2ETest {
             path<String>("token")
         }
 
-        val authInfo = authUtils.getUserInfoFromToken(token)
+        val authInfo = jwtUtils.getUserInfoFromToken(token)
 
         assertNotNull(authInfo.hwid)
         println(authInfo)
@@ -282,7 +282,7 @@ class AuthControllerE2ETest {
     @Test
     fun `should get user info by token`() {
         val user = RandomProvider.constructUser(id = 1L)
-        val token = authUtils.generateJwtToken(user)
+        val token = jwtUtils.generateJwtToken(user)
 
         Given {
             header("Authorization", "Bearer $token")
