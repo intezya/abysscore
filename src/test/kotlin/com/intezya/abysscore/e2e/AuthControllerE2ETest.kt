@@ -1,6 +1,5 @@
 package com.intezya.abysscore.e2e
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.configuration.TestPostgresConfiguration
 import com.intezya.abysscore.configuration.TestSecurityConfig
 import com.intezya.abysscore.enum.AccessLevel
@@ -46,9 +45,6 @@ class AuthControllerE2ETest {
     private lateinit var authenticationService: AuthenticationService
 
     @Autowired
-    private lateinit var objectMapper: ObjectMapper
-
-    @Autowired
     private lateinit var userRepository: UserRepository
 
     @Autowired
@@ -65,6 +61,11 @@ class AuthControllerE2ETest {
         RestAssured.baseURI = "http://localhost"
         RestAssured.port = port
         RestAssured.defaultParser = Parser.JSON
+    }
+
+    @Test
+    fun `context loads`() {
+        assertTrue(true)
     }
 
     @Test
