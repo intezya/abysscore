@@ -42,6 +42,7 @@ class AuthTokenFilter : OncePerRequestFilter() {
 
     private fun parseJwt(request: HttpServletRequest): String {
         val headerAuth = request.getHeader("Authorization")
+
         return when {
             headerAuth.isNullOrEmpty() -> ""
             headerAuth.startsWith("Bearer ") -> headerAuth.substring(7)

@@ -7,10 +7,11 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketSession
-import java.security.MessageDigest
+import java.security.Key
 import java.util.*
 
 @Component
@@ -19,7 +20,8 @@ class JwtUtils(
     @Value("\${jwt.expirationMinutes}") private val expirationMinutes: Int,
     @Value("\${jwt.issuer}") private val issuer: String,
 ) {
-    private val hashedSecret: ByteArray by lazy { hashSHA512(secret) }
+    private val secretKey: Key by lazy { Keys.hmacShaKeyFor(secret.toByteArray()) }
+    private val logger = LoggerFactory.getLogger(JwtUtils::class.java)
 
     fun generateJwtToken(
         user: User,
@@ -35,13 +37,13 @@ class JwtUtils(
             .claim("access_level", accessLevel)
             .setIssuedAt(Date())
             .setExpiration(Date(Date().time + extraExpirationMinutes * 60 * 1000))
-            .signWith(Keys.hmacShaKeyFor(hashedSecret), SignatureAlgorithm.HS512)
+            .signWith(secretKey, SignatureAlgorithm.HS512)
             .compact()
 
     fun getClaimsFromJwtToken(token: String): Claims =
         Jwts
             .parserBuilder()
-            .setSigningKey(Keys.hmacShaKeyFor(hashedSecret))
+            .setSigningKey(secretKey)
             .build()
             .parseClaimsJws(token)
             .body
@@ -61,6 +63,7 @@ class JwtUtils(
             getClaimsFromJwtToken(authToken)
             return true
         } catch (e: Exception) {
+            logger.error("JWT validation error: ${e.message}; $expirationMinutes", e)
             return false
         }
     }
@@ -109,10 +112,5 @@ class JwtUtils(
             }
         }
         return session.remoteAddress.toString()
-    }
-
-    private fun hashSHA512(input: String): ByteArray {
-        val md = MessageDigest.getInstance("SHA-512")
-        return md.digest(input.toByteArray())
     }
 }
