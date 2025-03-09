@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import kotlin.test.Test
 
@@ -84,7 +85,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 post("/items")
             } Then {
-                statusCode(400)
+                statusCode(HttpStatus.BAD_REQUEST.value())
             }
         }
 
@@ -100,7 +101,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 post("/items")
             } Then {
-                statusCode(400)
+                statusCode(HttpStatus.BAD_REQUEST.value())
             }
         }
 
@@ -116,7 +117,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 post("/items")
             } Then {
-                statusCode(403)
+                statusCode(HttpStatus.FORBIDDEN.value())
             }
         }
     }
@@ -133,7 +134,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items")
             } Then {
-                statusCode(200)
+                statusCode(HttpStatus.OK.value())
                 body("content", notNullValue())
             }
         }
@@ -154,7 +155,7 @@ class GameItemControllerTest : BaseApiTest() {
                 } When {
                     get("/items")
                 } Then {
-                    statusCode(200)
+                    statusCode(HttpStatus.OK.value())
                     body("content", notNullValue())
                 } Extract {
                     response().jsonPath()
@@ -174,7 +175,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items")
             } Then {
-                statusCode(401)
+                statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
     }
@@ -193,7 +194,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items/${gameItem.id}")
             } Then {
-                statusCode(200)
+                statusCode(HttpStatus.OK.value())
                 body("id", equalTo(gameItem.id?.toInt()))
                 body("name", equalTo(gameItem.name))
                 body("collection", equalTo(gameItem.collection))
@@ -212,7 +213,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items/${1}")
             } Then {
-                statusCode(404)
+                statusCode(HttpStatus.NOT_FOUND.value())
             }
         }
 
@@ -223,7 +224,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items/${1}")
             } Then {
-                statusCode(401)
+                statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
     }
@@ -245,7 +246,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 put("/items/${gameItem.id}")
             } Then {
-                statusCode(200)
+                statusCode(HttpStatus.OK.value())
             }
         }
 
@@ -261,7 +262,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 put("/items/1")
             } Then {
-                statusCode(404)
+                statusCode(HttpStatus.NOT_FOUND.value())
             }
         }
 
@@ -272,7 +273,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 put("/items/${1}")
             } Then {
-                statusCode(401)
+                statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
     }
@@ -290,7 +291,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 delete("/items/${gameItem.id}")
             } Then {
-                statusCode(204)
+                statusCode(HttpStatus.NO_CONTENT.value())
             }
         }
 
@@ -303,7 +304,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 delete("/items/1")
             } Then {
-                statusCode(404)
+                statusCode(HttpStatus.NOT_FOUND.value())
             }
         }
 
@@ -318,7 +319,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 delete("/items/${gameItem.id}")
             } Then {
-                statusCode(403)
+                statusCode(HttpStatus.FORBIDDEN.value())
             }
         }
     }

@@ -12,11 +12,14 @@ import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.http.HttpStatus
 import java.util.*
 
 class AuthControllerTest : BaseApiTest() {
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Nested
     inner class Registration {
         @Test
@@ -30,7 +33,7 @@ class AuthControllerTest : BaseApiTest() {
                 } When {
                     post("/auth/register")
                 } Then {
-                    statusCode(200)
+                    statusCode(HttpStatus.OK.value())
                     body("token", notNullValue())
                 } Extract {
                     path<String>("token")
@@ -50,7 +53,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/register")
             } Then {
-                statusCode(400)
+                statusCode(HttpStatus.BAD_REQUEST.value())
             }
         }
 
@@ -65,7 +68,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/register")
             } Then {
-                statusCode(400)
+                statusCode(HttpStatus.BAD_REQUEST.value())
             }
         }
 
@@ -83,7 +86,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/register")
             } Then {
-                statusCode(409)
+                statusCode(HttpStatus.CONFLICT.value())
             }
         }
 
@@ -101,11 +104,12 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/register")
             } Then {
-                statusCode(409)
+                statusCode(HttpStatus.CONFLICT.value())
             }
         }
     }
 
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Nested
     inner class Login {
         @Test
@@ -120,7 +124,7 @@ class AuthControllerTest : BaseApiTest() {
                 } When {
                     post("/auth/login")
                 } Then {
-                    statusCode(200)
+                    statusCode(HttpStatus.OK.value())
                     body("token", notNullValue())
                 } Extract {
                     path<String>("token")
@@ -139,7 +143,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/login")
             } Then {
-                statusCode(404)
+                statusCode(HttpStatus.NOT_FOUND.value())
             }
         }
 
@@ -156,7 +160,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/login")
             } Then {
-                statusCode(401)
+                statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
 
@@ -177,7 +181,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/login")
             } Then {
-                statusCode(401)
+                statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
 
@@ -203,7 +207,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/login")
             } Then {
-                statusCode(200)
+                statusCode(HttpStatus.OK.value())
             }
         }
 
@@ -232,7 +236,7 @@ class AuthControllerTest : BaseApiTest() {
                 } When {
                     post("/auth/login")
                 } Then {
-                    statusCode(200)
+                    statusCode(HttpStatus.OK.value())
                     body("token", notNullValue())
                 } Extract {
                     path<String>("token")
@@ -257,7 +261,7 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 get("/auth/info")
             } Then {
-                statusCode(200)
+                statusCode(HttpStatus.OK.value())
                 contentType(ContentType.JSON)
                 body("id", equalTo(user.id?.toInt()))
                 body("username", equalTo(user.username))
