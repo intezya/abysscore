@@ -1,10 +1,7 @@
 name: Build and Deploy
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    types: [ closed ]
+  workflow_call:
 
 jobs:
   build-and-push:
@@ -15,25 +12,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Java
         uses: ./.github/actions/setup-java
-
-      - name: Run tests before deploy
-        run: ./gradlew test --tests "com.intezya.abysscore.*Test" --exclude "*E2ETest"
-
-      - name: Run e2e tests
-        run: ./gradlew test --tests "com.intezya.abysscore.*E2ETest" --info
-        continue-on-error: true
-
-      - name: Save test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-main
-          path: |
-            build/reports/tests/
-            build/test-results/
-            **/build/reports/tests/
-            **/TEST-*.xml
-          retention-days: 7
 
       - name: Build with Gradle
         run: ./gradlew build -x test
