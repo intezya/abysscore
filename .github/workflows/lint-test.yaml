@@ -22,12 +22,8 @@ jobs:
       - name: Set up Docker for Testcontainers
         run: echo "TESTCONTAINERS_HOST_OVERRIDE=localhost" >> $GITHUB_ENV
 
-      - name: Run unit tests
-        run: ./gradlew test --tests "com.intezya.abysscore.*Test" --exclude "*E2ETest"
-        continue-on-error: true
-
-      - name: Run e2e tests
-        run: ./gradlew test --tests "com.intezya.abysscore.*E2ETest" --info
+      - name: Run tests
+        run: ./gradlew test
         continue-on-error: true
 
       - name: Save test reports
