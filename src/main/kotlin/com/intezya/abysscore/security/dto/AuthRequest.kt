@@ -1,16 +1,19 @@
-package com.intezya.abysscore.model.dto.user
+package com.intezya.abysscore.security.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
-data class UserAuthRequest(
+data class AuthRequest(
     @field:NotBlank
     @field:Size(min = 3, max = 20)
     @field:Pattern(
         regexp = "^[A-Za-z0-9_-]{3,20}\$",
         message = "Username must be between 3 and 20 characters long and can only contain letters, digits, hyphens (-), and underscores (_).",
+    )
+    @field:Schema(
+        example = "username",
     )
     val username: String,
 

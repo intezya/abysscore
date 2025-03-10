@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -85,6 +86,22 @@ class GlobalExceptionHandler {
             )
 
         return ResponseEntity(apiError, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(BadCredentialsException::class)
+    fun handleBadCredentialsException(
+        ex: BadCredentialsException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiError> {
+        val apiError =
+            ApiError(
+                status = HttpStatus.UNAUTHORIZED.value(),
+                error = "Unauthorized",
+                message = ex.message ?: "Invalid credentials",
+                path = request.requestURI,
+            )
+
+        return ResponseEntity(apiError, HttpStatus.UNAUTHORIZED)
     }
 
     @ExceptionHandler(ResponseStatusException::class)

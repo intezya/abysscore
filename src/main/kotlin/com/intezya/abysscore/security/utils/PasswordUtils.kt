@@ -1,25 +1,21 @@
-package com.intezya.abysscore.security.password
+package com.intezya.abysscore.security.utils
 
 import com.intezya.abysscore.utils.crypto.decodeFromBase64
 import com.intezya.abysscore.utils.crypto.encodeToBase64
 import com.intezya.abysscore.utils.crypto.sha256
-import de.mkammerer.argon2.Argon2
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-
-private const val MEMORY = 65536 // 64MB in KB
-private const val ITERATIONS = 3 // Number of iterations
-private const val PARALLELISM = 4
 
 @Component
 class PasswordUtils(
-    private val argon2: Argon2,
+    private val passwordEncoder: PasswordEncoder,
 ) {
-    fun hashPassword(password: String): String = encodeToBase64(argon2.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray()))
+    fun hashPassword(password: String): String = encodeToBase64(passwordEncoder.encode(password))
 
     fun verifyPassword(
         raw: String,
         hash: String,
-    ): Boolean = argon2.verify(decodeFromBase64(hash), raw.toCharArray())
+    ): Boolean = passwordEncoder.matches(raw, decodeFromBase64(hash))
 
     fun hashHwid(input: String): String = encodeToBase64(sha256(input))
 

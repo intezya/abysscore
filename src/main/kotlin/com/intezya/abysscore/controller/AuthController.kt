@@ -1,35 +1,48 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.dto.user.UserAuthRequest
-import com.intezya.abysscore.model.dto.user.UserAuthResponse
-import com.intezya.abysscore.security.dto.UserAuthInfoDTO
-import com.intezya.abysscore.security.jwt.JwtUtils
-import com.intezya.abysscore.security.service.AuthenticationService
-import jakarta.servlet.http.HttpServletRequest
+import com.intezya.abysscore.security.dto.AuthRequest
+import com.intezya.abysscore.security.dto.AuthResponse
+import com.intezya.abysscore.security.utils.CustomAuthenticationToken
+import com.intezya.abysscore.security.utils.JwtUtils
+import com.intezya.abysscore.service.UserService
 import jakarta.validation.Valid
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.*
+import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth")
 class AuthController(
-    private val authenticationService: AuthenticationService,
+    private val authenticationManager: AuthenticationManager,
     private val jwtUtils: JwtUtils,
+    private val userService: UserService,
 ) {
     @PostMapping("/register")
     fun registerUser(
-        @RequestBody @Valid userAuthRequest: UserAuthRequest,
-        request: HttpServletRequest,
-    ): UserAuthResponse = authenticationService.registerUser(userAuthRequest, jwtUtils.getClientIp(request))
+        @RequestBody @Valid request: AuthRequest,
+//        httpRequest: HttpServletRequest,
+    ): ResponseEntity<AuthResponse> {
+//        userService.create(authRequest, jwtUtils.getClientIp(httpRequest))
+        val user = userService.create(request)
+        val token = jwtUtils.generateToken(user)
+        return ResponseEntity.ok(AuthResponse(token))
+    }
 
     @PostMapping("/login")
-    fun loginUser(
-        @RequestBody @Valid userAuthRequest: UserAuthRequest,
-        request: HttpServletRequest,
-    ): UserAuthResponse = authenticationService.loginUser(userAuthRequest, jwtUtils.getClientIp(request))
+    fun login(@RequestBody request: AuthRequest): ResponseEntity<AuthResponse> {
+        authenticationManager.authenticate(
+            CustomAuthenticationToken(
+                request.username,
+                request.password,
+                request.hwid,
+            ),
+        )
 
-    @GetMapping("/info")
-    fun getUserInfo(
-        @AuthenticationPrincipal userAuthData: UserAuthInfoDTO,
-    ): UserAuthInfoDTO = userAuthData
+        val user = userService.findUserWithThrow(request.username)
+        val token = jwtUtils.generateToken(user)
+        return ResponseEntity.ok(AuthResponse(token))
+    }
 }

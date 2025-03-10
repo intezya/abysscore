@@ -1,11 +1,11 @@
 package com.intezya.abysscore.service
 
-import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.security.jwt.JwtUtils
-import com.intezya.abysscore.security.password.PasswordUtils
+import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.service.AuthenticationService
+import com.intezya.abysscore.security.utils.JwtUtils
+import com.intezya.abysscore.security.utils.PasswordUtils
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -64,7 +64,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `register user successfully`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
 
         every { userRepository.save(any()) } returns testUser
 
@@ -82,7 +82,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `register user with existing username`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
         val exception = RuntimeException("uc_users_username violation")
 
         every { userRepository.save(any()) } throws exception
@@ -98,7 +98,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `register user with existing hwid`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
         val exception = RuntimeException("uc_users_hwid violation")
 
         every { userRepository.save(any()) } throws exception
@@ -114,7 +114,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `login user successfully`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
 
         every { userRepository.findByUsername(testUsername) } returns Optional.of(testUser)
 
@@ -132,7 +132,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `login user not found`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
 
         every { userRepository.findByUsername(testUsername) } returns Optional.empty()
 
@@ -147,7 +147,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `login user with invalid password`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
 
         every { userRepository.findByUsername(testUsername) } returns Optional.of(testUser)
         every { passwordUtils.verifyPassword(testPassword, hashedPassword) } returns false
@@ -163,7 +163,7 @@ class AuthenticationServiceTest {
 
     @Test
     fun `login user with invalid hwid`() {
-        val request = UserAuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
+        val request = AuthRequest(username = testUsername, password = testPassword, hwid = testHwid)
 
         every { userRepository.findByUsername(testUsername) } returns Optional.of(testUser)
         every { passwordUtils.verifyHwid(testHwid, hashedHwid) } returns false

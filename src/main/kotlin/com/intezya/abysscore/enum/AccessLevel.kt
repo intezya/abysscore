@@ -1,15 +1,21 @@
 package com.intezya.abysscore.enum
 
-enum class AccessLevel(
-    val value: Int,
-) {
-    USER(0),
-    VIEW_INVENTORY(1),
-    ADMIN(2),
-    CREATE_ITEM(3),
-    GIVE_ITEM(4),
-    UPDATE_ITEM(5),
-    ADD_ADMIN(6),
-    DELETE_ITEM(7),
-    DEV(1000),
+enum class AccessLevel {
+    USER,
+    VIEW_INVENTORY,
+    ADMIN,
+    CREATE_ITEM,
+    GIVE_ITEM,
+    UPDATE_ITEM,
+    RESET_HWID,
+    ADD_ADMIN,
+    DELETE_ITEM,
+    DEV,
+    ;
+
+    val value: Int
+        get() = when (this) {
+            DEV -> 1000
+            else -> ordinal
+        }
 }

@@ -1,8 +1,8 @@
 package com.intezya.abysscore.utils.providers
 
 import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
-import com.intezya.abysscore.model.dto.user.UserAuthRequest
 import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.security.dto.AuthRequest
 import io.github.serpro69.kfaker.faker
 
 class RandomProvider {
@@ -25,7 +25,7 @@ class RandomProvider {
             username: String = f.name.firstName().take(16),
             password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
             hwid: String = f.random.nextUUID(),
-        ): UserAuthRequest = UserAuthRequest(
+        ): AuthRequest = AuthRequest(
             username = username,
             password = password,
             hwid = hwid,

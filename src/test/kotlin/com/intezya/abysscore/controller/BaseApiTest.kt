@@ -7,9 +7,9 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.GameItemRepository
 import com.intezya.abysscore.repository.UserItemRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.security.jwt.JwtUtils
-import com.intezya.abysscore.security.password.PasswordUtils
 import com.intezya.abysscore.security.service.AuthenticationService
+import com.intezya.abysscore.security.utils.JwtUtils
+import com.intezya.abysscore.security.utils.PasswordUtils
 import io.restassured.RestAssured
 import io.restassured.parsing.Parser
 import org.junit.jupiter.api.AfterEach
