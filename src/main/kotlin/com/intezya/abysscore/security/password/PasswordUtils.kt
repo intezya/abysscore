@@ -6,16 +6,14 @@ import com.intezya.abysscore.utils.crypto.sha256
 import de.mkammerer.argon2.Argon2
 import org.springframework.stereotype.Component
 
+private const val MEMORY = 65536 // 64MB in KB
+private const val ITERATIONS = 3 // Number of iterations
+private const val PARALLELISM = 4
+
 @Component
 class PasswordUtils(
     private val argon2: Argon2,
 ) {
-    companion object {
-        private const val MEMORY = 65536 // 64MB in KB
-        private const val ITERATIONS = 3 // Number of iterations
-        private const val PARALLELISM = 4
-    }
-
     fun hashPassword(password: String): String = encodeToBase64(argon2.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray()))
 
     fun verifyPassword(

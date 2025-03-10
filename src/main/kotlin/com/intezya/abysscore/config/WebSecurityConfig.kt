@@ -14,22 +14,18 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+private val PUBLIC_PATHS = arrayOf(
+    "/auth/register",
+    "/auth/login",
+    "/auth/admin/login",
+    "/swagger-ui/**",
+    "/api-docs/**",
+    "/swagger-ui.html",
+)
+
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig {
-    companion object {
-        private val PUBLIC_PATHS =
-            arrayOf(
-//            "/**", // dev
-                "/auth/register",
-                "/auth/login",
-                "/auth/admin/login",
-                "/swagger-ui/**",
-                "/api-docs/**",
-                "/swagger-ui.html",
-            )
-    }
-
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter = AuthTokenFilter()
 
