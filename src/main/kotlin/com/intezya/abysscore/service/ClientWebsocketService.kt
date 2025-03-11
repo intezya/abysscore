@@ -1,58 +1,65 @@
 package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.enum.UserActionEventType
-import com.intezya.abysscore.model.dto.event.UserActionEvent
 import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
+import com.intezya.abysscore.security.service.AuthDTO
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
+import org.springframework.web.socket.WebSocketSession
 
 @Service
 class ClientWebsocketService(
     private val objectMapper: ObjectMapper,
-    private val eventPublisher: EventPublisher,
+    private val userService: UserService,
 ) {
-    private val sessions = mutableMapOf<Long, UserSessionDTO>()
+    private val sessions = mutableSetOf<UserSessionDTO>()
     private val closingMessage = TextMessage(objectMapper.writeValueAsString(mapOf("type" to "closing")))
 
-    companion object {
-        private const val EVENT_TOPIC = "auth-events"
-    }
-
-    fun addConnection(session: UserSessionDTO) {
-        val existingSession = sessions[session.id]
+    fun addConnection(session: WebSocketSession) {
+        val existingSession = sessions.firstOrNull { it.id.toString() == session.id }
         try {
             existingSession?.connection?.sendMessage(closingMessage)
             existingSession?.connection?.close()
         } catch (_: IllegalStateException) {
         }
-        sessions[session.id] = session
-        sendEvent(session, success = true, connect = true)
+        sessions.add(getUserSession(session))
     }
 
-    fun removeConnection(clientId: Long) {
-        val session = sessions.remove(clientId)
-
-        if (session != null) {
-            session.connection.close()
-            sendEvent(session, success = true, connect = false)
-        }
-    }
-
-    private fun sendEvent(
-        session: UserSessionDTO,
-        success: Boolean,
-        connect: Boolean,
+    fun removeConnection(
+        session: WebSocketSession,
+        status: CloseStatus,
     ) {
-        val event =
-            UserActionEvent(
-                username = session.username,
-                ip = session.ip,
-                eventType = if (connect) UserActionEventType.CLIENT_WEBSOCKET_CONNECT else UserActionEventType.CLIENT_WEBSOCKET_DISCONNECT,
-                isSuccess = success,
-                hwid = session.hwid,
-            )
+        val existingSession = sessions.firstOrNull { it.id.toString() == session.id }
 
-        eventPublisher.sendActionEvent(event, event.username, EVENT_TOPIC)
+        existingSession?.connection?.close()
+
+        sessions.remove(existingSession)
+    }
+
+    private fun getUserSession(
+        session: WebSocketSession,
+    ): UserSessionDTO {
+        val principal = session.principal ?: throw IllegalStateException("No authenticated principal found")
+
+        val authDTO = when (principal) {
+            is Authentication ->
+                principal.principal as? AuthDTO
+                    ?: throw IllegalStateException("Principal is not AuthDTO")
+
+            else -> throw IllegalStateException("Unexpected principal type: ${principal.javaClass}")
+        }
+
+        val user = userService.findUserWithThrow(authDTO.id)
+
+        return UserSessionDTO(
+            id = user.id!!,
+            username = user.username,
+//            ip = jwtUtils.getClientIp(session),
+            ip = "some",
+            hwid = user.hwid!!,
+            connection = session,
+        )
     }
 }

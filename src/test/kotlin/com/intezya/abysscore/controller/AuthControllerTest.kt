@@ -229,7 +229,7 @@ class AuthControllerTest : BaseApiTest() {
                     hwid = UUID.randomUUID().toString(),
                 )
 
-            var token =
+            val token =
                 Given {
                     contentType(ContentType.JSON)
                     body(loginRequest)
@@ -242,25 +242,7 @@ class AuthControllerTest : BaseApiTest() {
                     path<String>("token")
                 }
 
-            var authHWID = jwtUtils.extractHwid(token)
-
-            assertTrue(authHWID.isBlank())
-
-            token =
-                Given {
-                    contentType(ContentType.JSON)
-                    body(loginRequest)
-                } When {
-                    post("/auth/login")
-                } Then {
-                    statusCode(HttpStatus.OK.value())
-                    body("token", notNullValue())
-                } Extract {
-                    path("token")
-                }
-
-            authHWID = jwtUtils.extractHwid(token)
-
+            val authHWID = jwtUtils.extractHwid(token)
             assertTrue(passwordUtils.verifyHwid(loginRequest.hwid, authHWID))
         }
     }

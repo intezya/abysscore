@@ -7,6 +7,7 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.GameItemRepository
 import com.intezya.abysscore.repository.UserItemRepository
 import com.intezya.abysscore.repository.UserRepository
+import com.intezya.abysscore.security.service.toAuthDTO
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
 import com.intezya.abysscore.service.UserService
@@ -81,9 +82,9 @@ abstract class BaseApiTest {
                 accessLevel = accessLevel,
             )
         userRepository.save(user)
-        return jwtUtils.generateToken(user)
+        return jwtUtils.generateToken(user.toAuthDTO())
     }
 
     protected fun generateToken(): String = generateToken(accessLevel = AccessLevel.USER)
-    protected fun generateToken(user: User): String = jwtUtils.generateToken(user)
+    protected fun generateToken(user: User): String = jwtUtils.generateToken(user.toAuthDTO())
 }
