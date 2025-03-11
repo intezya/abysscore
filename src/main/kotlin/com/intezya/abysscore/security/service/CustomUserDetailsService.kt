@@ -1,8 +1,6 @@
 package com.intezya.abysscore.security.service
 
-import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.UserRepository
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
@@ -12,9 +10,12 @@ class CustomUserDetailsService(
     private val userRepository: UserRepository,
 ) : UserDetailsService {
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(username: String): User = userRepository.findByUsername(username).orElseThrow {
+    override fun loadUserByUsername(username: String): AuthDTO = userRepository.findByUsername(username).orElseThrow {
         UsernameNotFoundException("User not found")
-    }
+    }.toAuthDTO()
 
-    fun updateUserForHWIDUpdate(user: User): UserDetails = userRepository.save(user)
+    // TODO: throws hwid exception
+    fun updateHwid(id: Long, hwid: String) {
+        userRepository.updateHwid(id, hwid)
+    }
 }
