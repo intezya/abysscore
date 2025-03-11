@@ -7,9 +7,9 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.GameItemRepository
 import com.intezya.abysscore.repository.UserItemRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.security.service.AuthenticationService
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
+import com.intezya.abysscore.service.UserService
 import io.restassured.RestAssured
 import io.restassured.parsing.Parser
 import org.junit.jupiter.api.AfterEach
@@ -32,7 +32,7 @@ abstract class BaseApiTest {
     protected lateinit var jwtUtils: JwtUtils
 
     @Autowired
-    protected lateinit var authenticationService: AuthenticationService
+    protected lateinit var userService: UserService
 
     @Autowired
     protected lateinit var userRepository: UserRepository
@@ -81,8 +81,9 @@ abstract class BaseApiTest {
                 accessLevel = accessLevel,
             )
         userRepository.save(user)
-        return jwtUtils.generateJwtToken(user)
+        return jwtUtils.generateToken(user)
     }
 
     protected fun generateToken(): String = generateToken(accessLevel = AccessLevel.USER)
+    protected fun generateToken(user: User): String = jwtUtils.generateToken(user)
 }

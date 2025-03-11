@@ -9,7 +9,7 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -39,7 +39,7 @@ class AuthControllerTest : BaseApiTest() {
                     path<String>("token")
                 }
 
-            assertTrue(jwtUtils.validateJwtToken(token))
+            assertTrue(jwtUtils.isTokenValid(token))
         }
 
         @ParameterizedTest
@@ -76,7 +76,7 @@ class AuthControllerTest : BaseApiTest() {
         fun `shouldn't register user that already exists with username`() {
             val registered = RandomProvider.constructAuthRequest()
 
-            authenticationService.registerUser(registered, "someip")
+            userService.create(registered)
 
             val request = RandomProvider.constructAuthRequest(username = registered.username)
 
@@ -94,7 +94,7 @@ class AuthControllerTest : BaseApiTest() {
         fun `shouldn't register user that already has account on device`() {
             val registered = RandomProvider.constructAuthRequest()
 
-            authenticationService.registerUser(registered, "someip")
+            userService.create(registered)
 
             val request = RandomProvider.constructAuthRequest(hwid = registered.hwid)
 
@@ -115,7 +115,7 @@ class AuthControllerTest : BaseApiTest() {
         @Test
         fun `should login valid user`() {
             val request = RandomProvider.constructAuthRequest()
-            authenticationService.registerUser(request, "someip")
+            userService.create(request)
 
             val token =
                 Given {
@@ -130,7 +130,7 @@ class AuthControllerTest : BaseApiTest() {
                     path<String>("token")
                 }
 
-            assertTrue(jwtUtils.validateJwtToken(token))
+            assertTrue(jwtUtils.isTokenValid(token))
         }
 
         @Test
@@ -143,14 +143,14 @@ class AuthControllerTest : BaseApiTest() {
             } When {
                 post("/auth/login")
             } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
+                statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
 
         @Test
         fun `shouldn't login user with invalid password`() {
             val registerRequest = RandomProvider.constructAuthRequest()
-            authenticationService.registerUser(registerRequest, "someip")
+            userService.create(registerRequest)
 
             val loginRequest = RandomProvider.constructAuthRequest(username = registerRequest.username)
 
@@ -167,7 +167,7 @@ class AuthControllerTest : BaseApiTest() {
         @Test
         fun `shouldn't login user with invalid hwid`() {
             val registerRequest = RandomProvider.constructAuthRequest()
-            authenticationService.registerUser(registerRequest, "someip")
+            userService.create(registerRequest)
 
             val loginRequest =
                 RandomProvider.constructAuthRequest(
@@ -192,7 +192,7 @@ class AuthControllerTest : BaseApiTest() {
             target: String,
         ) {
             val registerRequest = RandomProvider.constructAuthRequest(username = original)
-            authenticationService.registerUser(registerRequest, "someip")
+            userService.create(registerRequest)
 
             val loginRequest =
                 RandomProvider.constructAuthRequest(
@@ -229,7 +229,7 @@ class AuthControllerTest : BaseApiTest() {
                     hwid = UUID.randomUUID().toString(),
                 )
 
-            val token =
+            var token =
                 Given {
                     contentType(ContentType.JSON)
                     body(loginRequest)
@@ -242,10 +242,26 @@ class AuthControllerTest : BaseApiTest() {
                     path<String>("token")
                 }
 
-            val authInfo = jwtUtils.getUserInfoFromToken(token)
+            var authHWID = jwtUtils.extractHwid(token)
 
-            assertNotNull(authInfo.hwid)
-            assertEquals(passwordUtils.hashHwid(loginRequest.hwid), authInfo.hwid)
+            assertTrue(authHWID.isBlank())
+
+            token =
+                Given {
+                    contentType(ContentType.JSON)
+                    body(loginRequest)
+                } When {
+                    post("/auth/login")
+                } Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("token", notNullValue())
+                } Extract {
+                    path("token")
+                }
+
+            authHWID = jwtUtils.extractHwid(token)
+
+            assertTrue(passwordUtils.verifyHwid(loginRequest.hwid, authHWID))
         }
     }
 
@@ -253,20 +269,33 @@ class AuthControllerTest : BaseApiTest() {
     inner class UserInfo {
         @Test
         fun `should get user info by token`() {
-            val user = RandomProvider.constructUser(id = 1L)
-            val token = jwtUtils.generateJwtToken(user)
+            val request = RandomProvider.constructAuthRequest()
+
+            val token =
+                Given {
+                    contentType(ContentType.JSON)
+                    body(request)
+                } When {
+                    post("/auth/register")
+                } Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("token", notNullValue())
+                } Extract {
+                    path<String>("token")
+                }
+
+            assertTrue(jwtUtils.isTokenValid(token))
 
             Given {
                 header("Authorization", "Bearer $token")
             } When {
-                get("/auth/info")
+                get("/users/me")
             } Then {
                 statusCode(HttpStatus.OK.value())
                 contentType(ContentType.JSON)
-                body("id", equalTo(user.id?.toInt()))
-                body("username", equalTo(user.username))
-                body("hwid", equalTo(user.hwid))
-                body("access_level", equalTo(-1))
+                body("id", notNullValue())
+                body("username", equalTo(request.username))
+                body("created_at", notNullValue())
             }
         }
 

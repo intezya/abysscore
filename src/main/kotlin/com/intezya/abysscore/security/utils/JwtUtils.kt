@@ -1,6 +1,7 @@
 package com.intezya.abysscore.security.utils
 
 import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.security.service.AuthDTO
 import com.intezya.abysscore.utils.crypto.sha512
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -29,8 +30,9 @@ class JwtUtils(
         extraExpirationMinutes: Int = expirationMinutes,
     ): String {
         val claims = HashMap<String, Any>()
-        claims["hwid"] = user.hwid.toString()
-
+        if (user.hwid != null) {
+            claims["hwid"] = user.hwid!!
+        }
         return Jwts.builder()
             .setIssuer(issuer)
             .setClaims(claims)
@@ -44,7 +46,7 @@ class JwtUtils(
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
         val tokenHwid = extractHwid(token)
-        if (userDetails is User) {
+        if (userDetails is AuthDTO) {
             return (username == userDetails.username) &&
                 !isTokenExpired(token) &&
                 isHwidValid(userDetails.hwid, tokenHwid)
@@ -52,6 +54,8 @@ class JwtUtils(
 
         return (username == userDetails.username) && !isTokenExpired(token)
     }
+
+    fun isTokenValid(token: String): Boolean = !isTokenExpired(token)
 
     private fun isHwidValid(dbHwid: String?, tokenHwid: String): Boolean {
         if (dbHwid == null) return true

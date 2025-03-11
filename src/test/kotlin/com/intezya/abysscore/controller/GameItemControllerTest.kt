@@ -175,7 +175,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items")
             } Then {
-                statusCode(HttpStatus.UNAUTHORIZED.value())
+                statusCode(HttpStatus.FORBIDDEN.value())
             }
         }
     }
@@ -224,7 +224,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 get("/items/${1}")
             } Then {
-                statusCode(HttpStatus.UNAUTHORIZED.value())
+                statusCode(HttpStatus.FORBIDDEN.value())
             }
         }
     }
@@ -273,7 +273,7 @@ class GameItemControllerTest : BaseApiTest() {
             } When {
                 put("/items/${1}")
             } Then {
-                statusCode(HttpStatus.UNAUTHORIZED.value())
+                statusCode(HttpStatus.FORBIDDEN.value())
             }
         }
     }
