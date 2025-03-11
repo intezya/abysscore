@@ -34,6 +34,7 @@ class CustomAuthenticationProvider(
             throw BadCredentialsException("Invalid hardware ID")
         }
         if (userDetails.hwid == null) {
+            userDetails.hwid = passwordUtils.hashHwid(hwidAsAdditionalField)
             userDetailsService.updateHwid(userDetails.id, passwordUtils.hashHwid(hwidAsAdditionalField))
         }
 

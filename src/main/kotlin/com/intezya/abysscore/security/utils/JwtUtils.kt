@@ -1,6 +1,5 @@
 package com.intezya.abysscore.security.utils
 
-import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.security.service.AuthDTO
 import com.intezya.abysscore.utils.crypto.sha512
 import io.jsonwebtoken.Claims
@@ -26,7 +25,7 @@ class JwtUtils(
     }
 
     fun generateToken(
-        user: User,
+        user: AuthDTO,
         extraExpirationMinutes: Int = expirationMinutes,
     ): String {
         val claims = HashMap<String, Any>()

@@ -23,7 +23,7 @@ class AccessLevelAspect {
             SecurityContextHolder.getContext().authentication.principal as? AuthDTO
                 ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required")
 
-        if (userAuthData.accessLevel.value < requiredAccessLevel.value) {
+        if (userAuthData.accessLevel < requiredAccessLevel.value) {
             throw ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "Access denied. Required level: ${requiredAccessLevel.name}, your level: ${userAuthData.accessLevel}",

@@ -1,6 +1,5 @@
 package com.intezya.abysscore.security.service
 
-import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.entity.User
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -11,7 +10,7 @@ data class AuthDTO(
     private val username: String,
     private val password: String,
     var hwid: String?,
-    val accessLevel: AccessLevel,
+    val accessLevel: Int,
 
 ) : UserDetails {
     constructor(user: User) : this(
@@ -19,10 +18,10 @@ data class AuthDTO(
         username = user.username,
         password = user.password,
         hwid = user.hwid,
-        accessLevel = user.accessLevel,
+        accessLevel = user.accessLevel.value,
     )
 
-    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_${accessLevel.name}"))
+    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_USER"))
 
     override fun getPassword(): String = password
 
