@@ -1,6 +1,6 @@
 package com.intezya.abysscore.security.utils
 
-import com.intezya.abysscore.security.service.AuthDTO
+import com.intezya.abysscore.security.dto.AuthDTO
 import com.intezya.abysscore.utils.crypto.sha512
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts

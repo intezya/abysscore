@@ -1,6 +1,8 @@
 package com.intezya.abysscore.security.service
 
 import com.intezya.abysscore.repository.UserRepository
+import com.intezya.abysscore.security.dto.AuthDTO
+import com.intezya.abysscore.security.dto.toAuthDTO
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service

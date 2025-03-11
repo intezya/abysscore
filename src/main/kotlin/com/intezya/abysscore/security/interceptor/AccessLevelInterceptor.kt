@@ -1,7 +1,7 @@
 package com.intezya.abysscore.security.interceptor
 
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.security.service.AuthDTO
+import com.intezya.abysscore.security.dto.AuthDTO
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus

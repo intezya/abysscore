@@ -1,4 +1,4 @@
-package com.intezya.abysscore.security.service
+package com.intezya.abysscore.security.dto
 
 import com.intezya.abysscore.model.entity.User
 import org.springframework.security.core.GrantedAuthority

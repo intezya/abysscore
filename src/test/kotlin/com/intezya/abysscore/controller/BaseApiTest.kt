@@ -7,7 +7,7 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.GameItemRepository
 import com.intezya.abysscore.repository.UserItemRepository
 import com.intezya.abysscore.repository.UserRepository
-import com.intezya.abysscore.security.service.toAuthDTO
+import com.intezya.abysscore.security.dto.toAuthDTO
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
 import com.intezya.abysscore.service.UserService

@@ -3,7 +3,7 @@ package com.intezya.abysscore.controller
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.security.service.AuthDTO
+import com.intezya.abysscore.security.dto.AuthDTO
 import com.intezya.abysscore.service.UserService
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault

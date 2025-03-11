@@ -3,7 +3,7 @@ package com.intezya.abysscore.controller
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.security.service.AuthDTO
+import com.intezya.abysscore.security.dto.AuthDTO
 import com.intezya.abysscore.service.UserItemService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springdoc.core.annotations.ParameterObject

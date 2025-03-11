@@ -1,9 +1,9 @@
 package com.intezya.abysscore.controller
 
+import com.intezya.abysscore.security.dto.AuthDTO
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.dto.AuthResponse
-import com.intezya.abysscore.security.service.AuthDTO
-import com.intezya.abysscore.security.service.toAuthDTO
+import com.intezya.abysscore.security.dto.toAuthDTO
 import com.intezya.abysscore.security.utils.CustomAuthenticationToken
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.service.UserService

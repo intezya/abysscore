@@ -2,7 +2,7 @@ package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
-import com.intezya.abysscore.security.service.AuthDTO
+import com.intezya.abysscore.security.dto.AuthDTO
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.CloseStatus
