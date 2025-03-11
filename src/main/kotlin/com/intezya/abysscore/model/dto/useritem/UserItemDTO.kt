@@ -19,3 +19,5 @@ data class UserItemDTO(
         createdAt = userItem.createdAt,
     )
 }
+
+fun UserItem.toDTO(): UserItemDTO = UserItemDTO(this)

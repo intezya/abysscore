@@ -3,6 +3,7 @@ package com.intezya.abysscore.service
 import com.intezya.abysscore.enum.ItemSourceType
 import com.intezya.abysscore.model.dto.event.ItemIssueEvent
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
+import com.intezya.abysscore.model.dto.useritem.toDTO
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserItem

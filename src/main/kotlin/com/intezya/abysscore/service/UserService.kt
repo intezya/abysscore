@@ -1,5 +1,7 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.model.dto.user.UserDTO
+import com.intezya.abysscore.model.dto.user.toDTO
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.AuthRequest
@@ -36,4 +38,6 @@ class UserService(
     fun findUserWithThrow(username: String): User = userRepository.findByUsername(username).orElseThrow {
         throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
     }
+
+    fun me(username: String): UserDTO = findUserWithThrow(username).toDTO()
 }
