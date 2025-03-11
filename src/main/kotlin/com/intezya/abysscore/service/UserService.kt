@@ -6,6 +6,8 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.utils.PasswordUtils
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -40,4 +42,6 @@ class UserService(
     }
 
     fun me(username: String): UserDTO = findUserWithThrow(username).toDTO()
+
+    fun findAll(pageable: Pageable): Page<UserDTO> = userRepository.findAll(pageable).map { it.toDTO() }
 }

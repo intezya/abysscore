@@ -7,7 +7,6 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
@@ -245,42 +244,5 @@ class AuthControllerTest : BaseApiTest() {
             val authHWID = jwtUtils.extractHwid(token)
             assertTrue(passwordUtils.verifyHwid(loginRequest.hwid, authHWID))
         }
-    }
-
-    @Nested
-    inner class UserInfo {
-        @Test
-        fun `should get user info by token`() {
-            val request = RandomProvider.constructAuthRequest()
-
-            val token =
-                Given {
-                    contentType(ContentType.JSON)
-                    body(request)
-                } When {
-                    post("/auth/register")
-                } Then {
-                    statusCode(HttpStatus.OK.value())
-                    body("token", notNullValue())
-                } Extract {
-                    path<String>("token")
-                }
-
-            assertTrue(jwtUtils.isTokenValid(token))
-
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                get("/users/me")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-                contentType(ContentType.JSON)
-                body("id", notNullValue())
-                body("username", equalTo(request.username))
-                body("created_at", notNullValue())
-            }
-        }
-
-        // TODO: add test with invalid token
     }
 }

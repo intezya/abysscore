@@ -77,8 +77,8 @@ abstract class BaseApiTest {
             User(
                 id = null,
                 username = "username",
-                password = "password",
-                hwid = "hwid",
+                password = passwordUtils.hashPassword("password"),
+                hwid = passwordUtils.hashHwid("hwid"),
                 accessLevel = accessLevel,
             )
         userRepository.save(user)
