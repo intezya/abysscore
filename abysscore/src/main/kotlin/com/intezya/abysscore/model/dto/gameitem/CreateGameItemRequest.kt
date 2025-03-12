@@ -17,5 +17,5 @@ data class CreateGameItemRequest(
     @field:Min(0)
     val rarity: Int,
 ) {
-    fun toEntity(): GameItem = GameItem(null, name, collection, type, rarity)
+    fun toEntity(): GameItem = GameItem(0L, name, collection, type, rarity)
 }

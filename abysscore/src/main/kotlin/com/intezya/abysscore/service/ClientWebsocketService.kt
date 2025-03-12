@@ -54,7 +54,7 @@ class ClientWebsocketService(
         val user = userService.findUserWithThrow(authDTO.id)
 
         return UserSessionDTO(
-            id = user.id!!,
+            id = user.id,
             username = user.username,
 //            ip = jwtUtils.getClientIp(session),
             ip = "some",

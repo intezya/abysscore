@@ -8,16 +8,21 @@ import jakarta.persistence.*
 data class TradeItem(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0L,
     @ManyToOne
     @JoinColumn(name = "trade_id", nullable = false)
-    val trade: Trade,
+    val trade: Trade? = null,
     @ManyToOne
     @JoinColumn(name = "user_item_id", nullable = false)
-    val userItem: UserItem,
+    val userItem: UserItem? = null,
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
-    val owner: User,
+    val owner: User? = null,
 ) {
-    constructor() : this(null, Trade(), UserItem(), User())
+    constructor() : this(
+        id = 0L,
+        trade = null,
+        userItem = null,
+        owner = null,
+    )
 }

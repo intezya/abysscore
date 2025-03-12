@@ -14,7 +14,7 @@ data class AuthDTO(
 
 ) : UserDetails {
     constructor(user: User) : this(
-        id = user.id!!,
+        id = user.id,
         username = user.username,
         password = user.password,
         hwid = user.hwid,

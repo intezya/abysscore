@@ -7,11 +7,17 @@ import jakarta.persistence.*
 data class GameItem(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0L,
     val name: String,
     val collection: String,
     val type: Int,
     val rarity: Int,
 ) {
-    constructor() : this(null, "", "", 0, 0)
+    constructor() : this(
+        id = 0L,
+        name = "",
+        collection = "",
+        type = 0,
+        rarity = 0,
+    )
 }

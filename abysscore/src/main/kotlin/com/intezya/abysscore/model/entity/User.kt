@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0L,
 
     @Column(unique = true)
     val username: String,
@@ -35,18 +35,18 @@ data class User(
     val items: MutableSet<UserItem> = mutableSetOf(),
 
     @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val globalStatistic: UserGlobalStatistic = UserGlobalStatistic(),
+    val globalStatistic: UserGlobalStatistic? = null,
 ) {
     constructor() : this(
-        null,
-        "",
-        "",
-        "",
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        AccessLevel.USER,
-        mutableSetOf(),
-        UserGlobalStatistic()
+        id = 0L,
+        username = "",
+        password = "",
+        hwid = "",
+        createdAt = LocalDateTime.now(),
+        updatedAt = LocalDateTime.now(),
+        accessLevel = AccessLevel.USER,
+        items = mutableSetOf(),
+        globalStatistic = null,
     )
 
     @PreUpdate

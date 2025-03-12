@@ -12,10 +12,10 @@ data class UserDTO(
     val inventory: Set<UserItemDTO>,
 ) {
     constructor(user: User) : this(
-        id = user.id!!,
+        id = user.id,
         username = user.username,
         createdAt = user.createdAt,
-        inventory = user.items.map { it -> it.toDTO() }.toSet(),
+        inventory = user.items.map { it.toDTO() }.toSet(),
     )
 }
 

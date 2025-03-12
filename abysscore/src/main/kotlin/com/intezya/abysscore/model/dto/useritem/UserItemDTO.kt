@@ -12,8 +12,8 @@ data class UserItemDTO(
     val createdAt: LocalDateTime,
 ) {
     constructor(userItem: UserItem) : this(
-        id = userItem.id!!,
-        gameItem = GameItemDTO(userItem.gameItem),
+        id = userItem.id,
+        gameItem = GameItemDTO(userItem.gameItem!!),
 //        receivedFrom = userItem.receivedFrom?.id,
 //        sourceType = userItem.sourceType,
         createdAt = userItem.createdAt,

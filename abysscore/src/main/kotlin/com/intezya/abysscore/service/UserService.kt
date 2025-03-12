@@ -51,9 +51,11 @@ class UserService(
     fun findAll(pageable: Pageable): Page<UserDTO> = userRepository.findAll(pageable).map { it.toDTO() }
 
     private fun createGlobalStatisticOnRegister(user: User) {
-        userGlobalStatisticRepository.save(UserGlobalStatistic(
-            id = user.id,
-            user = user,
-        ))
+        userGlobalStatisticRepository.save(
+            UserGlobalStatistic(
+                id = user.id,
+                user = user,
+            ),
+        )
     }
 }

@@ -9,13 +9,13 @@ import java.time.LocalDateTime
 data class Trade(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long = 0L,
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
-    val initiator: User,
+    val initiator: User? = null,
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
-    val receiver: User,
+    val receiver: User? = null,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val status: TradeStatus = TradeStatus.PENDING,
@@ -24,5 +24,12 @@ data class Trade(
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
-    constructor() : this(null, User(), User(), TradeStatus.PENDING, LocalDateTime.now(), LocalDateTime.now())
+    constructor() : this(
+        id = 0L,
+        initiator = null,
+        receiver = null,
+        status = TradeStatus.PENDING,
+        createdAt = LocalDateTime.now(),
+        updatedAt = LocalDateTime.now(),
+    )
 }
