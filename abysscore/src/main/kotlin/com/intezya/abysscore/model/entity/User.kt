@@ -33,8 +33,21 @@ data class User(
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf(),
+
+    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val globalStatistic: UserGlobalStatistic = UserGlobalStatistic(),
 ) {
-    constructor() : this(null, "", "", "", LocalDateTime.now(), LocalDateTime.now(), AccessLevel.USER)
+    constructor() : this(
+        null,
+        "",
+        "",
+        "",
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        AccessLevel.USER,
+        mutableSetOf(),
+        UserGlobalStatistic()
+    )
 
     @PreUpdate
     fun onUpdate() {
