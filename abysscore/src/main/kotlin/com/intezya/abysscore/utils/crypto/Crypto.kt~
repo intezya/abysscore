@@ -1,0 +1,19 @@
+package com.intezya.abysscore.utils.crypto
+
+import java.security.MessageDigest
+
+fun sha512(input: String): String {
+    val digest = MessageDigest.getInstance("SHA-512")
+    val hashBytes = digest.digest(input.toByteArray())
+    return hashBytes.joinToString("") { "%02x".format(it) }
+}
+
+fun sha256(input: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val hashBytes = digest.digest(input.toByteArray())
+    return hashBytes.joinToString("") { "%02x".format(it) }
+}
+
+fun encodeToBase64(input: String): String = Base64.getEncoder().encodeToString(input.toByteArray())
+
+fun decodeFromBase64(encoded: String): String = String(Base64.getDecoder().decode(encoded))
