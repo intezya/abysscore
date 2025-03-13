@@ -10,7 +10,7 @@ class RandomProvider {
         private val f = faker {}
 
         fun constructUser(
-            id: Long? = null,
+            id: Long = 0L,
             username: String = f.name.firstName(),
             password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
             hwid: String? = f.random.nextUUID(),

@@ -75,7 +75,7 @@ abstract class BaseApiTest {
     protected fun generateToken(accessLevel: AccessLevel): String {
         val user =
             User(
-                id = null,
+                id = 0L,
                 username = "username",
                 password = passwordUtils.hashPassword("password"),
                 hwid = passwordUtils.hashHwid("hwid"),

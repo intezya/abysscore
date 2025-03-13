@@ -21,21 +21,21 @@ class UserService(
     private val passwordUtils: PasswordUtils,
 ) {
     fun create(request: AuthRequest): User {
-        if (userRepository.findByUsername(request.username).isPresent) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "User already exists")
-        }
         val user = User(
             username = request.username,
             password = passwordUtils.hashPassword(request.password),
             hwid = passwordUtils.hashHwid(request.hwid),
         )
+
         try {
-            return userRepository.save(user)
+            userRepository.save(user)
         } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Only 1 account allowed per device")
-        } finally {
-            createGlobalStatisticOnRegister(user)
+            handleUserCreationError(e)
         }
+
+        createGlobalStatisticOnRegister(user)
+
+        return user
     }
 
     fun findUserWithThrow(userId: Long): User = userRepository.findById(userId).orElseThrow {
@@ -50,10 +50,21 @@ class UserService(
 
     fun findAll(pageable: Pageable): Page<UserDTO> = userRepository.findAll(pageable).map { it.toDTO() }
 
+    private fun handleUserCreationError(e: Exception): Nothing {
+        when {
+            e.message?.contains("uc_users_username") == true ->
+                throw ResponseStatusException(HttpStatus.CONFLICT, "Username already exists")
+
+            e.message?.contains("uc_users_hwid") == true ->
+                throw ResponseStatusException(HttpStatus.CONFLICT, "User already has account on device")
+
+            else -> throw IllegalStateException("Failed to create user", e)
+        }
+    }
+
     private fun createGlobalStatisticOnRegister(user: User) {
         userGlobalStatisticRepository.save(
             UserGlobalStatistic(
-                id = user.id,
                 user = user,
             ),
         )
