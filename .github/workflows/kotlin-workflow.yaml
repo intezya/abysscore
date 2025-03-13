@@ -3,23 +3,14 @@ name: Kotlin Spring Boot CI/CD
 on:
   push:
     branches: [ '**' ]
-    paths:
-      - 'abysscore/**'
-      - '.github/workflows/kotlin-workflow.yml'
   pull_request:
     types: [ opened, synchronize, reopened, closed ]
     branches: [ main, master ]
-    paths:
-      - 'abysscore/**'
-      - '.github/workflows/kotlin-workflow.yml'
 
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    defaults:
-      run:
-        working-directory: ./abysscore
+    if: github.event_name == 'push' || github.event_name != 'pull_request' || github.event.action != 'closed' || github.event.pull_request.merged == true
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -46,8 +37,8 @@ jobs:
         with:
           name: test-reports
           path: |
-            abysscore/build/reports/tests/
-            abysscore/build/test-results/
+            build/reports/tests/
+            build/test-results/
           retention-days: 7
 
   build-and-push:
@@ -58,9 +49,6 @@ jobs:
       (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) ||
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./abysscore
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -92,7 +80,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.7.0
         with:
-          images: ghcr.io/${{ github.repository }}-abysscore
+          images: ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') || github.ref == format('refs/heads/{0}', 'master') }}
             type=sha,format=short
@@ -102,7 +90,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6.15.0
         with:
-          context: ./abysscore
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
