@@ -1,6 +1,7 @@
 package com.intezya.abysscore.security.middleware
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.intezya.abysscore.security.public.PUBLIC_PATHS
 import com.intezya.abysscore.security.service.CustomUserDetailsService
 import com.intezya.abysscore.security.utils.JwtUtils
 import io.jsonwebtoken.ExpiredJwtException
@@ -10,11 +11,13 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.logging.LogFactory
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
+import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 
 private const val BEARER_PREFIX = "Bearer "
@@ -26,6 +29,7 @@ class JwtAuthenticationFilter(
     private val jwtService: JwtUtils,
     private val userDetailsService: CustomUserDetailsService,
 ) : OncePerRequestFilter() {
+    private val antPathMatcher = AntPathMatcher()
 
     private val log = LogFactory.getLog(this.javaClass)
 
@@ -34,6 +38,11 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
+        if (shouldSkipFilter(request)) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         log.debug("Processing authentication for request: ${request.requestURI}")
 
         val authHeader = request.getHeader(AUTHORIZATION_HEADER)
@@ -197,5 +206,13 @@ class JwtAuthenticationFilter(
         response.contentType = CONTENT_TYPE_JSON
         response.writer.write(jsonResponse)
         response.writer.flush()
+    }
+
+    private fun shouldSkipFilter(request: HttpServletRequest): Boolean {
+        val path = request.servletPath
+
+        return PUBLIC_PATHS.any { antPathMatcher.match(it, path) } ||
+            antPathMatcher.match("/swagger-ui/**", path) ||
+            request.method == HttpMethod.OPTIONS.name()
     }
 }

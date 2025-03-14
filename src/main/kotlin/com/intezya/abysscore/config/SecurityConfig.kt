@@ -1,6 +1,7 @@
 package com.intezya.abysscore.config
 
 import com.intezya.abysscore.security.middleware.JwtAuthenticationFilter
+import com.intezya.abysscore.security.public.PUBLIC_PATHS
 import com.intezya.abysscore.security.service.CustomAuthenticationProvider
 import com.intezya.abysscore.security.service.CustomUserDetailsService
 import com.intezya.abysscore.security.utils.PasswordUtils
@@ -18,15 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
-private val PUBLIC_PATHS = arrayOf(
-    "/auth/register",
-    "/auth/login",
-    "/auth/admin/login",
-    "/swagger-ui/**",
-    "/api-docs/**",
-    "/swagger-ui.html",
-)
-
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
@@ -41,6 +33,8 @@ class SecurityConfig(
                 authorize
                     .requestMatchers(*PUBLIC_PATHS)
                     .permitAll() // Public paths configuration
+                    .requestMatchers("/swagger-ui/**") // Отдельно указываем путь с wildcard
+                    .permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll() // Allow OPTIONS requests
                     .anyRequest()
