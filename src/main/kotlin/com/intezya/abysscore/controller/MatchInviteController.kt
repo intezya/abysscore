@@ -18,7 +18,7 @@ class MatchInviteController(
 ) {
     @PostMapping("")
     fun inviteUser(
-        @Valid inviteRequest: CreateMatchInviteRequest,
+        @RequestBody @Valid inviteRequest: CreateMatchInviteRequest,
         @AuthenticationPrincipal userDetails: AuthDTO,
     ): ResponseEntity<MatchInviteDTO> = ResponseEntity(
         matchInviteService.create(userDetails.id, inviteRequest.inviteeId).toDTO(),
