@@ -49,6 +49,7 @@ data class User(
         accessLevel = AccessLevel.USER,
         items = mutableSetOf(),
         globalStatistic = null,
+        receiveMatchInvites = false,
     )
 
     @PreUpdate
