@@ -1,5 +1,6 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.dto.user.toDTO
 import com.intezya.abysscore.model.entity.User
@@ -12,9 +13,11 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 
 @Service
+@Transactional
 class UserService(
     private val userRepository: UserRepository,
     private val userGlobalStatisticRepository: UserGlobalStatisticRepository,
@@ -38,17 +41,25 @@ class UserService(
         return user
     }
 
+    @Transactional(readOnly = true)
     fun findUserWithThrow(userId: Long): User = userRepository.findById(userId).orElseThrow {
         throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
     }
 
+    @Transactional(readOnly = true)
     fun findUserWithThrow(username: String): User = userRepository.findByUsername(username).orElseThrow {
         throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
     }
 
-    fun me(username: String): UserDTO = findUserWithThrow(username).toDTO()
-
+    @Transactional(readOnly = true)
     fun findAll(pageable: Pageable): Page<UserDTO> = userRepository.findAll(pageable).map { it.toDTO() }
+
+    fun updateReceiveMatchInvites(userId: Long, receiveMatchInvites: UpdateMatchInvitesRequest): UserDTO {
+        val user = findUserWithThrow(userId)
+        user.receiveMatchInvites = receiveMatchInvites.receiveMatchInvites
+        userRepository.save(user)
+        return user.toDTO()
+    }
 
     private fun handleUserCreationError(e: Exception): Nothing {
         when {

@@ -36,6 +36,8 @@ data class User(
 
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val globalStatistic: UserGlobalStatistic? = null,
+
+    var receiveMatchInvites: Boolean = false,
 ) {
     constructor() : this(
         id = 0L,
@@ -47,6 +49,7 @@ data class User(
         accessLevel = AccessLevel.USER,
         items = mutableSetOf(),
         globalStatistic = null,
+        receiveMatchInvites = false,
     )
 
     @PreUpdate
