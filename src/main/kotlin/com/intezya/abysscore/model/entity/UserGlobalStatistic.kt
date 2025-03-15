@@ -10,9 +10,8 @@ data class UserGlobalStatistic(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L,
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    val user: User? = null,
+    @Column(nullable = false)
+    val userId: Long = 0L,
 
     @Column(nullable = false)
     var matchesWon: Int = 0,
@@ -37,8 +36,4 @@ data class UserGlobalStatistic(
 
     @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-) {
-    constructor() : this(
-        id = 0L,
-    )
-}
+)

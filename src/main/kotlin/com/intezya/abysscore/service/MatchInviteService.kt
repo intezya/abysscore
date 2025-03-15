@@ -18,23 +18,23 @@ class MatchInviteService(
     @Value("\${abysscore.match-invite.active-diff-seconds:}") private val activeDiffSeconds: Long = 15,
 ) {
 
-    fun create(userId: Long, invitedUserId: Long): MatchInvite {
-        matchInviteRepository.findActiveByInviterIdAndInviteeId(
-            userId,
-            invitedUserId,
-        ).ifPresent {
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Match invite already exists",
-            )
-        }
-
-        val invitee = userService.findUserWithThrow(invitedUserId)
+    fun create(userId: Long, inviteeUsername: String): MatchInvite {
+        val invitee = userService.findUserWithThrow(inviteeUsername)
 
         if (!invitee.receiveMatchInvites) {
             throw ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "User does not allow receiving match invites",
+            )
+        }
+
+        matchInviteRepository.findActiveByInviterIdAndInviteeId(
+            userId,
+            invitee.id,
+        ).ifPresent {
+            throw ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Match invite already exists",
             )
         }
 
@@ -46,7 +46,7 @@ class MatchInviteService(
             MatchInvite(
                 inviter = inviter,
                 invitee = invitee,
-                activeDiffSeconds = 15,
+                activeDiffSeconds = activeDiffSeconds,
             ),
         )
     }

@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(
-    name = "match_invite",
+    name = "match_invites",
 )
 data class MatchInvite(
     @Id

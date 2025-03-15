@@ -1,7 +1,7 @@
 ${AnsiStyle.ITALIC}${Ansi.RED} ,--.          ,--.                                 ${AnsiStyle.NORMAL}${Ansi.WHITE} ,--.                              ${AnsiStyle.NORMAL}${Ansi.BLUE} ,--.            ,--.  ,--.,--.
 ${AnsiStyle.ITALIC}${Ansi.RED} `--',--,--, ,-'  '-. ,---. ,-----.,--. ,--.,--,--. ${AnsiStyle.NORMAL}${Ansi.WHITE} |  | ,---.,--.  ,--.,---.  ,---.  ${AnsiStyle.NORMAL}${Ansi.BLUE} |  |,-. ,---. ,-'  '-.|  |`--',--,--,
 ${AnsiStyle.ITALIC}${Ansi.RED} ,--.|      \'-.  .-'| .-. :`-.  /  \  '  /' ,-.  | ${AnsiStyle.NORMAL}${Ansi.WHITE} |  || .-. |\  `'  /| .-. :(  .-'  ${AnsiStyle.NORMAL}${Ansi.BLUE} |     /| .-. |'-.  .-'|  |,--.|      \
-${AnsiStyle.ITALIC}${Ansi.RED} |  ||  ||  |  |  |  \   --. /  `-.  \   ' \ '-'  | ${AnsiStyle.NORMAL}${Ansi.WHITE} |  |' '-' ' \    / \   --..-' `) ${AnsiStyle.NORMAL}${Ansi.BLUE} |  \  \' '-' '  |  |  |  ||  ||  ||  |
+${AnsiStyle.ITALIC}${Ansi.RED} |  ||  ||  |  |  |  \   --. /  `-.  \   ' \ '-'  | ${AnsiStyle.NORMAL}${Ansi.WHITE} |  |' '-' ' \    / \   --..-' `)  ${AnsiStyle.NORMAL}${Ansi.BLUE} |  \  \' '-' '  |  |  |  ||  ||  ||  |
 ${AnsiStyle.ITALIC}${Ansi.RED} `--'`--''--'  `--'   `----'`-----'.-'  /   `--`--' ${AnsiStyle.NORMAL}${Ansi.WHITE} `--' `---'   `--'   `----'`----'  ${AnsiStyle.NORMAL}${Ansi.BLUE} `--'`--'`---'   `--'  `--'`--'`--''--'
 ${AnsiStyle.ITALIC}${Ansi.RED}                                   `---'            ${AnsiStyle.NORMAL}${Ansi.WHITE}                                   ${AnsiStyle.NORMAL}${Ansi.BLUE}${AnsiStyle.NORMAL}
 
