@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class UserItemService(
     private val userService: UserService,
     private val gameItemService: GameItemService,
@@ -25,6 +26,7 @@ class UserItemService(
         private const val ITEM_ISSUE_EVENT_TOPIC = "item-issue-events"
     }
 
+    @Transactional(readOnly = true)
     fun findAllUserItems(
         userId: Long,
         pageable: Pageable,
@@ -34,7 +36,6 @@ class UserItemService(
         return userItemsPage.map { it.toDTO() }
     }
 
-    @Transactional
     fun issueForPlayerFromAdmin(
         userId: Long,
         itemId: Long,

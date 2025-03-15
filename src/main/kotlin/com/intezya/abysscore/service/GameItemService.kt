@@ -7,37 +7,37 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 
 @Service
+@Transactional
 class GameItemService(
     private val gameItemRepository: GameItemRepository,
 ) {
-    fun createGameItem(createGameItemRequest: CreateGameItemRequest): GameItem = gameItemRepository.save(createGameItemRequest.toEntity())
+    fun createGameItem(request: CreateGameItemRequest): GameItem = gameItemRepository.save(request.toEntity())
 
-    fun findById(itemId: Long): GameItem = gameItemRepository.findById(itemId).orElseThrow {
-        ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
-    }
+    @Transactional(readOnly = true)
+    fun findById(itemId: Long): GameItem = gameItemRepository.findById(itemId)
+        .orElseThrow { createItemNotFoundException() }
 
+    @Transactional(readOnly = true)
     fun findAll(pageable: Pageable): Page<GameItem> = gameItemRepository.findAll(pageable)
 
-    fun updateItem(
-        itemId: Long,
-        createGameItemRequest: CreateGameItemRequest,
-    ): GameItem {
+    fun updateItem(itemId: Long, request: CreateGameItemRequest): GameItem {
         if (!gameItemRepository.existsById(itemId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
+            throw createItemNotFoundException()
         }
 
-        val gameItem = createGameItemRequest.toEntity()
-        gameItem.id = itemId
-        return gameItemRepository.save(gameItem)
+        return gameItemRepository.save(request.toEntity().apply { id = itemId })
     }
 
     fun deleteItem(itemId: Long) {
         if (!gameItemRepository.existsById(itemId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
+            throw createItemNotFoundException()
         }
         gameItemRepository.deleteById(itemId)
     }
+
+    private fun createItemNotFoundException() = ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found")
 }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
+// TODO
 @Component
 class EventPublisher(
     private val kafkaTemplate: KafkaTemplate<String, String>,
