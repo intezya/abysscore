@@ -4,6 +4,7 @@ import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.utils.converter.AccessLevelConverter
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity
 @Table(name = "users")
@@ -34,10 +35,16 @@ data class User(
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf(),
 
-    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     val globalStatistic: UserGlobalStatistic? = null,
 
     var receiveMatchInvites: Boolean = false,
+
+    @OneToMany(mappedBy = "inviter", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    val sentInvites: MutableSet<MatchInvite> = mutableSetOf(),
+
+    @OneToMany(mappedBy = "invitee", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    val receivedInvites: MutableSet<MatchInvite> = mutableSetOf(),
 ) {
     constructor() : this(
         id = 0L,
@@ -56,4 +63,20 @@ data class User(
     fun onUpdate() {
         updatedAt = LocalDateTime.now()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is User) return false
+
+        return if (id != 0L && other.id != 0L) {
+            id == other.id
+        } else {
+            username == other.username && hwid == other.hwid
+        }
+    }
+
+    override fun hashCode(): Int = Objects.hash(id, username)
+
+    @Override
+    override fun toString(): String = this::class.simpleName + "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
 }

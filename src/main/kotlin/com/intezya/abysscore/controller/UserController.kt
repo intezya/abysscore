@@ -7,6 +7,7 @@ import com.intezya.abysscore.model.dto.user.toDTO
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.security.dto.AuthDTO
 import com.intezya.abysscore.service.UserService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.data.web.PagedModel
@@ -32,7 +33,7 @@ class UserController(
 
     @PatchMapping("/preferences/invites")
     fun updateReceiveMatchInvites(
-        @RequestBody receiveMatchInvites: UpdateMatchInvitesRequest,
+        @RequestBody @Valid receiveMatchInvites: UpdateMatchInvitesRequest,
         @AuthenticationPrincipal userDetails: AuthDTO,
     ): ResponseEntity<UserDTO> = ResponseEntity.ok(
         userService.updateReceiveMatchInvites(userDetails.id, receiveMatchInvites),

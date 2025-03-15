@@ -1,0 +1,9 @@
+${AnsiStyle.ITALIC}${Ansi.RED} ,--.          ,--.                                 ${AnsiStyle.NORMAL}${Ansi.WHITE} ,--.                              ${AnsiStyle.NORMAL}${Ansi.BLUE} ,--.            ,--.  ,--.,--.
+${AnsiStyle.ITALIC}${Ansi.RED} `--',--,--, ,-'  '-. ,---. ,-----.,--. ,--.,--,--. ${AnsiStyle.NORMAL}${Ansi.WHITE} |  | ,---.,--.  ,--.,---.  ,---.  ${AnsiStyle.NORMAL}${Ansi.BLUE} |  |,-. ,---. ,-'  '-.|  |`--',--,--,
+${AnsiStyle.ITALIC}${Ansi.RED} ,--.|      \'-.  .-'| .-. :`-.  /  \  '  /' ,-.  | ${AnsiStyle.NORMAL}${Ansi.WHITE} |  || .-. |\  `'  /| .-. :(  .-'  ${AnsiStyle.NORMAL}${Ansi.BLUE} |     /| .-. |'-.  .-'|  |,--.|      \
+${AnsiStyle.ITALIC}${Ansi.RED} |  ||  ||  |  |  |  \   --. /  `-.  \   ' \ '-'  | ${AnsiStyle.NORMAL}${Ansi.WHITE} |  |' '-' ' \    / \   --..-' `)  ${AnsiStyle.NORMAL}${Ansi.BLUE} |  \  \' '-' '  |  |  |  ||  ||  ||  |
+${AnsiStyle.ITALIC}${Ansi.RED} `--'`--''--'  `--'   `----'`-----'.-'  /   `--`--' ${AnsiStyle.NORMAL}${Ansi.WHITE} `--' `---'   `--'   `----'`----'  ${AnsiStyle.NORMAL}${Ansi.BLUE} `--'`--'`---'   `--'  `--'`--'`--''--'
+${AnsiStyle.ITALIC}${Ansi.RED}                                   `---'            ${AnsiStyle.NORMAL}${Ansi.WHITE}                                   ${AnsiStyle.NORMAL}${Ansi.BLUE}${AnsiStyle.NORMAL}
+
+${application.title} ${application.version}
+${Ansi.RED} :: Powered by Spring Boot${spring-boot.formatted-version} :: ${Ansi.DEFAULT}

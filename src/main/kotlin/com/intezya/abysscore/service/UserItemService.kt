@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class UserItemService(
     private val userService: UserService,
     private val gameItemService: GameItemService,
@@ -25,6 +26,7 @@ class UserItemService(
         private const val ITEM_ISSUE_EVENT_TOPIC = "item-issue-events"
     }
 
+    @Transactional(readOnly = true)
     fun findAllUserItems(
         userId: Long,
         pageable: Pageable,
@@ -34,7 +36,6 @@ class UserItemService(
         return userItemsPage.map { it.toDTO() }
     }
 
-    @Transactional
     fun issueForPlayerFromAdmin(
         userId: Long,
         itemId: Long,
@@ -50,13 +51,11 @@ class UserItemService(
         user: User,
         item: GameItem,
     ): UserItem {
-        val userItem =
-            UserItem(
-                user = user,
-                gameItem = item,
-                sourceType = ItemSourceType.SYSTEM,
-            )
-        sendEvent(user.id, item.id!!, ISSUED_BY_SYSTEM)
+        val userItem = UserItem(sourceType = ItemSourceType.SYSTEM).apply {
+            this.user = user
+            this.gameItem = item
+        }
+        sendEvent(user.id, item.id, ISSUED_BY_SYSTEM)
         return userItemRepository.save(userItem)
     }
 
@@ -66,12 +65,11 @@ class UserItemService(
         admin: User,
     ): UserItem {
         val userItem =
-            UserItem(
-                user = user,
-                gameItem = item,
-                sourceType = ItemSourceType.ADMIN,
-            )
-        sendEvent(user.id!!, item.id!!, admin.id!!)
+            UserItem(sourceType = ItemSourceType.ADMIN).apply {
+                this.user = user
+                this.gameItem = item
+            }
+        sendEvent(user.id, item.id, admin.id)
         return userItemRepository.save(userItem)
     }
 

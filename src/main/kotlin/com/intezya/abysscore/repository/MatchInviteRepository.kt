@@ -7,19 +7,20 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.util.*
 
+// TODO: some * m.activeDiffSeconds may be slow
 private const val FIND_ACTIVE_BY_INVITER_ID_AND_INVITEE_ID_QUERY = """
-    SELECT m FROM MatchInvite m
+    SELECT m.* FROM match_invites m
     WHERE 
-        m.inviterId = :inviterId AND
-        m.inviteeId = :inviteeId AND
-        m.createdAt > CURRENT_TIMESTAMP - INTERVAL m.activeDiffSeconds SECOND
+        m.inviter_id = ? AND
+        m.invitee_id = ? AND
+        m.created_at > CURRENT_TIMESTAMP - INTERVAL '1 SECOND' * m.active_diff_seconds
 """
 
 private const val FIND_ACTIVE_BY_INVITER_ID_QUERY = """
-    SELECT m FROM MatchInvite m
-    WHERE 
-        m.inviterId = :inviterId AND
-        m.createdAt > CURRENT_TIMESTAMP - INTERVAL m.activeDiffSeconds SECOND
+    SELECT m.* FROM match_invites m
+    WHERE
+        m.inviter_id = ? AND
+        m.created_at > CURRENT_TIMESTAMP - INTERVAL '1 SECOND' * m.active_diff_seconds
 """
 
 interface MatchInviteRepository : JpaRepository<MatchInvite, Long> {

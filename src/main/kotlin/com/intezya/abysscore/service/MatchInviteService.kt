@@ -1,6 +1,7 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.model.entity.MatchInvite
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.MatchInviteRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
@@ -18,60 +19,58 @@ class MatchInviteService(
     @Value("\${abysscore.match-invite.active-diff-seconds:}") private val activeDiffSeconds: Long = 15,
 ) {
 
-    fun create(userId: Long, invitedUserId: Long): MatchInvite {
-        matchInviteRepository.findActiveByInviterIdAndInviteeId(
-            userId,
-            invitedUserId,
-        ).ifPresent {
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Match invite already exists",
-            )
-        }
-
-        val invitee = userService.findUserWithThrow(invitedUserId)
-
-        if (!invitee.receiveMatchInvites) {
-            throw ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "User does not allow receiving match invites",
-            )
-        }
-
+    fun create(userId: Long, inviteeUsername: String): MatchInvite {
+        val invitee = userService.findUserWithThrow(inviteeUsername)
         val inviter = userService.findUserWithThrow(userId)
 
-        // TODO notify invited user
+        validateInviteRequest(userId, invitee)
+        checkForExistingInvite(userId, invitee.id)
+
+        // TODO: notify invited user
 
         return matchInviteRepository.save(
-            MatchInvite(
-                inviter = inviter,
-                invitee = invitee,
-                activeDiffSeconds = 15,
-            ),
+            MatchInvite(activeDiffSeconds = activeDiffSeconds).apply {
+                this.inviter = inviter
+                this.invitee = invitee
+            },
         )
+    }
+
+    private fun validateInviteRequest(userId: Long, invitee: User) {
+        if (invitee.id == userId) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot invite yourself")
+        }
+
+        if (!invitee.receiveMatchInvites) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "User does not allow receiving match invites")
+        }
+    }
+
+    private fun checkForExistingInvite(inviterId: Long, inviteeId: Long) {
+        matchInviteRepository.findActiveByInviterIdAndInviteeId(inviterId, inviteeId).ifPresent {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Match invite already exists")
+        }
     }
 
     @Transactional(readOnly = true)
     fun findInvitesWhereUserIsInvitee(userId: Long, pageable: Pageable): Page<MatchInvite> = matchInviteRepository.findActiveByInviterId(userId, pageable)
 
     fun acceptInvite(userId: Long, inviteId: Long) {
-        val invite = matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
-            ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
-        }
-
+        val invite = findInviteForUser(inviteId, userId)
         matchInviteRepository.delete(invite)
+
         // TODO: notify inviter
         // TODO: create match
-        return
     }
 
     fun declineInvite(userId: Long, inviteId: Long) {
-        val invite = matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
-            ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
-        }
-
+        val invite = findInviteForUser(inviteId, userId)
         matchInviteRepository.delete(invite)
+
         // TODO: notify inviter
-        return
+    }
+
+    private fun findInviteForUser(inviteId: Long, userId: Long): MatchInvite = matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
+        ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
     }
 }

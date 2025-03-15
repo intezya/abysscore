@@ -32,34 +32,31 @@ class UserService(
 
         try {
             userRepository.save(user)
+            createGlobalStatisticForUser(user)
+            return user
         } catch (e: Exception) {
             handleUserCreationError(e)
         }
-
-        createGlobalStatisticOnRegister(user)
-
-        return user
     }
 
     @Transactional(readOnly = true)
-    fun findUserWithThrow(userId: Long): User = userRepository.findById(userId).orElseThrow {
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
-    }
+    fun findUserWithThrow(userId: Long): User = userRepository.findById(userId)
+        .orElseThrow { createUserNotFoundException() }
 
     @Transactional(readOnly = true)
-    fun findUserWithThrow(username: String): User = userRepository.findByUsername(username).orElseThrow {
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
-    }
+    fun findUserWithThrow(username: String): User = userRepository.findByUsername(username)
+        .orElseThrow { createUserNotFoundException() }
 
     @Transactional(readOnly = true)
     fun findAll(pageable: Pageable): Page<UserDTO> = userRepository.findAll(pageable).map { it.toDTO() }
 
-    fun updateReceiveMatchInvites(userId: Long, receiveMatchInvites: UpdateMatchInvitesRequest): UserDTO {
+    fun updateReceiveMatchInvites(userId: Long, request: UpdateMatchInvitesRequest): UserDTO {
         val user = findUserWithThrow(userId)
-        user.receiveMatchInvites = receiveMatchInvites.receiveMatchInvites
-        userRepository.save(user)
-        return user.toDTO()
+        user.receiveMatchInvites = request.receiveMatchInvites
+        return userRepository.save(user).toDTO()
     }
+
+    private fun createUserNotFoundException() = ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
 
     private fun handleUserCreationError(e: Exception): Nothing {
         when {
@@ -73,11 +70,8 @@ class UserService(
         }
     }
 
-    private fun createGlobalStatisticOnRegister(user: User) {
-        userGlobalStatisticRepository.save(
-            UserGlobalStatistic(
-                user = user,
-            ),
-        )
+    private fun createGlobalStatisticForUser(user: User) {
+        val statistic = UserGlobalStatistic().apply { this.user = user }
+        userGlobalStatisticRepository.save(statistic)
     }
 }

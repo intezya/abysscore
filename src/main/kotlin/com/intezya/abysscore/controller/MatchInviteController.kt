@@ -21,7 +21,7 @@ class MatchInviteController(
         @RequestBody @Valid inviteRequest: CreateMatchInviteRequest,
         @AuthenticationPrincipal userDetails: AuthDTO,
     ): ResponseEntity<MatchInviteDTO> = ResponseEntity(
-        matchInviteService.create(userDetails.id, inviteRequest.inviteeId).toDTO(),
+        matchInviteService.create(userDetails.id, inviteRequest.inviteeUsername).toDTO(),
         HttpStatus.CREATED,
     )
 
