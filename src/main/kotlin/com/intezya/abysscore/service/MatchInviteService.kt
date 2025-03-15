@@ -21,6 +21,13 @@ class MatchInviteService(
     fun create(userId: Long, inviteeUsername: String): MatchInvite {
         val invitee = userService.findUserWithThrow(inviteeUsername)
 
+        if (invitee.id == userId) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Cannot invite yourself",
+            )
+        }
+
         if (!invitee.receiveMatchInvites) {
             throw ResponseStatusException(
                 HttpStatus.FORBIDDEN,
