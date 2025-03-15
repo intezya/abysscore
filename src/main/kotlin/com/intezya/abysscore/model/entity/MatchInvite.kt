@@ -4,9 +4,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(
-    name = "match_invites",
-)
+@Table(name = "match_invites")
 data class MatchInvite(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

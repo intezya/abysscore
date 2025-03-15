@@ -10,12 +10,14 @@ data class UserDTO(
     val username: String,
     val createdAt: LocalDateTime,
     val inventory: Set<UserItemDTO>,
+    val receiveMatchInvites: Boolean,
 ) {
     constructor(user: User) : this(
         id = user.id,
         username = user.username,
         createdAt = user.createdAt,
         inventory = user.items.map { it.toDTO() }.toSet(),
+        receiveMatchInvites = user.receiveMatchInvites,
     )
 }
 

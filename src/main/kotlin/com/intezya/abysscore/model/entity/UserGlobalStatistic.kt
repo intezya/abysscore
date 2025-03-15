@@ -10,8 +10,9 @@ data class UserGlobalStatistic(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L,
 
-    @Column(nullable = false)
-    val userId: Long = 0L,
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    val user: User? = null,
 
     @Column(nullable = false)
     var matchesWon: Int = 0,

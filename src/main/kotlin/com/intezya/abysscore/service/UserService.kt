@@ -36,7 +36,7 @@ class UserService(
             handleUserCreationError(e)
         }
 
-        createGlobalStatisticOnRegister(user.id)
+        createGlobalStatisticOnRegister(user)
 
         return user
     }
@@ -73,10 +73,10 @@ class UserService(
         }
     }
 
-    private fun createGlobalStatisticOnRegister(userId: Long) {
+    private fun createGlobalStatisticOnRegister(user: User) {
         userGlobalStatisticRepository.save(
             UserGlobalStatistic(
-                userId = userId,
+                user = user,
             ),
         )
     }

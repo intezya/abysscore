@@ -4,6 +4,7 @@ import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.utils.converter.AccessLevelConverter
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity
 @Table(name = "users")
@@ -34,11 +35,16 @@ data class User(
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf(),
 
-    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "user_id")
+    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     val globalStatistic: UserGlobalStatistic? = null,
 
     var receiveMatchInvites: Boolean = false,
+
+    @OneToMany(mappedBy = "inviter", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    val sentInvites: MutableSet<MatchInvite> = mutableSetOf(),
+
+    @OneToMany(mappedBy = "invitee", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    val receivedInvites: MutableSet<MatchInvite> = mutableSetOf(),
 ) {
     constructor() : this(
         id = 0L,
@@ -57,4 +63,12 @@ data class User(
     fun onUpdate() {
         updatedAt = LocalDateTime.now()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is User) return false
+        return id == other.id && username == other.username
+    }
+
+    override fun hashCode(): Int = Objects.hash(id, username)
 }
