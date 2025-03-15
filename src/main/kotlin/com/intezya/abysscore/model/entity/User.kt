@@ -67,8 +67,16 @@ data class User(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is User) return false
-        return id == other.id && username == other.username
+
+        return if (id != 0L && other.id != 0L) {
+            id == other.id
+        } else {
+            username == other.username && hwid == other.hwid
+        }
     }
 
     override fun hashCode(): Int = Objects.hash(id, username)
+
+    @Override
+    override fun toString(): String = this::class.simpleName + "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
 }

@@ -50,11 +50,10 @@ class MatchInviteService(
         // TODO notify invited user
 
         return matchInviteRepository.save(
-            MatchInvite(
-                inviter = inviter,
-                invitee = invitee,
-                activeDiffSeconds = activeDiffSeconds,
-            ),
+            MatchInvite(activeDiffSeconds = activeDiffSeconds).apply {
+                this.inviter = inviter
+                this.invitee = invitee
+            },
         )
     }
 

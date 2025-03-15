@@ -13,7 +13,7 @@ data class UserItemDTO(
 ) {
     constructor(userItem: UserItem) : this(
         id = userItem.id,
-        gameItem = GameItemDTO(userItem.gameItem!!),
+        gameItem = GameItemDTO(userItem.gameItem),
 //        receivedFrom = userItem.receivedFrom?.id,
 //        sourceType = userItem.sourceType,
         createdAt = userItem.createdAt,

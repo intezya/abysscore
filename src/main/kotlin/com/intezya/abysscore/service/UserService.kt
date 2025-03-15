@@ -75,9 +75,7 @@ class UserService(
 
     private fun createGlobalStatisticOnRegister(user: User) {
         userGlobalStatisticRepository.save(
-            UserGlobalStatistic(
-                user = user,
-            ),
+            UserGlobalStatistic().apply { this.user = user },
         )
     }
 }
