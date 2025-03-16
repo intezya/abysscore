@@ -46,6 +46,10 @@ data class User(
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_match_id", nullable = true)
     var currentMatch: Match? = null,
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "current_badge_id", nullable = true)
+    var currentBadge: UserItem? = null,
 ) {
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     lateinit var globalStatistic: UserGlobalStatistic

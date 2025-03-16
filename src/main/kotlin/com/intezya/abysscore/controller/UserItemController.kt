@@ -8,6 +8,7 @@ import com.intezya.abysscore.service.UserItemService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.data.web.PagedModel
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -20,14 +21,14 @@ class UserItemController(
 ) {
     @GetMapping("")
     fun getSelfInventory(
-        @ParameterObject pageable: Pageable,
+        @ParameterObject @PageableDefault(size = 20) pageable: Pageable,
         @AuthenticationPrincipal authentication: AuthDTO,
     ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(authentication.id, pageable))
 
     @GetMapping("/{userId}")
     @RequiresAccessLevel(AccessLevel.VIEW_INVENTORY)
     fun getUserInventory(
-        @ParameterObject pageable: Pageable,
+        @ParameterObject @PageableDefault(size = 20) pageable: Pageable,
         @PathVariable userId: Long,
     ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(userId, pageable))
 

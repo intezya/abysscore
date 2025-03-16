@@ -15,8 +15,9 @@ data class UserDTO(
     val createdAt: LocalDateTime,
     val inventory: Set<UserItemDTO>,
     val receiveMatchInvites: Boolean,
-    val currentMatch: MatchDTO? = null,
+    val currentMatch: MatchDTO?,
     val globalStatistic: UserGlobalStatisticDTO,
+    val currentBadge: UserItemDTO?,
 ) {
     constructor(user: User) : this(
         id = user.id,
@@ -26,6 +27,7 @@ data class UserDTO(
         receiveMatchInvites = user.receiveMatchInvites,
         currentMatch = user.currentMatch?.toDTO(),
         globalStatistic = user.globalStatistic.toDTO(),
+        currentBadge = user.currentBadge?.toDTO(),
     )
 }
 
