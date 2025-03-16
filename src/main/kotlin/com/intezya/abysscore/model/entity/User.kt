@@ -35,9 +35,6 @@ data class User(
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf(),
 
-    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
-    val globalStatistic: UserGlobalStatistic? = null,
-
     var receiveMatchInvites: Boolean = false,
 
     @OneToMany(mappedBy = "inviter", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
@@ -50,6 +47,9 @@ data class User(
     @JoinColumn(name = "current_match_id", nullable = true)
     var currentMatch: Match? = null,
 ) {
+    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    lateinit var globalStatistic: UserGlobalStatistic
+
     constructor() : this(
         id = 0L,
         username = "",
@@ -59,7 +59,6 @@ data class User(
         updatedAt = LocalDateTime.now(),
         accessLevel = AccessLevel.USER,
         items = mutableSetOf(),
-        globalStatistic = null,
         receiveMatchInvites = false,
     )
 

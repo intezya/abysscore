@@ -44,6 +44,12 @@ data class Match(
     @JoinColumn(name = "player2_id", nullable = false)
     lateinit var player2: User
 
+    fun roomLastResults(): List<RoomResult> = roomResults
+        .groupBy { it.user to it.roomNumber }
+        .mapValues { (_, results) -> results.maxByOrNull { it.completedAt } }
+        .values
+        .filterNotNull()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Match) return false

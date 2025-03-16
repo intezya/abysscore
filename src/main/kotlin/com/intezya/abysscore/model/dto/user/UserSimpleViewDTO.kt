@@ -21,4 +21,5 @@ data class UserSimpleViewDTO(
     )
 }
 
-fun UserDTO.simpleView(): UserSimpleViewDTO = UserSimpleViewDTO(this)
+fun UserDTO.toSimpleView(): UserSimpleViewDTO = UserSimpleViewDTO(this)
+fun User.toSimpleView(): UserSimpleViewDTO = UserSimpleViewDTO(this)
