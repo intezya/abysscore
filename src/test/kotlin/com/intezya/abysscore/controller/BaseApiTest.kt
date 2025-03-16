@@ -5,7 +5,9 @@ import com.intezya.abysscore.configuration.TestPostgresConfiguration
 import com.intezya.abysscore.constants.BEARER_PREFIX
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.UserGlobalStatistic
 import com.intezya.abysscore.repository.GameItemRepository
+import com.intezya.abysscore.repository.UserGlobalStatisticRepository
 import com.intezya.abysscore.repository.UserItemRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.toAuthDTO
@@ -54,6 +56,9 @@ abstract class BaseApiTest {
     @Autowired
     protected lateinit var passwordUtils: PasswordUtils
 
+    @Autowired
+    private lateinit var userGlobalStatisticRepository: UserGlobalStatisticRepository
+
     private val f: Faker = faker {}
 
     @LocalServerPort
@@ -94,6 +99,8 @@ abstract class BaseApiTest {
                 accessLevel = accessLevel,
             )
         userRepository.save(user)
+        val statistic = UserGlobalStatistic().apply { this.user = user }
+        userGlobalStatisticRepository.save(statistic)
         return Pair(user, jwtUtils.generateToken(user.toAuthDTO()))
     }
 
