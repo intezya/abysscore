@@ -14,4 +14,6 @@
     <include file="db/changelog/2025/03/15-01-changelog.sql"/>
     <include file="db/changelog/2025/03/15-02-changelog.sql"/>
     <include file="db/changelog/2025/03/16-01-changelog.sql"/>
+    <include file="db/changelog/2025/03/16-02-changelog.sql"/>
+    <include file="db/changelog/2025/03/16-04-changelog.sql"/>
 </databaseChangeLog>

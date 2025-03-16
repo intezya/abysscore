@@ -45,6 +45,10 @@ data class User(
 
     @OneToMany(mappedBy = "invitee", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     val receivedInvites: MutableSet<MatchInvite> = mutableSetOf(),
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "current_match_id", nullable = true)
+    var currentMatch: Match? = null,
 ) {
     constructor() : this(
         id = 0L,

@@ -33,14 +33,8 @@ data class Match(
     @JoinColumn(name = "winner_id")
     var winner: User? = null,
 
-    @Column(nullable = false)
-    var player1Score: Int = 0,
-
-    @Column(nullable = false)
-    var player2Score: Int = 0,
-
-    @Column(nullable = true)
-    val matchmakingData: String? = null,
+    @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    val roomResults: MutableList<RoomResult> = mutableListOf(),
 ) {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player1_id", nullable = false)
@@ -61,11 +55,8 @@ data class Match(
                 endedAt == other.endedAt &&
                 status == other.status &&
                 winner == other.winner &&
-                player1Score == other.player1Score &&
-                player2Score == other.player2Score &&
                 player1 == other.player1 &&
-                player2 == other.player2 &&
-                matchmakingData == other.matchmakingData
+                player2 == other.player2
         }
     }
 
@@ -73,11 +64,16 @@ data class Match(
         id.hashCode()
     } else {
         Objects.hash(
-            createdAt, startedAt, endedAt, status, winner,
-            player1Score, player2Score, player1, player2, matchmakingData,
+            createdAt,
+            startedAt,
+            endedAt,
+            status,
+            winner,
+            player1,
+            player2,
         )
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , createdAt = $createdAt , startedAt = $startedAt , endedAt = $endedAt , status = $status , player1Score = $player1Score , player2Score = $player2Score , matchmakingData = $matchmakingData )"
+    override fun toString(): String = this::class.simpleName + "(id = $id , createdAt = $createdAt , startedAt = $startedAt , endedAt = $endedAt , status = $status )"
 }
