@@ -2,6 +2,7 @@ package com.intezya.abysscore.model.dto.match
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.roomresult.RoomResultDTO
+import com.intezya.abysscore.model.dto.roomresult.RoomRetryDTO
 import com.intezya.abysscore.model.dto.roomresult.toDTO
 import com.intezya.abysscore.model.dto.user.UserSimpleViewDTO
 import com.intezya.abysscore.model.dto.user.toSimpleView
@@ -18,6 +19,7 @@ data class MatchDTO(
     val player1: UserSimpleViewDTO,
     val player2: UserSimpleViewDTO,
     val roomResults: List<RoomResultDTO>,
+    val roomRetries: List<RoomRetryDTO>,
 ) {
     constructor(match: Match) : this(
         id = match.id,
@@ -28,7 +30,8 @@ data class MatchDTO(
         winner = match.winner?.toSimpleView(),
         player1 = match.player1.toSimpleView(),
         player2 = match.player2.toSimpleView(),
-        roomResults = match.roomLastResults().map { it.toDTO() },
+        roomResults = match.roomResults.map { it.toDTO() },
+        roomRetries = match.roomRetries.map { it.toDTO() },
     )
 }
 

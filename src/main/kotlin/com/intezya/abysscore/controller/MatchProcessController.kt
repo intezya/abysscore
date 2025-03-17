@@ -18,6 +18,13 @@ import org.springframework.web.bind.annotation.RestController
 class MatchProcessController(
     private val matchProcessService: MatchProcessService,
 ) {
+    @PostMapping("/submit-retry")
+    @RequireUserInMatch(expectedThat = true)
+    fun submitRetry(
+        @RequestBody @Valid request: SubmitRoomResultRequest,
+        @AuthenticationPrincipal contextUser: User,
+    ): MatchDTO = matchProcessService.submitRetry(contextUser, request).toDTO()
+
     @PostMapping("/submit-result")
     @RequireUserInMatch(expectedThat = true)
     fun submitResult(

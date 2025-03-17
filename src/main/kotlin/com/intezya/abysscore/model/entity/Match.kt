@@ -29,15 +29,15 @@ data class Match(
     @Column(nullable = false)
     var status: MatchStatus = MatchStatus.PENDING,
 
-    @Column(nullable = false)
-    val maxRetries: Int = 3,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "winner_id")
     var winner: User? = null,
 
     @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     val roomResults: MutableList<RoomResult> = mutableListOf(),
+
+    @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    val roomRetries: MutableList<RoomRetry> = mutableListOf(),
 ) {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player1_id", nullable = false)
@@ -47,11 +47,7 @@ data class Match(
     @JoinColumn(name = "player2_id", nullable = false)
     lateinit var player2: User
 
-    fun roomLastResults(): List<RoomResult> = roomResults
-        .groupBy { it.user to it.roomNumber }
-        .mapValues { (_, results) -> results.maxByOrNull { it.completedAt } }
-        .values
-        .filterNotNull()
+    fun isEnded(): Boolean = this.roomResults.filter { it.roomNumber == 3 }.size == 2
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
