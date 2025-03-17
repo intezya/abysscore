@@ -1,5 +1,6 @@
 package com.intezya.abysscore.controller
 
+import com.intezya.abysscore.controller.annotations.RequireUserInMatch
 import com.intezya.abysscore.model.dto.match.MatchDTO
 import com.intezya.abysscore.model.dto.match.toDTO
 import com.intezya.abysscore.model.dto.matchinvite.CreateMatchInviteRequest
@@ -19,6 +20,7 @@ class MatchInviteController(
     private val matchInviteService: MatchInviteService,
 ) {
     @PostMapping("")
+    @RequireUserInMatch(expectedThat = false)
     fun inviteUser(
         @RequestBody @Valid inviteRequest: CreateMatchInviteRequest,
         @AuthenticationPrincipal contextUser: User,
@@ -28,6 +30,7 @@ class MatchInviteController(
     )
 
     @PostMapping("{inviteId}/accept")
+    @RequireUserInMatch(expectedThat = false)
     @ResponseStatus(HttpStatus.OK)
     fun acceptInvite(
         @PathVariable inviteId: Long,

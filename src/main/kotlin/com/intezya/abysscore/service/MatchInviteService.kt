@@ -36,10 +36,6 @@ class MatchInviteService(
     }
 
     private fun validateInviteRequest(inviter: User, invitee: User) {
-        if (inviter.currentMatch != null) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You are already in a match")
-        }
-
         if (invitee.id == inviter.id) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot invite yourself")
         }
