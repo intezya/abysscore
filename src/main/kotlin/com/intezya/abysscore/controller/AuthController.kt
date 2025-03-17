@@ -1,9 +1,8 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.security.dto.AuthDTO
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.dto.AuthResponse
-import com.intezya.abysscore.security.dto.toAuthDTO
 import com.intezya.abysscore.security.utils.CustomAuthenticationToken
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.service.UserService
@@ -29,12 +28,14 @@ class AuthController(
     ): ResponseEntity<AuthResponse> {
 //        userService.create(authRequest, jwtUtils.getClientIp(httpRequest))
         val user = userService.create(request)
-        val token = jwtUtils.generateToken(user.toAuthDTO())
+        val token = jwtUtils.generateToken(user)
         return ResponseEntity.ok(AuthResponse(token))
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: AuthRequest): ResponseEntity<AuthResponse> {
+    fun login(
+        @RequestBody request: AuthRequest,
+    ): ResponseEntity<AuthResponse> {
         val authentication = authenticationManager.authenticate(
             CustomAuthenticationToken(
                 request.username,
@@ -42,7 +43,7 @@ class AuthController(
                 request.hwid,
             ),
         )
-        val token = jwtUtils.generateToken(authentication.principal as AuthDTO)
+        val token = jwtUtils.generateToken(authentication.principal as User)
         return ResponseEntity.ok(AuthResponse(token))
     }
 }

@@ -3,6 +3,9 @@ package com.intezya.abysscore.model.entity
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.utils.converter.AccessLevelConverter
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,10 +17,10 @@ data class User(
     var id: Long = 0L,
 
     @Column(unique = true)
-    val username: String,
+    private val username: String,
 
     @Column(nullable = false)
-    val password: String,
+    private val password: String,
 
     @Column(unique = true)
     var hwid: String?,
@@ -50,7 +53,7 @@ data class User(
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_badge_id", nullable = true)
     var currentBadge: UserItem? = null,
-) {
+) : UserDetails {
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     lateinit var globalStatistic: UserGlobalStatistic
 
@@ -86,4 +89,18 @@ data class User(
 
     @Override
     override fun toString(): String = this::class.simpleName + "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
+
+    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_USER"))
+
+    override fun getPassword(): String = password
+
+    override fun getUsername(): String = username
+
+    override fun isAccountNonExpired(): Boolean = true
+
+    override fun isAccountNonLocked(): Boolean = true
+
+    override fun isCredentialsNonExpired(): Boolean = true
+
+    override fun isEnabled(): Boolean = true
 }

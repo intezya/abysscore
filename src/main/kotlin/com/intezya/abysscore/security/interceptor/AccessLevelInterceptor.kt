@@ -1,7 +1,7 @@
 package com.intezya.abysscore.security.interceptor
 
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.security.dto.AuthDTO
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
@@ -21,12 +21,12 @@ class AccessLevelInterceptor : HandlerInterceptor {
         if (handler is HandlerMethod) {
             val requiredAccessLevel = handler.method.getAnnotation(RequiresAccessLevel::class.java)
             if (requiredAccessLevel != null) {
-                val authData = SecurityContextHolder.getContext().authentication.principal as AuthDTO
+                val authData = SecurityContextHolder.getContext().authentication.principal as User
 
-                if (authData.accessLevel < requiredAccessLevel.level.value) {
+                if (authData.accessLevel < requiredAccessLevel.level) {
                     throw ResponseStatusException(
                         HttpStatus.FORBIDDEN,
-                        "Access denied. Required level: ${requiredAccessLevel.level.value}, your level: ${authData.accessLevel}",
+                        "Access denied. Required level: ${requiredAccessLevel.level.value}, your level: ${authData.accessLevel.value}",
                     )
                 }
             }

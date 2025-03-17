@@ -2,8 +2,8 @@ package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.security.dto.AuthDTO
 import com.intezya.abysscore.service.UserItemService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springdoc.core.annotations.ParameterObject
@@ -22,7 +22,7 @@ class UserItemController(
     @GetMapping("")
     fun getSelfInventory(
         @ParameterObject @PageableDefault(size = 20) pageable: Pageable,
-        @AuthenticationPrincipal authentication: AuthDTO,
+        @AuthenticationPrincipal authentication: User,
     ): PagedModel<UserItemDTO> = PagedModel(userItemService.findAllUserItems(authentication.id, pageable))
 
     @GetMapping("/{userId}")
@@ -37,6 +37,6 @@ class UserItemController(
     fun create(
         @PathVariable userId: Long,
         @RequestParam("item_id") gameItemId: Long,
-        @AuthenticationPrincipal authentication: AuthDTO,
+        @AuthenticationPrincipal authentication: User,
     ): UserItemDTO = userItemService.issueForPlayerFromAdmin(userId, gameItemId, authentication.id)
 }

@@ -13,7 +13,6 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserGlobalStatistic
 import com.intezya.abysscore.repository.*
 import com.intezya.abysscore.security.dto.AuthRequest
-import com.intezya.abysscore.security.dto.toAuthDTO
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
 import com.intezya.abysscore.service.UserService
@@ -133,12 +132,12 @@ abstract class BaseApiTest {
         userRepository.save(user)
         val statistic = UserGlobalStatistic().apply { this.user = user }
         userGlobalStatisticRepository.save(statistic)
-        return Pair(user, jwtUtils.generateToken(user.toAuthDTO()))
+        return Pair(user, jwtUtils.generateToken(user))
     }
 
     protected fun generateToken(accessLevel: AccessLevel): JwtToken = generateUserWithToken(accessLevel).second
     protected fun generateToken(): JwtToken = generateToken(accessLevel = AccessLevel.USER)
-    protected fun generateToken(user: User): JwtToken = jwtUtils.generateToken(user.toAuthDTO())
+    protected fun generateToken(user: User): JwtToken = jwtUtils.generateToken(user)
 
     protected fun jsonRequest() = Given {
         contentType(ContentType.JSON)

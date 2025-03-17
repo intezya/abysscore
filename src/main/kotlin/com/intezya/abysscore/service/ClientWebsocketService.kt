@@ -2,7 +2,7 @@ package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.model.dto.websocket.UserSessionDTO
-import com.intezya.abysscore.security.dto.AuthDTO
+import com.intezya.abysscore.model.entity.User
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.CloseStatus
@@ -46,7 +46,7 @@ class ClientWebsocketService(
 
         val authDTO = when (principal) {
             is Authentication ->
-                principal.principal as? AuthDTO
+                principal.principal as? User
                     ?: throw IllegalStateException("Principal is not AuthDTO")
 
             else -> throw IllegalStateException("Unexpected principal type: ${principal.javaClass}")
