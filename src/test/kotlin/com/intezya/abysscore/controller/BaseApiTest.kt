@@ -11,10 +11,7 @@ import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserGlobalStatistic
-import com.intezya.abysscore.repository.GameItemRepository
-import com.intezya.abysscore.repository.UserGlobalStatisticRepository
-import com.intezya.abysscore.repository.UserItemRepository
-import com.intezya.abysscore.repository.UserRepository
+import com.intezya.abysscore.repository.*
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.dto.toAuthDTO
 import com.intezya.abysscore.security.utils.JwtUtils
@@ -32,6 +29,8 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.parsing.Parser
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -43,6 +42,8 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionTemplate
 
 typealias JwtToken = String
 
@@ -62,6 +63,9 @@ abstract class BaseApiTest {
     protected lateinit var userRepository: UserRepository
 
     @Autowired
+    protected lateinit var matchRepository: MatchRepository
+
+    @Autowired
     protected lateinit var gameItemRepository: GameItemRepository
 
     @Autowired
@@ -78,6 +82,12 @@ abstract class BaseApiTest {
     @LocalServerPort
     private var port: Int = 0
 
+    @PersistenceContext
+    private lateinit var entityManager: EntityManager
+
+    @Autowired
+    private lateinit var transactionManager: PlatformTransactionManager
+
     @BeforeEach
     fun setUp() {
         RestAssured.baseURI = "http://localhost"
@@ -87,9 +97,17 @@ abstract class BaseApiTest {
             ObjectMapperConfig().jackson2ObjectMapperFactory { _, _ -> jacksonObjectMapper() },
         )
 
-        userRepository.deleteAll()
-        gameItemRepository.deleteAll()
-        userItemRepository.deleteAll()
+        val transactionTemplate = TransactionTemplate(transactionManager)
+
+        transactionTemplate.execute {
+            entityManager.createQuery("UPDATE User u SET u.currentMatch = NULL").executeUpdate()
+            entityManager.createQuery("UPDATE User u SET u.currentBadge = NULL").executeUpdate()
+
+            matchRepository.deleteAll()
+            userRepository.deleteAll()
+            gameItemRepository.deleteAll()
+            userItemRepository.deleteAll()
+        }
     }
 
     @AfterEach

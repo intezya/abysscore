@@ -22,7 +22,7 @@ data class Match(
     @Column(nullable = false)
     var startedAt: LocalDateTime = LocalDateTime.now(),
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     var endedAt: LocalDateTime? = null,
 
     @Enumerated(EnumType.STRING)

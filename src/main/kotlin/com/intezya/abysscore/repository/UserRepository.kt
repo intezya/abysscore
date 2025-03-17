@@ -8,13 +8,27 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
+private const val FIND_BY_USERNAME = """
+    SELECT u FROM User u 
+    WHERE
+        LOWER(u.username) = LOWER(:username)
+"""
+
+private const val UPDATE_HWID_BY_ID = """
+    UPDATE User u
+    SET
+        u.hwid = :hwid
+    WHERE
+        u.id = :id
+"""
+
 @Repository
 interface UserRepository : JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE LOWER(u.username) = LOWER(:username)")
+    @Query(FIND_BY_USERNAME)
     fun findByUsername(username: String): Optional<User>
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.hwid = :hwid WHERE u.id = :id")
+    @Query(UPDATE_HWID_BY_ID)
     fun updateHwid(id: Long, hwid: String): Int
 }
