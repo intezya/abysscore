@@ -10,20 +10,26 @@ data class RoomResult(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    val user: User,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "match_id", nullable = false)
-    val match: Match,
-
     @Column(nullable = false)
     val roomNumber: Int,
 
     @Column(nullable = false)
-    val time: Long,
+    val time: Int,
 
     @Column(nullable = false)
     val completedAt: LocalDateTime = LocalDateTime.now(),
-)
+) {
+    constructor() : this(
+        id = 0L,
+        roomNumber = 0,
+        time = 0,
+    )
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    lateinit var user: User
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "match_id", nullable = false)
+    lateinit var match: Match
+}

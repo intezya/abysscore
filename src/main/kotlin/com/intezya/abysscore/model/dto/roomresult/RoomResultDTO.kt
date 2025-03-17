@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class RoomResultDTO(
     val user: UserSimpleViewDTO,
     val roomNumber: Int,
-    val time: Long,
+    val time: Int,
     val completedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     constructor(roomResult: RoomResult) : this(

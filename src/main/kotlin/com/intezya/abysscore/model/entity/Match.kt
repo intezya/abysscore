@@ -29,6 +29,9 @@ data class Match(
     @Column(nullable = false)
     var status: MatchStatus = MatchStatus.PENDING,
 
+    @Column(nullable = false)
+    val maxRetries: Int = 3,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "winner_id")
     var winner: User? = null,

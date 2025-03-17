@@ -19,7 +19,7 @@ class RequireUserInMatchAspect {
         val user = args.find { it is User } as User?
             ?: throw IllegalArgumentException("User not found in arguments")
 
-        if (user.currentMatch == null && requireUserInMatch.expectedThat) {
+        if ((user.currentMatch == null || user.currentMatch?.endedAt != null) && requireUserInMatch.expectedThat) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not in a match")
         }
 
