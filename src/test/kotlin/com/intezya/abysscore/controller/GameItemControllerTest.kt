@@ -26,99 +26,81 @@ class GameItemControllerTest : BaseApiTest() {
     inner class GameItemCreate {
         @Test
         fun `should create game item`() {
-            val token = generateToken(AccessLevel.DEV)
             val request = RandomProvider.constructCreateGameItemRequest()
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/items")
-            } Then {
-                statusCode(201)
-                body("id", notNullValue())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    post("/items")
+                }.Then {
+                    statusCode(201)
+                    body("id", notNullValue())
+                }
         }
 
         @Test
         fun `shouldn't create game item with blank name`() {
-            val token = generateToken(AccessLevel.DEV)
             val request = RandomProvider.constructCreateGameItemRequest(name = "")
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/items")
-            } Then {
-                statusCode(400)
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    post("/items")
+                }.Then {
+                    statusCode(400)
+                }
         }
 
         @Test
         fun `shouldn't create game item with blank collection`() {
-            val token = generateToken(AccessLevel.DEV)
             val request = RandomProvider.constructCreateGameItemRequest(collection = "")
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/items")
-            } Then {
-                statusCode(400)
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    post("/items")
+                }.Then {
+                    statusCode(400)
+                }
         }
 
         @Test
         fun `shouldn't create game item with invalid type`() {
-            val token = generateToken(AccessLevel.DEV)
             val request = RandomProvider.constructCreateGameItemRequest(type = -1)
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/items")
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    post("/items")
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
         }
 
         @Test
         fun `shouldn't create game item with invalid rarity`() {
-            val token = generateToken(AccessLevel.DEV)
             val request = RandomProvider.constructCreateGameItemRequest(rarity = -1)
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/items")
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    post("/items")
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
         }
 
         @Test
         fun `shouldn't create game item without required level`() {
-            val token = generateToken()
             val request = RandomProvider.constructCreateGameItemRequest()
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/items")
-            } Then {
-                statusCode(HttpStatus.FORBIDDEN.value())
-            }
+            authenticatedRequest()
+                .body(request)
+                .When {
+                    post("/items")
+                }.Then {
+                    statusCode(HttpStatus.FORBIDDEN.value())
+                }
         }
     }
 
@@ -126,38 +108,27 @@ class GameItemControllerTest : BaseApiTest() {
     inner class GameItemGetAll {
         @Test
         fun `get all should return empty list`() {
-            val token = generateToken(AccessLevel.DEV)
-
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-            } When {
-                get("/items")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-                body("content", notNullValue())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .When {
+                    get("/items")
+                }.Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("content", notNullValue())
+                }
         }
 
         @Test
         fun `get all should return list of items`() {
-            val token = generateToken()
-            val request = RandomProvider.constructCreateGameItemRequest().toEntity()
             val n = 100
-            for (i in 1..n) {
-                gameItemRepository.save(request.copy())
-            }
+            createMultipleGameItems(n)
 
-            val response =
-                Given {
-                    header("Authorization", "Bearer $token")
-                    contentType(ContentType.JSON)
-                } When {
+            val response = authenticatedRequest()
+                .When {
                     get("/items")
-                } Then {
+                }.Then {
                     statusCode(HttpStatus.OK.value())
                     body("content", notNullValue())
-                } Extract {
+                }.Extract {
                     response().jsonPath()
                 }
 
@@ -172,9 +143,9 @@ class GameItemControllerTest : BaseApiTest() {
         fun `get all shouldn't work without authorization`() {
             Given {
                 contentType(ContentType.JSON)
-            } When {
+            }.When {
                 get("/items")
-            } Then {
+            }.Then {
                 statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
@@ -184,46 +155,38 @@ class GameItemControllerTest : BaseApiTest() {
     inner class GameItemGetOne {
         @Test
         fun `get one should return item`() {
-            val token = generateToken()
-            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
-            gameItemRepository.save(gameItem)
+            val gameItem = createGameItem()
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-            } When {
-                get("/items/${gameItem.id}")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-                body("id", equalTo(gameItem.id.toInt()))
-                body("name", equalTo(gameItem.name))
-                body("collection", equalTo(gameItem.collection))
-                body("type", equalTo(gameItem.type))
-                body("rarity", equalTo(gameItem.rarity))
-            }
+            authenticatedRequest()
+                .When {
+                    get("/items/${gameItem.id}")
+                }.Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("id", equalTo(gameItem.id.toInt()))
+                    body("name", equalTo(gameItem.name))
+                    body("collection", equalTo(gameItem.collection))
+                    body("type", equalTo(gameItem.type))
+                    body("rarity", equalTo(gameItem.rarity))
+                }
         }
 
         @Test
         fun `get one shouldn't return item that not exist`() {
-            val token = generateToken()
-
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-            } When {
-                get("/items/${1}")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest()
+                .When {
+                    get("/items/1")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
 
         @Test
         fun `get one shouldn't work without authorization`() {
             Given {
                 contentType(ContentType.JSON)
-            } When {
-                get("/items/${1}")
-            } Then {
+            }.When {
+                get("/items/1")
+            }.Then {
                 statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
@@ -233,46 +196,38 @@ class GameItemControllerTest : BaseApiTest() {
     inner class GameItemPut {
         @Test
         fun `put should work`() {
-            val token = generateToken(AccessLevel.DEV)
-            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
-            gameItemRepository.save(gameItem)
-
+            val gameItem = createGameItem()
             val request = RandomProvider.constructCreateGameItemRequest()
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                put("/items/${gameItem.id}")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    put("/items/${gameItem.id}")
+                }.Then {
+                    statusCode(HttpStatus.OK.value())
+                }
         }
 
         @Test
         fun `put shouldn't work if item doesn't exist`() {
-            val token = generateToken(AccessLevel.DEV)
             val request = RandomProvider.constructCreateGameItemRequest()
 
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                put("/items/1")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .body(request)
+                .When {
+                    put("/items/1")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
 
         @Test
         fun `put shouldn't work without authorization`() {
             Given {
                 contentType(ContentType.JSON)
-            } When {
-                put("/items/${1}")
-            } Then {
+            }.When {
+                put("/items/1")
+            }.Then {
                 statusCode(HttpStatus.UNAUTHORIZED.value())
             }
         }
@@ -282,45 +237,36 @@ class GameItemControllerTest : BaseApiTest() {
     inner class GameItemDelete {
         @Test
         fun `delete should work`() {
-            val token = generateToken(AccessLevel.DEV)
-            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
-            gameItemRepository.save(gameItem)
+            val gameItem = createGameItem()
 
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                delete("/items/${gameItem.id}")
-            } Then {
-                statusCode(HttpStatus.NO_CONTENT.value())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .When {
+                    delete("/items/${gameItem.id}")
+                }.Then {
+                    statusCode(HttpStatus.NO_CONTENT.value())
+                }
         }
 
         @Test
         fun `delete shouldn't work if not found`() {
-            val token = generateToken(AccessLevel.DEV)
-
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                delete("/items/1")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest(AccessLevel.DEV)
+                .When {
+                    delete("/items/1")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
 
         @Test
         fun `delete shouldn't work without required level`() {
-            val token = generateToken(AccessLevel.USER)
-            val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
-            gameItemRepository.save(gameItem)
+            val gameItem = createGameItem()
 
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                delete("/items/${gameItem.id}")
-            } Then {
-                statusCode(HttpStatus.FORBIDDEN.value())
-            }
+            authenticatedRequest(AccessLevel.USER)
+                .When {
+                    delete("/items/${gameItem.id}")
+                }.Then {
+                    statusCode(HttpStatus.FORBIDDEN.value())
+                }
         }
     }
 }
