@@ -207,12 +207,21 @@ abstract class BaseApiTest {
     protected fun createMatch(withStatus: MatchStatus = MatchStatus.PENDING): CreateMatchResult {
         val (user1, _) = generateUserWithToken()
         val (user2, _) = generateUserWithToken()
+
         val match = Match().apply {
             this.player1 = user1
             this.player2 = user2
             this.status = withStatus
         }
+
         matchRepository.saveAndFlush(match)
+
+        user1.apply { this.currentMatch = match }
+        user2.apply { this.currentMatch = match }
+
+        userRepository.save(user1)
+        userRepository.save(user2)
+
         return CreateMatchResult(user1, user2, match)
     }
 
