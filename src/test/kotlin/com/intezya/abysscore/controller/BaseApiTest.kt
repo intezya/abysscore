@@ -6,9 +6,11 @@ import com.intezya.abysscore.constants.BEARER_PREFIX
 import com.intezya.abysscore.constants.MATCH_INVITES_ENDPOINT
 import com.intezya.abysscore.constants.USER_PREFERENCES_INVITES_ENDPOINT
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.matchinvite.CreateMatchInviteRequest
 import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
 import com.intezya.abysscore.model.entity.GameItem
+import com.intezya.abysscore.model.entity.Match
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserGlobalStatistic
 import com.intezya.abysscore.repository.*
@@ -123,7 +125,6 @@ abstract class BaseApiTest {
     protected fun generateUserWithToken(accessLevel: AccessLevel = AccessLevel.USER): Pair<User, JwtToken> {
         val user =
             User(
-                id = 0L,
                 username = f.name.firstName(),
                 password = passwordUtils.hashPassword("password"),
                 hwid = passwordUtils.hashHwid(f.random.nextUUID()),
@@ -193,4 +194,31 @@ abstract class BaseApiTest {
 
         return (response["id"] as Int).toLong()
     }
+
+    protected fun createMatch(user1: User, user2: User, withStatus: MatchStatus = MatchStatus.PENDING): Match {
+        val match = Match().apply {
+            this.player1 = user1
+            this.player2 = user2
+        }
+        matchRepository.save(match)
+        return match
+    }
+
+    protected fun createMatch(withStatus: MatchStatus = MatchStatus.PENDING): CreateMatchResult {
+        val (user1, _) = generateUserWithToken()
+        val (user2, _) = generateUserWithToken()
+        val match = Match().apply {
+            this.player1 = user1
+            this.player2 = user2
+            this.status = withStatus
+        }
+        matchRepository.saveAndFlush(match)
+        return CreateMatchResult(user1, user2, match)
+    }
+
+    data class CreateMatchResult(
+        val player1: User,
+        val player2: User,
+        val match: Match,
+    )
 }

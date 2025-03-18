@@ -1,6 +1,5 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.configuration.TestPostgresConfiguration
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.http.ContentType
@@ -12,15 +11,9 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.ActiveProfiles
 import kotlin.test.Test
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@Import(TestPostgresConfiguration::class)
 class GameItemControllerTest : BaseApiTest() {
     @Nested
     inner class GameItemCreate {

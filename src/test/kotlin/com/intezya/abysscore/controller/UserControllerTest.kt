@@ -1,6 +1,7 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Extract
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import java.util.*
 
-class UsersControllerTest : BaseApiTest() {
+class UserControllerTest : BaseApiTest() {
     @Nested
     inner class UserInfo {
         @Test
@@ -34,6 +35,20 @@ class UsersControllerTest : BaseApiTest() {
                     body("id", notNullValue())
                     body("username", equalTo(username))
                     body("created_at", notNullValue())
+                }
+        }
+
+        @Test
+        fun `shouldn't get user info with invalid token`() {
+            val token = jwtUtils.generateToken(user = User())
+            val username = jwtUtils.extractUsername(token)
+
+            authenticatedRequest(token)
+                .When {
+                    get("/users/me")
+                }.Then {
+                    statusCode(HttpStatus.FORBIDDEN.value())
+                    contentType(ContentType.JSON)
                 }
         }
 
@@ -85,6 +100,24 @@ class UsersControllerTest : BaseApiTest() {
                 }.Then {
                     statusCode(HttpStatus.FORBIDDEN.value())
                 }
+        }
+    }
+
+    @Nested
+    inner class SetInvitePreference {
+        @Test
+        fun `should set invites state`() {
+            val (user, token) = generateUserWithToken()
+
+            assertEquals(false, userService.findUserWithThrow(user.username).receiveMatchInvites)
+
+            setAcceptInvites(token, accept = true)
+
+            assertEquals(true, userService.findUserWithThrow(user.username).receiveMatchInvites)
+
+            setAcceptInvites(token, accept = false)
+
+            assertEquals(false, userService.findUserWithThrow(user.username).receiveMatchInvites)
         }
     }
 }
