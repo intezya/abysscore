@@ -4,7 +4,7 @@ import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.service.UserItemService
+import com.intezya.abysscore.service.crud.UserItemService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Pageable

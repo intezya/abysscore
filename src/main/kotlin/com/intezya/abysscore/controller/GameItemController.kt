@@ -4,7 +4,7 @@ import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
-import com.intezya.abysscore.service.GameItemService
+import com.intezya.abysscore.service.crud.GameItemService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject

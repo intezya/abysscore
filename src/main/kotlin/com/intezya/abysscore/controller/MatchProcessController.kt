@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/match/current/")
+@RequestMapping("/matches/current/process")
 class MatchProcessController(
     private val matchProcessService: MatchProcessService,
 ) {

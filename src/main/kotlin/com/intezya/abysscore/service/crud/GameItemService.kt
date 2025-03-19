@@ -1,4 +1,4 @@
-package com.intezya.abysscore.service
+package com.intezya.abysscore.service.crud
 
 import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
 import com.intezya.abysscore.model.entity.GameItem

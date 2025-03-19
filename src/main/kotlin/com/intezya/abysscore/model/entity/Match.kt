@@ -16,10 +16,10 @@ data class Match(
 //    @JoinColumn(name = "tournament_id")
 //    val tournament: Tournament? = null,
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     var startedAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = true)
