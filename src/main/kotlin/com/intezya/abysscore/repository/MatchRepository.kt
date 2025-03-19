@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface MatchRepository : JpaRepository<Match, Long> {
-    fun findByStatus(status: MatchStatus): List<Match>
+    fun findByStatusIn(status: List<MatchStatus>): List<Match>
 }

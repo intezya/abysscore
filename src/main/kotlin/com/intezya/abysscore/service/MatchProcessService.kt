@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
@@ -22,7 +23,6 @@ import java.time.LocalDateTime
 private const val MAX_RETRIES_COUNT = 5
 private const val RETRY_PENALTY = 5
 private const val MATCH_TIMEOUT_CHECK_INTERVAL_MS = 30 * 1000L // 30 seconds
-private const val MATCH_TIMEOUT_THRESHOLD_MS = 15 * 60 * 1000L // 15 minutes
 
 @Service
 @Transactional
@@ -60,62 +60,119 @@ class MatchProcessService(
 
     @Scheduled(fixedRate = MATCH_TIMEOUT_CHECK_INTERVAL_MS)
     fun checkMatchTimeouts() {
-        val activeMatches = matchRepository.findByStatus(MatchStatus.ACTIVE)
+        try {
+            logger.info("Starting match timeout check")
 
-        activeMatches.forEach { match ->
-            checkPlayerTimeouts(match)
+            val activeMatches = matchRepository.findByStatusIn(
+                listOf(
+                    MatchStatus.PENDING,
+                    MatchStatus.DRAFTING,
+                    MatchStatus.ACTIVE,
+                ),
+            )
+
+            logger.info("Processing ${activeMatches.size} active matches for timeouts")
+
+            activeMatches.forEach { match ->
+                try {
+                    processMatchTimeout(match)
+                } catch (e: Exception) {
+                    logger.error("Error processing timeout for match ${match.id}", e)
+                }
+            }
+
+            logger.info("Completed match timeout check")
+        } catch (e: Exception) {
+            logger.error("Error checking match timeouts", e)
         }
     }
 
-    private fun checkPlayerTimeouts(match: Match) {
-        val now = LocalDateTime.now()
-        val timeoutThreshold = Duration.ofMillis(MATCH_TIMEOUT_THRESHOLD_MS)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun processMatchTimeout(match: Match) {
+        val timeoutThreshold = match.status.timeout
+        checkPlayerTimeouts(match, timeoutThreshold)
+    }
 
-        val player1LastResult = getLastResultOrStartTime(match, match.player1)
-        val player2LastResult = getLastResultOrStartTime(match, match.player2)
+    private fun checkPlayerTimeouts(
+        match: Match,
+        timeoutThreshold: Duration,
+        now: LocalDateTime = LocalDateTime.now(),
+    ) {
+        val playerResults = getLastResultsForPlayers(match, now)
+
+        val player1LastResult = playerResults[match.player1] ?: match.startedAt
+        val player2LastResult = playerResults[match.player2] ?: match.startedAt
 
         val player1Inactivity = Duration.between(player1LastResult, now)
         val player2Inactivity = Duration.between(player2LastResult, now)
 
+        logger.debug("Match ${match.id}: Player1 inactivity: ${player1Inactivity.toMinutes()} min, Player2 inactivity: ${player2Inactivity.toMinutes()} min, Threshold: ${timeoutThreshold.toMinutes()} min")
+
         if (player1Inactivity > timeoutThreshold && player2Inactivity > timeoutThreshold) {
             handleBothPlayersTimeout(match, player1Inactivity, player2Inactivity)
         } else if (player1Inactivity > timeoutThreshold) {
-            assignTechnicalDefeat(match, match.player1)
+            assignTechnicalDefeat(match, match.player1, "Timeout exceeded")
         } else if (player2Inactivity > timeoutThreshold) {
-            assignTechnicalDefeat(match, match.player2)
+            assignTechnicalDefeat(match, match.player2, "Timeout exceeded")
         }
     }
 
-    private fun getLastResultOrStartTime(match: Match, player: User): LocalDateTime {
-        val lastResult = roomResultRepository.findTopByMatchAndPlayerOrderByCompletedAtDesc(match, player)
-        return lastResult?.completedAt ?: match.startedAt
+    private fun getLastResultsForPlayers(match: Match, now: LocalDateTime): Map<User, LocalDateTime> {
+        val playerMap = mapOf(match.player1.id to match.player1, match.player2.id to match.player2)
+        val playerIds = playerMap.keys
+
+        val allActions = match.roomResults.map { it.player.id to it.completedAt } +
+            match.roomRetries.map { it.player.id to it.completedAt }
+
+        return allActions
+            .filter { (playerId, _) -> playerId in playerIds }
+            .groupBy({ it.first }, { it.second })
+            .mapValues { (_, timestamps) -> timestamps.maxOrNull() ?: now }
+            .mapKeys { (playerId, _) -> playerMap[playerId]!! }
     }
 
     private fun handleBothPlayersTimeout(match: Match, player1Inactivity: Duration, player2Inactivity: Duration) {
         if (player1Inactivity < player2Inactivity) {
-            assignTechnicalDefeat(match, match.player2)
+            assignTechnicalDefeat(match, match.player2, "Longer inactivity compared to opponent")
         } else if (player2Inactivity < player1Inactivity) {
-            assignTechnicalDefeat(match, match.player1)
+            assignTechnicalDefeat(match, match.player1, "Longer inactivity compared to opponent")
         } else {
             match.status = MatchStatus.DRAW
             match.endedAt = LocalDateTime.now()
             match.winner = null
+            match.technicalDefeatReason = "Both players timed out with equal inactivity"
             matchRepository.save(match)
 
-            logger.info("Match ${match.id} ended in draw due to both players timeout")
+            logger.info("Match ${match.id} ended in draw due to both players timing out equally")
+            notifyPlayersAboutDraw(match)
         }
     }
 
-    private fun assignTechnicalDefeat(match: Match, timeoutPlayer: User) {
+    private fun assignTechnicalDefeat(match: Match, timeoutPlayer: User, reason: String) {
         val winner = if (timeoutPlayer == match.player1) match.player2 else match.player1
 
         match.status = MatchStatus.COMPLETED
         match.endedAt = LocalDateTime.now()
         match.winner = winner
+        match.technicalDefeatReason = reason
 
         matchRepository.save(match)
 
-        logger.info("Technical defeat assigned to player ${timeoutPlayer.id} in match ${match.id}")
+        logger.info("Technical defeat assigned to player ${timeoutPlayer.id} in match ${match.id} due to $reason")
+        notifyPlayerAboutTechnicalDefeat(match, timeoutPlayer, reason)
+        notifyPlayerAboutTechnicalWin(match, winner)
+    }
+
+    private fun notifyPlayersAboutDraw(match: Match) {
+        logger.debug("Notifying players about draw in match ${match.id}")
+    }
+
+    private fun notifyPlayerAboutTechnicalDefeat(match: Match, player: User, reason: String) {
+        logger.debug("Notifying player ${player.id} about technical defeat in match ${match.id}")
+    }
+
+    private fun notifyPlayerAboutTechnicalWin(match: Match, player: User) {
+        logger.debug("Notifying player ${player.id} about technical win in match ${match.id}")
     }
 
     private fun validateRetryLimits(user: User, match: Match) {

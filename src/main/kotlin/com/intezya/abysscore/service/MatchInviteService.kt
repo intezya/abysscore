@@ -41,7 +41,7 @@ class MatchInviteService(
         }
 
         if (!invitee.receiveMatchInvites) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "User does not allow receiving match invites")
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "User does not allow receiving match invites") // 403?
         }
 
         if (invitee.currentMatch != null) {
