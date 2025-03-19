@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.servlet.NoHandlerFoundException
 import java.time.LocalDateTime
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -118,6 +119,22 @@ class GlobalExceptionHandler {
             )
 
         return ResponseEntity(apiError, ex.statusCode)
+    }
+
+    @ExceptionHandler(NoHandlerFoundException::class)
+    fun handleNoHandlerFoundException(
+        ex: NoHandlerFoundException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiError> {
+        val apiError =
+            ApiError(
+                status = HttpStatus.NOT_FOUND.value(),
+                error = "Not Found",
+                message = "No matching route found for ${request.method} ${request.requestURI}",
+                path = request.requestURI,
+            )
+
+        return ResponseEntity(apiError, HttpStatus.NOT_FOUND)
     }
 
     @ExceptionHandler(Exception::class)
