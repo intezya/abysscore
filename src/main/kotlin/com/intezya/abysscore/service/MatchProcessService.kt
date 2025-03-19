@@ -143,6 +143,9 @@ class MatchProcessService(
             match.technicalDefeatReason = "Both players timed out with equal inactivity"
             matchRepository.save(match)
 
+            match.player1.currentMatch = null
+            match.player2.currentMatch = null
+
             logger.info("Match ${match.id} ended in draw due to both players timing out equally")
             notifyPlayersAboutDraw(match)
         }
@@ -155,6 +158,9 @@ class MatchProcessService(
         match.endedAt = LocalDateTime.now()
         match.winner = winner
         match.technicalDefeatReason = reason
+
+        match.player1.currentMatch = null
+        match.player2.currentMatch = null
 
         matchRepository.save(match)
 

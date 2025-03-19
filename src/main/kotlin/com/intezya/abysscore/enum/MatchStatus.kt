@@ -7,6 +7,5 @@ enum class MatchStatus(val timeout: Duration) {
     DRAFTING(Duration.ofMinutes(2)),
     ACTIVE(Duration.ofMinutes(15)),
     COMPLETED(Duration.ZERO),
-    CANCELED(Duration.ZERO),
     DRAW(Duration.ZERO),
 }
