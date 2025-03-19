@@ -12,7 +12,7 @@ data class RoomRetryDTO(
     val completedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     constructor(roomResult: RoomRetry) : this(
-        user = roomResult.user.toSimpleView(),
+        user = roomResult.player.toSimpleView(),
         roomNumber = roomResult.roomNumber,
         time = roomResult.time,
         completedAt = roomResult.completedAt,

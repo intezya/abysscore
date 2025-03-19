@@ -8,8 +8,9 @@ import java.time.LocalDateTime
     name = "room_results",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_room_user_match_no_retry",
-            columnNames = ["room_number", "user_id", "match_id"],
+            name = "uk_room_player_match_no_retry",
+            // You must check that migration index contains room_number
+            columnNames = ["room_number", "player_id", "match_id"],
         ),
     ],
 )
@@ -34,8 +35,8 @@ data class RoomResult(
     )
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    lateinit var user: User
+    @JoinColumn(name = "player_id", nullable = false)
+    lateinit var player: User
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)

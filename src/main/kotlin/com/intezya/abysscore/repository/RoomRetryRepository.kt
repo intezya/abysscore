@@ -6,5 +6,5 @@ import com.intezya.abysscore.model.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface RoomRetryRepository : JpaRepository<RoomRetry, Long> {
-    fun countByUserAndMatchAndRoomNumber(user: User, match: Match, roomNumber: Int): Long
+    fun countByPlayerAndMatchAndRoomNumber(player: User, match: Match, roomNumber: Int): Long
 }

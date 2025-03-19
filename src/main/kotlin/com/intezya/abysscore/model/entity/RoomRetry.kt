@@ -26,8 +26,8 @@ data class RoomRetry(
     )
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    lateinit var user: User
+    @JoinColumn(name = "player_id", nullable = false)
+    lateinit var player: User
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)

@@ -51,7 +51,7 @@ class MatchProcessService(
     }
 
     private fun validateRetryLimits(user: User, match: Match) {
-        val retries = match.roomRetries.filter { it.user == user }
+        val retries = match.roomRetries.filter { it.player == user }
 
         if (retries.size >= MAX_RETRIES_COUNT) {
             throw ResponseStatusException(
@@ -65,7 +65,7 @@ class MatchProcessService(
         roomNumber = request.roomNumber,
         time = request.time,
     ).apply {
-        this.user = user
+        this.player = user
         this.match = match
     }
 
@@ -75,7 +75,7 @@ class MatchProcessService(
     }
 
     private fun calculatePenalty(user: User, match: Match, roomNumber: Int): Int {
-        val usedRetries = roomRetryRepository.countByUserAndMatchAndRoomNumber(
+        val usedRetries = roomRetryRepository.countByPlayerAndMatchAndRoomNumber(
             user,
             match,
             roomNumber,
@@ -87,7 +87,7 @@ class MatchProcessService(
         roomNumber = request.roomNumber,
         time = request.time + penalty,
     ).apply {
-        this.user = user
+        this.player = user
         this.match = match
     }
 
