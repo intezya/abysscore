@@ -6,9 +6,15 @@ import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.jdbc.core.JdbcTemplate
+import java.time.LocalDateTime
 
 class MatchProcessControllerTest : BaseApiTest() {
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
+
     @Nested
     inner class MatchSubmitRetry {
         @Test
@@ -24,7 +30,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                 authenticatedRequest(jwtUtils.generateToken(createResult.player1))
                     .body(request)
                     .When {
-                        post("/match/current/submit-retry")
+                        post("/matches/current/process/submit-retry")
                     }.Then {
                         statusCode(200)
                         body("id", notNullValue())
@@ -45,7 +51,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                 authenticatedRequest(jwtUtils.generateToken(createResult.player1))
                     .body(request)
                     .When {
-                        post("/match/current/submit-retry")
+                        post("/matches/current/process/submit-retry")
                     }.Then {
                         statusCode(HttpStatus.OK.value())
                         body("id", notNullValue())
@@ -55,7 +61,7 @@ class MatchProcessControllerTest : BaseApiTest() {
             authenticatedRequest(jwtUtils.generateToken(createResult.player1))
                 .body(request)
                 .When {
-                    post("/match/current/submit-retry")
+                    post("/matches/current/process/submit-retry")
                 }.Then {
                     statusCode(HttpStatus.CONFLICT.value())
                 }
@@ -73,7 +79,7 @@ class MatchProcessControllerTest : BaseApiTest() {
             authenticatedRequest(token)
                 .body(request)
                 .When {
-                    post("/match/current/submit-retry")
+                    post("/matches/current/process/submit-retry")
                 }.Then {
                     statusCode(HttpStatus.BAD_REQUEST.value())
                 }
@@ -95,7 +101,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                 authenticatedRequest(jwtUtils.generateToken(createResult.player1))
                     .body(request)
                     .When {
-                        post("/match/current/submit-result")
+                        post("/matches/current/process/submit-result")
                     }.Then {
                         statusCode(200)
                         body("id", notNullValue())
@@ -114,7 +120,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                 authenticatedRequest(jwtUtils.generateToken(createResult.player1))
                     .body(request)
                     .When {
-                        post("/match/current/submit-result")
+                        post("/matches/current/process/submit-result")
                     }.Then {
                         statusCode(HttpStatus.OK.value())
                         body("id", notNullValue())
@@ -123,7 +129,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                 authenticatedRequest(jwtUtils.generateToken(createResult.player1))
                     .body(request)
                     .When {
-                        post("/match/current/submit-result")
+                        post("/matches/current/process/submit-result")
                     }.Then {
                         statusCode(HttpStatus.CONFLICT.value())
                     }
@@ -142,10 +148,38 @@ class MatchProcessControllerTest : BaseApiTest() {
             authenticatedRequest(token)
                 .body(request)
                 .When {
-                    post("/match/current/submit-result")
+                    post("/match/current/process/submit-result")
                 }.Then {
                     statusCode(HttpStatus.BAD_REQUEST.value())
                 }
+        }
+    }
+
+    @Nested
+    inner class MatchTimeoutTest {
+        @Test
+        fun `should timeout match for both players`() {
+            val createResult = createMatch()
+
+            updateMatchCreatedAt(createResult.match.id, LocalDateTime.now().minusDays(1))
+
+            val token = jwtUtils.generateToken(createResult.player1)
+            authenticatedRequest(token)
+                .When {
+                    post("/matches/current/process/submit-result")
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
+        }
+
+        private fun updateMatchCreatedAt(matchId: Long, createdAt: LocalDateTime) {
+            val updateSql = "UPDATE matches SET created_at = ? WHERE id = ?"
+
+            jdbcTemplate.update(
+                updateSql,
+                createdAt,
+                matchId,
+            )
         }
     }
 }
