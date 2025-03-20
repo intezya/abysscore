@@ -15,11 +15,13 @@ import org.apache.commons.logging.LogFactory
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 import java.time.LocalDateTime
 
 @Service
+@Transactional
 class DraftProcessService(
     private val matchDraftRepository: MatchDraftRepository,
     private val draftActionRepository: DraftActionRepository,
@@ -29,39 +31,18 @@ class DraftProcessService(
     private val logger = LogFactory.getLog(this.javaClass)
 
     fun revealCharacters(user: User, characters: List<DraftCharacterDTO>): MatchDraft {
-        if (user.currentMatch?.status != MatchStatus.PENDING) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in reveal characters stage")
-        }
-
-        val draft = user.currentMatch!!.draft
+        val match = validateMatchStatus(user, MatchStatus.PENDING, "Match is not in reveal characters stage")
+        val draft = match.draft
 
         validateDraftState(draft, expectedState = DraftState.CHARACTER_REVEAL)
-
-        val match = draft.match
         val playerInfo = getPlayerInfo(match, user.id)
 
-        if (playerInfo.isPlayer1) {
-            draft.player1AvailableCharacters.addAll(characters.map { it.toEntity() })
-            draft.isPlayer1Ready = true
-        } else {
-            draft.player2AvailableCharacters.addAll(characters.map { it.toEntity() })
-            draft.isPlayer2Ready = true
-        }
+        registerPlayerCharacters(draft, playerInfo, characters)
 
-        val action = DraftAction(
-            draft = draft,
-            user = playerInfo.player,
-            actionType = DraftActionType.REVEAL_CHARACTERS,
-        )
-
-        // TODO: add saved characters logging for statistics and analysis
-
-        draftActionRepository.save(action)
+        logDraftAction(draft, playerInfo.player, DraftActionType.REVEAL_CHARACTERS)
 
         if (draft.isPlayer1Ready && draft.isPlayer2Ready) {
-            user.currentMatch!!.status = MatchStatus.DRAFTING
-            matchRepository.save(user.currentMatch!!)
-            advanceDraftToDraftingState(draft)
+            advanceToDraftingState(match, draft)
         }
 
         notifyOpponent(draft, playerInfo.isPlayer1, DraftNotificationType.CHARACTERS_REVEALED)
@@ -70,35 +51,87 @@ class DraftProcessService(
     }
 
     fun performDraftAction(user: User, characterName: String): MatchDraft {
-        if (user.currentMatch?.status != MatchStatus.DRAFTING) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in reveal characters stage")
-        }
+        val match = validateMatchStatus(user, MatchStatus.DRAFTING, "Match is not in drafting stage")
+        val draft = match.draft
 
-        val draft = user.currentMatch!!.draft
         validateDraftState(draft, DraftState.DRAFTING)
-
-        val match = draft.match
         val playerInfo = getPlayerInfo(match, user.id)
-
         validateUserTurn(draft, playerInfo.isPlayer1)
 
         val isPick = draft.isCurrentStepPick()
         val result = if (isPick) {
-            pickCharacter(draft, user.id, characterName)
+            pickCharacter(draft, playerInfo, characterName)
         } else {
-            banCharacter(draft, user.id, characterName)
+            banCharacter(draft, playerInfo, characterName)
         }
 
-        val notificationType =
-            if (isPick) DraftNotificationType.CHARACTER_PICKED else DraftNotificationType.CHARACTER_BANNED
+        val notificationType = if (isPick) {
+            DraftNotificationType.CHARACTER_PICKED
+        } else {
+            DraftNotificationType.CHARACTER_BANNED
+        }
+
         notifyOpponent(draft, playerInfo.isPlayer1, notificationType, characterName)
 
         return result
     }
 
-    private fun banCharacter(draft: MatchDraft, userId: Long, characterName: String): MatchDraft {
+    @Scheduled(fixedRate = 1000)
+    fun checkTimeouts() {
+        val now = LocalDateTime.now()
+        val expiredDrafts = matchDraftRepository.findByCurrentStateNotAndCurrentStateDeadlineBefore(
+            DraftState.COMPLETED,
+            now,
+        )
+
+        expiredDrafts.forEach { handleExpiredDraft(it) }
+    }
+
+    private fun registerPlayerCharacters(
+        draft: MatchDraft,
+        playerInfo: PlayerInfo,
+        characters: List<DraftCharacterDTO>,
+    ) {
+        val characterEntities = characters.map { it.toEntity() }
+
+        if (playerInfo.isPlayer1) {
+            draft.player1AvailableCharacters.addAll(characterEntities)
+            draft.isPlayer1Ready = true
+        } else {
+            draft.player2AvailableCharacters.addAll(characterEntities)
+            draft.isPlayer2Ready = true
+        }
+
+        // TODO: add saved characters logging for statistics and analysis
+    }
+
+    private fun logDraftAction(
+        draft: MatchDraft,
+        player: User,
+        actionType: DraftActionType,
+        characterName: String? = null,
+    ): DraftAction {
+        val action = DraftAction(
+            draft = draft,
+            user = player,
+            actionType = actionType,
+            characterName = characterName,
+        )
+
+        return draftActionRepository.save(action)
+    }
+
+    private fun advanceToDraftingState(match: Match, draft: MatchDraft) {
+        match.status = MatchStatus.DRAFTING
+        matchRepository.save(match)
+
+        advanceDraftToDraftingState(draft)
+    }
+
+    private fun banCharacter(draft: MatchDraft, playerInfo: PlayerInfo, characterName: String): MatchDraft {
+        val userId = playerInfo.player.id
+        val isPlayer1 = playerInfo.isPlayer1
         val match = draft.match
-        val isPlayer1 = match.player1.id == userId
 
         val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
         val opponentPool = if (isPlayer1) draft.player2AvailableCharacters else draft.player1AvailableCharacters
@@ -111,22 +144,20 @@ class DraftProcessService(
         userPool.removeIf { it.name == characterName }
         draft.bannedCharacters.add(characterName)
 
-        val action = DraftAction(
+        logDraftAction(
             draft = draft,
-            user = if (isPlayer1) match.player1 else match.player2,
+            player = playerInfo.player,
             actionType = DraftActionType.BAN_CHARACTER,
             characterName = characterName,
         )
-        draftActionRepository.save(action)
 
         draft.moveToNextStep()
 
         return matchDraftRepository.save(draft)
     }
 
-    private fun pickCharacter(draft: MatchDraft, userId: Long, characterName: String): MatchDraft {
-        val match = draft.match
-        val isPlayer1 = match.player1.id == userId
+    private fun pickCharacter(draft: MatchDraft, playerInfo: PlayerInfo, characterName: String): MatchDraft {
+        val isPlayer1 = playerInfo.isPlayer1
 
         val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
         val userCharacters = if (isPlayer1) draft.player1Characters else draft.player2Characters
@@ -139,28 +170,96 @@ class DraftProcessService(
         userCharacters.add(characterName)
         userPool.removeIf { it.name == characterName }
 
-        val action = DraftAction(
+        logDraftAction(
             draft = draft,
-            user = if (isPlayer1) match.player1 else match.player2,
+            player = playerInfo.player,
             actionType = DraftActionType.PICK_CHARACTER,
             characterName = characterName,
         )
-        draftActionRepository.save(action)
 
         draft.moveToNextStep()
 
         return matchDraftRepository.save(draft)
     }
 
-    @Scheduled(fixedRate = 1000)
-    fun checkTimeouts() {
-        val now = LocalDateTime.now()
-        val expiredDrafts = matchDraftRepository.findByCurrentStateNotAndCurrentStateDeadlineBefore(
-            DraftState.COMPLETED,
-            now,
-        )
+    private fun handleExpiredDraft(draft: MatchDraft) {
+        logger.info("Processing expired draft: ${draft.id}")
 
-        expiredDrafts.forEach { handleExpiredDraft(it) }
+        when (draft.currentState) {
+            DraftState.CHARACTER_REVEAL -> handleExpiredCharacterReveal(draft)
+            DraftState.DRAFTING -> handleExpiredDrafting(draft)
+            else -> {}
+        }
+
+        if (draft.currentStepIndex >= draft.draftActions.size) {
+            completeDraft(draft)
+        }
+    }
+
+    private fun handleExpiredCharacterReveal(draft: MatchDraft) {
+        matchProcessService.checkPlayerTimeouts(
+            draft.match,
+            Duration.ofMinutes(1),
+            playerResults = mapOf(
+                draft.match.player1 to draft.currentStateStartTime,
+                draft.match.player2 to draft.currentStateStartTime,
+            ),
+        )
+    }
+
+    private fun handleExpiredDrafting(draft: MatchDraft) {
+        val isPlayer1Turn = draft.isCurrentTurnPlayer1()
+        val availablePool = if (isPlayer1Turn) {
+            draft.player1AvailableCharacters
+        } else {
+            draft.player2AvailableCharacters
+        }
+
+        if (availablePool.isNotEmpty()) {
+            val randomCharacter = availablePool.random()
+            val player = if (isPlayer1Turn) draft.match.player1 else draft.match.player2
+            val playerInfo = PlayerInfo(player, isPlayer1Turn)
+
+            if (draft.isCurrentStepPick()) {
+                pickCharacter(draft, playerInfo, randomCharacter.name)
+            } else {
+                banCharacter(draft, playerInfo, randomCharacter.name)
+            }
+
+            val action = if (draft.isCurrentStepPick()) "picked" else "banned"
+            logger.info("Auto-$action character ${randomCharacter.name} for timeout in draft ${draft.id}")
+
+            notifyBothPlayers(draft, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
+        } else {
+            draft.moveToNextStep()
+            matchDraftRepository.save(draft)
+        }
+    }
+
+    private fun completeDraft(draft: MatchDraft) {
+        draft.currentState = DraftState.COMPLETED
+        matchDraftRepository.save(draft)
+
+        notifyBothPlayers(draft, DraftNotificationType.DRAFT_COMPLETED)
+    }
+
+    private fun notifyBothPlayers(
+        draft: MatchDraft,
+        notificationType: DraftNotificationType,
+        characterName: String? = null,
+    ) {
+        notifyOpponent(draft, true, notificationType, characterName)
+        notifyOpponent(draft, false, notificationType, characterName)
+    }
+
+    private fun validateMatchStatus(user: User, expectedStatus: MatchStatus, errorMessage: String): Match {
+        val match = user.currentMatch ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not in a match")
+
+        if (match.status != expectedStatus) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage)
+        }
+
+        return match
     }
 
     private fun validateDraftState(draft: MatchDraft, expectedState: DraftState) {
@@ -190,58 +289,6 @@ class DraftProcessService(
         )
     }
 
-    private fun handleExpiredDraft(draft: MatchDraft) {
-        logger.info("Processing expired draft: ${draft.id}")
-
-        if (draft.currentState == DraftState.CHARACTER_REVEAL) {
-            // TODO
-            matchProcessService.checkPlayerTimeouts(
-                draft.match,
-                Duration.ofMinutes(1),
-                playerResults = mapOf(
-                    draft.match.player1 to draft.currentStateStartTime,
-                    draft.match.player2 to draft.currentStateStartTime,
-                ),
-            )
-            return
-        }
-
-        if (draft.currentState == DraftState.DRAFTING) {
-            val isPlayer1Turn = draft.isCurrentTurnPlayer1()
-            val availablePool =
-                if (isPlayer1Turn) draft.player1AvailableCharacters else draft.player2AvailableCharacters
-
-            if (availablePool.isNotEmpty()) {
-                val randomCharacter = availablePool.random()
-                val userId = if (isPlayer1Turn) draft.match.player1.id else draft.match.player2.id
-
-                if (draft.isCurrentStepPick()) {
-                    pickCharacter(draft, userId, randomCharacter.name)
-                } else {
-                    banCharacter(draft, userId, randomCharacter.name)
-                }
-
-                val action = if (draft.isCurrentStepPick()) "picked" else "banned"
-
-                logger.info("Auto-$action character ${randomCharacter.name} for timeout in draft ${draft.id}")
-
-                notifyOpponent(draft, true, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
-                notifyOpponent(draft, false, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
-            } else {
-                draft.moveToNextStep()
-                matchDraftRepository.save(draft)
-            }
-        }
-
-        if (draft.currentStepIndex >= draft.draftActions.size) {
-            draft.currentState = DraftState.COMPLETED
-            matchDraftRepository.save(draft)
-
-            notifyOpponent(draft, true, DraftNotificationType.DRAFT_COMPLETED)
-            notifyOpponent(draft, false, DraftNotificationType.DRAFT_COMPLETED)
-        }
-    }
-
     private fun notifyOpponent(
         draft: MatchDraft,
         isActingPlayerOne: Boolean,
@@ -260,13 +307,15 @@ class DraftProcessService(
                 currentStepIndex = draft.currentStepIndex,
                 deadline = draft.currentStateDeadline,
             )
-            // TODO:
 
-//            websocketService.sendToUser(
-//                userId = opponentId,
-//                destination = "/topic/draft.${draft.id}",
-//                payload = objectMapper.writeValueAsString(notification)
-//            )
+            // TODO: Имплементация отправки уведомлений через WebSocket
+            // websocketService.sendToUser(
+            //     userId = opponentId,
+            //     destination = "/topic/draft.${draft.id}",
+            //     payload = objectMapper.writeValueAsString(notification)
+            // )
+
+            logger.debug("Notification sent to user $opponentId: $notificationType")
         } catch (e: Exception) {
             logger.error("Failed to send notification for draft ${draft.id}", e)
         }
