@@ -60,31 +60,21 @@ class MatchProcessService(
 
     @Scheduled(fixedRate = MATCH_TIMEOUT_CHECK_INTERVAL_MS)
     fun checkMatchTimeouts() {
-        try {
-            logger.info("Starting match timeout check")
+        logger.info("Starting match timeout check")
 
-            val activeMatches = matchRepository.findByStatusIn(
-                listOf(
-                    MatchStatus.PENDING,
-                    MatchStatus.DRAFTING,
-                    MatchStatus.ACTIVE,
-                ),
-            )
+        val activeMatches = matchRepository.findByStatus(MatchStatus.ACTIVE)
 
-            logger.info("Processing ${activeMatches.size} active matches for timeouts")
+        logger.info("Processing ${activeMatches.size} active matches for timeouts")
 
-            activeMatches.forEach { match ->
-                try {
-                    processMatchTimeout(match)
-                } catch (e: Exception) {
-                    logger.error("Error processing timeout for match ${match.id}", e)
-                }
+        activeMatches.forEach { match ->
+            try {
+                processMatchTimeout(match)
+            } catch (e: Exception) {
+                logger.error("Error processing timeout for match ${match.id}", e)
             }
-
-            logger.info("Completed match timeout check")
-        } catch (e: Exception) {
-            logger.error("Error checking match timeouts", e)
         }
+
+        logger.info("Completed match timeout check")
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -93,13 +83,12 @@ class MatchProcessService(
         checkPlayerTimeouts(match, timeoutThreshold)
     }
 
-    private fun checkPlayerTimeouts(
+    fun checkPlayerTimeouts(
         match: Match,
         timeoutThreshold: Duration,
         now: LocalDateTime = LocalDateTime.now(),
+        playerResults: Map<User, LocalDateTime> = getLastResultsForPlayers(match, now),
     ) {
-        val playerResults = getLastResultsForPlayers(match, now)
-
         val player1LastResult = playerResults[match.player1] ?: match.startedAt
         val player2LastResult = playerResults[match.player2] ?: match.startedAt
 

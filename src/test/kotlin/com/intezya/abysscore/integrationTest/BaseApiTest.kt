@@ -73,6 +73,9 @@ abstract class BaseApiTest {
     protected lateinit var userItemRepository: UserItemRepository
 
     @Autowired
+    protected lateinit var matchDraftRepository: MatchDraftRepository
+
+    @Autowired
     protected lateinit var passwordUtils: PasswordUtils
 
     @Autowired
@@ -104,6 +107,7 @@ abstract class BaseApiTest {
             entityManager.createQuery("UPDATE User u SET u.currentMatch = NULL").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentBadge = NULL").executeUpdate()
 
+            matchDraftRepository.deleteAll()
             matchRepository.deleteAll()
             userRepository.deleteAll()
             gameItemRepository.deleteAll()

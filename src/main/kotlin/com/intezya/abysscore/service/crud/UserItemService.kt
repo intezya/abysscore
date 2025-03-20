@@ -8,7 +8,6 @@ import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserItem
 import com.intezya.abysscore.repository.UserItemRepository
-import com.intezya.abysscore.service.EventPublisher
 import com.intezya.abysscore.service.UserService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -21,7 +20,7 @@ class UserItemService(
     private val userService: UserService,
     private val gameItemService: GameItemService,
     private val userItemRepository: UserItemRepository,
-    private val eventPublisher: EventPublisher,
+//    private val eventPublisher: EventPublisher,
 ) {
     companion object {
         private const val ISSUED_BY_SYSTEM = 0L
@@ -86,6 +85,6 @@ class UserItemService(
                 receiverId = receiverId,
                 issuedBy = issuedBy,
             )
-        eventPublisher.sendActionEvent(event, event.receiverId.toString(), ITEM_ISSUE_EVENT_TOPIC)
+//        eventPublisher.sendActionEvent(event, event.receiverId.toString(), ITEM_ISSUE_EVENT_TOPIC)
     }
 }
