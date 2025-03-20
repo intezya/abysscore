@@ -36,6 +36,10 @@ class MatchProcessService(
     fun submitRetry(user: User, request: SubmitRoomResultRequest): Match {
         val currentMatch = user.currentMatch ?: throw IllegalStateException("User is not in a match")
 
+        if (currentMatch.status != MatchStatus.ACTIVE) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in active stage")
+        }
+
         validateRetryLimits(user, currentMatch)
 
         val roomRetry = createRoomRetry(user, currentMatch, request)
@@ -46,6 +50,11 @@ class MatchProcessService(
 
     fun submitResult(user: User, request: SubmitRoomResultRequest): Match {
         val currentMatch = user.currentMatch ?: throw IllegalStateException("User is not in a match")
+
+        if (currentMatch.status != MatchStatus.ACTIVE) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in active stage")
+        }
+
         val penalty = calculatePenalty(user, currentMatch, request.roomNumber)
 
         val roomResult = createRoomResult(user, currentMatch, request, penalty)

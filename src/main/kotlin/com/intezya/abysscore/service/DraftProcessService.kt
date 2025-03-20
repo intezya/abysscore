@@ -2,13 +2,20 @@ package com.intezya.abysscore.service
 
 import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.enum.DraftState
-import com.intezya.abysscore.model.entity.*
+import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
+import com.intezya.abysscore.model.entity.DraftAction
+import com.intezya.abysscore.model.entity.Match
+import com.intezya.abysscore.model.entity.MatchDraft
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.DraftActionRepository
 import com.intezya.abysscore.repository.MatchDraftRepository
-import jakarta.persistence.EntityNotFoundException
+import com.intezya.abysscore.repository.MatchRepository
 import org.apache.commons.logging.LogFactory
+import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -17,21 +24,27 @@ class DraftProcessService(
     private val matchDraftRepository: MatchDraftRepository,
     private val draftActionRepository: DraftActionRepository,
     private val matchProcessService: MatchProcessService,
+    private val matchRepository: MatchRepository,
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
 
-    fun revealCharacters(draftId: Long, userId: Long, characters: List<DraftCharacter>): MatchDraft {
-        val draft = findDraftById(draftId)
+    fun revealCharacters(user: User, characters: List<DraftCharacterDTO>): MatchDraft {
+        if (user.currentMatch?.status != MatchStatus.PENDING) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in reveal characters stage")
+        }
+
+        val draft = user.currentMatch!!.draft
+
         validateDraftState(draft, expectedState = DraftState.CHARACTER_REVEAL)
 
         val match = draft.match
-        val playerInfo = getPlayerInfo(match, userId)
+        val playerInfo = getPlayerInfo(match, user.id)
 
         if (playerInfo.isPlayer1) {
-            draft.player1AvailableCharacters.addAll(characters)
+            draft.player1AvailableCharacters.addAll(characters.map { it.toEntity() })
             draft.isPlayer1Ready = true
         } else {
-            draft.player2AvailableCharacters.addAll(characters)
+            draft.player2AvailableCharacters.addAll(characters.map { it.toEntity() })
             draft.isPlayer2Ready = true
         }
 
@@ -46,7 +59,9 @@ class DraftProcessService(
         draftActionRepository.save(action)
 
         if (draft.isPlayer1Ready && draft.isPlayer2Ready) {
-            advanceDraftToNextState(draft)
+            user.currentMatch!!.status = MatchStatus.DRAFTING
+            matchRepository.save(user.currentMatch!!)
+            advanceDraftToDraftingState(draft)
         }
 
         notifyOpponent(draft, playerInfo.isPlayer1, DraftNotificationType.CHARACTERS_REVEALED)
@@ -54,20 +69,24 @@ class DraftProcessService(
         return matchDraftRepository.save(draft)
     }
 
-    fun performDraftAction(draftId: Long, userId: Long, characterName: String): MatchDraft {
-        val draft = findDraftById(draftId)
+    fun performDraftAction(user: User, characterName: String): MatchDraft {
+        if (user.currentMatch?.status != MatchStatus.DRAFTING) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in reveal characters stage")
+        }
+
+        val draft = user.currentMatch!!.draft
         validateDraftState(draft, DraftState.DRAFTING)
 
         val match = draft.match
-        val playerInfo = getPlayerInfo(match, userId)
+        val playerInfo = getPlayerInfo(match, user.id)
 
         validateUserTurn(draft, playerInfo.isPlayer1)
 
         val isPick = draft.isCurrentStepPick()
         val result = if (isPick) {
-            pickCharacter(draft, userId, characterName)
+            pickCharacter(draft, user.id, characterName)
         } else {
-            banCharacter(draft, userId, characterName)
+            banCharacter(draft, user.id, characterName)
         }
 
         val notificationType =
@@ -143,11 +162,6 @@ class DraftProcessService(
 
         expiredDrafts.forEach { handleExpiredDraft(it) }
     }
-
-    private fun findDraftById(draftId: Long): MatchDraft = matchDraftRepository.findById(draftId)
-        .orElseThrow {
-            EntityNotFoundException("Draft with ID $draftId not found")
-        }
 
     private fun validateDraftState(draft: MatchDraft, expectedState: DraftState) {
         if (draft.currentState != expectedState) {
@@ -258,7 +272,7 @@ class DraftProcessService(
         }
     }
 
-    private fun advanceDraftToNextState(draft: MatchDraft) {
+    private fun advanceDraftToDraftingState(draft: MatchDraft) {
         draft.currentState = DraftState.DRAFTING
         draft.currentStateStartTime = LocalDateTime.now()
         draft.currentStateDeadline = draft.calculateDeadline()

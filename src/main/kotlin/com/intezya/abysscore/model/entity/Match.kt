@@ -50,6 +50,9 @@ data class Match(
     @JoinColumn(name = "player2_id", nullable = false)
     lateinit var player2: User
 
+    @OneToOne(mappedBy = "match", cascade = [CascadeType.ALL], orphanRemoval = true)
+    lateinit var draft: MatchDraft
+
     fun isEnded(): Boolean = this.roomResults.filter { it.roomNumber == 3 }.size == 2
 
     override fun equals(other: Any?): Boolean {
