@@ -1,6 +1,6 @@
 package com.intezya.abysscore.security.utils
 
-import com.intezya.abysscore.security.dto.AuthDTO
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.utils.crypto.sha512
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -25,7 +25,7 @@ class JwtUtils(
     }
 
     fun generateToken(
-        user: AuthDTO,
+        user: User,
         extraExpirationMinutes: Int = expirationMinutes,
     ): String {
         val claims = HashMap<String, Any>()
@@ -45,7 +45,7 @@ class JwtUtils(
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
         val tokenHwid = extractHwid(token)
-        if (userDetails is AuthDTO) {
+        if (userDetails is User) {
             return (username == userDetails.username) &&
                 !isTokenExpired(token) &&
                 isHwidValid(userDetails.hwid, tokenHwid)

@@ -1,60 +1,47 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.dto.matchinvite.CreateMatchInviteRequest
-import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
-import io.restassured.http.ContentType
-import io.restassured.module.kotlin.extensions.Extract
-import io.restassured.module.kotlin.extensions.Given
+import com.intezya.abysscore.constants.MATCH_INVITES_ENDPOINT
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.junit.jupiter.api.DisplayName
+import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 
-private const val MATCH_INVITES_ENDPOINT = "/match/invites"
-private const val USER_PREFERENCES_INVITES_ENDPOINT = "/users/preferences/invites"
-
-@DisplayName("Match Invite Controller Tests")
 class MatchInviteControllerTest : BaseApiTest() {
     @Nested
-    @DisplayName("Create Match Invite")
     inner class CreateMatchInvite {
         @Test
         fun `should create user invite when invitee accepts invites`() {
-            val (inviter, inviterToken) = generateUserWithToken()
+            val (_, inviterToken) = generateUserWithToken()
             val (invitee, inviteeToken) = generateUserWithToken()
 
             setAcceptInvites(inviteeToken, true)
             val request = createUserInviteRequest(invitee.username)
 
-            Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CREATED.value())
-            }
+            authenticatedRequest(inviterToken)
+                .body(request)
+                .When {
+                    post(MATCH_INVITES_ENDPOINT)
+                }.Then {
+                    statusCode(HttpStatus.CREATED.value())
+                }
         }
 
         @Test
         fun `should not create user invite when invitee has disabled invites`() {
-            val (inviter, inviterToken) = generateUserWithToken()
+            val (_, inviterToken) = generateUserWithToken()
             val (invitee, _) = generateUserWithToken()
 
             val request = createUserInviteRequest(invitee.username)
 
-            Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.FORBIDDEN.value())
-            }
+            authenticatedRequest(inviterToken)
+                .body(request)
+                .When {
+                    post(MATCH_INVITES_ENDPOINT)
+                }.Then {
+                    statusCode(HttpStatus.FORBIDDEN.value())
+                }
         }
 
         @Test
@@ -62,15 +49,13 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (_, inviterToken) = generateUserWithToken()
             val request = createUserInviteRequest("nonexistent_username")
 
-            Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest(inviterToken)
+                .body(request)
+                .When {
+                    post(MATCH_INVITES_ENDPOINT)
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
 
         @Test
@@ -81,25 +66,21 @@ class MatchInviteControllerTest : BaseApiTest() {
             setAcceptInvites(inviteeToken, true)
             val request = createUserInviteRequest(invitee.username)
 
-            Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CREATED.value())
-            }
+            authenticatedRequest(inviterToken)
+                .body(request)
+                .When {
+                    post(MATCH_INVITES_ENDPOINT)
+                }.Then {
+                    statusCode(HttpStatus.CREATED.value())
+                }
 
-            Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CONFLICT.value())
-            }
+            authenticatedRequest(inviterToken)
+                .body(request)
+                .When {
+                    post(MATCH_INVITES_ENDPOINT)
+                }.Then {
+                    statusCode(HttpStatus.CONFLICT.value())
+                }
         }
 
         @Test
@@ -108,20 +89,17 @@ class MatchInviteControllerTest : BaseApiTest() {
             setAcceptInvites(inviterToken, true)
             val request = createUserInviteRequest(inviter.username)
 
-            Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-            }
+            authenticatedRequest(inviterToken)
+                .body(request)
+                .When {
+                    post(MATCH_INVITES_ENDPOINT)
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
         }
     }
 
     @Nested
-    @DisplayName("Accept Match Invite")
     inner class AcceptMatchInvite {
         @Test
         fun `should accept user invite`() {
@@ -129,32 +107,19 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (invitee, inviteeToken) = generateUserWithToken()
 
             setAcceptInvites(inviteeToken, true)
-            val createInviteRequest = createUserInviteRequest(invitee.username)
+            val inviteId = createInvite(inviterToken, invitee.username)
 
-            val response = Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(createInviteRequest)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CREATED.value())
-            } Extract {
-                body().jsonPath().getMap<String, Any>("")
-            }
-
-            val inviteId = (response["id"] as Int).toLong()
-
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-            }
-
-            // TODO: check that match was created
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
+                }.Then {
+                    statusCode(HttpStatus.OK.value())
+                    body("id", notNullValue())
+                    body("player1.id", notNullValue())
+                    body("player1.username", notNullValue())
+                    body("player2.id", notNullValue())
+                    body("player2.username", notNullValue())
+                }
         }
 
         @Test
@@ -163,39 +128,21 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (invitee, inviteeToken) = generateUserWithToken()
 
             setAcceptInvites(inviteeToken, true)
-            val createInviteRequest = createUserInviteRequest(invitee.username)
+            val inviteId = createInvite(inviterToken, invitee.username)
 
-            val invite = Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(createInviteRequest)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CREATED.value())
-            } Extract {
-                body().jsonPath().getMap<String, Any>("")
-            }
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
+                }.Then {
+                    statusCode(HttpStatus.OK.value())
+                }
 
-            val inviteId = (invite["id"] as Int).toLong()
-
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-            }
-
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
 
         @Test
@@ -203,19 +150,16 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (_, inviteeToken) = generateUserWithToken()
             val nonExistentInviteId = 1L
 
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$nonExistentInviteId/accept")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$nonExistentInviteId/accept")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
     }
 
     @Nested
-    @DisplayName("Decline Match Invite")
     inner class DeclineMatchInvite {
         @Test
         fun `should decline user invite`() {
@@ -223,29 +167,14 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (invitee, inviteeToken) = generateUserWithToken()
 
             setAcceptInvites(inviteeToken, true)
-            val createInviteRequest = createUserInviteRequest(invitee.username)
+            val inviteId = createInvite(inviterToken, invitee.username)
 
-            val invite = Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(createInviteRequest)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CREATED.value())
-            } Extract {
-                body().jsonPath().getMap<String, Any>("")
-            }
-            val inviteId = (invite["id"] as Int).toLong()
-
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$inviteId/decline")
-            } Then {
-                statusCode(HttpStatus.NO_CONTENT.value())
-            }
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$inviteId/decline")
+                }.Then {
+                    statusCode(HttpStatus.NO_CONTENT.value())
+                }
         }
 
         @Test
@@ -253,14 +182,12 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (_, inviteeToken) = generateUserWithToken()
             val nonExistentInviteId = 1L
 
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$nonExistentInviteId/decline")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$nonExistentInviteId/decline")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
 
         @Test
@@ -269,54 +196,21 @@ class MatchInviteControllerTest : BaseApiTest() {
             val (invitee, inviteeToken) = generateUserWithToken()
 
             setAcceptInvites(inviteeToken, true)
-            val createInviteRequest = createUserInviteRequest(invitee.username)
+            val inviteId = createInvite(inviterToken, invitee.username)
 
-            val invite = Given {
-                header("Authorization", "Bearer $inviterToken")
-                contentType(ContentType.JSON)
-                body(createInviteRequest)
-            } When {
-                post(MATCH_INVITES_ENDPOINT)
-            } Then {
-                statusCode(HttpStatus.CREATED.value())
-            } Extract {
-                body().jsonPath().getMap<String, Any>("")
-            }
-            val inviteId = (invite["id"] as Int).toLong()
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$inviteId/decline")
+                }.Then {
+                    statusCode(HttpStatus.NO_CONTENT.value())
+                }
 
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$inviteId/decline")
-            } Then {
-                statusCode(HttpStatus.NO_CONTENT.value())
-            }
-
-            Given {
-                header("Authorization", "Bearer $inviteeToken")
-                contentType(ContentType.JSON)
-            } When {
-                post("$MATCH_INVITES_ENDPOINT/$inviteId/decline")
-            } Then {
-                statusCode(HttpStatus.NOT_FOUND.value())
-            }
-        }
-    }
-
-    private fun createUserInviteRequest(inviteeUsername: String) = CreateMatchInviteRequest(inviteeUsername = inviteeUsername)
-
-    private fun setAcceptInvites(token: String, accept: Boolean) {
-        val request = UpdateMatchInvitesRequest(receiveMatchInvites = accept)
-
-        Given {
-            header("Authorization", "Bearer $token")
-            contentType(ContentType.JSON)
-            body(request)
-        } When {
-            patch(USER_PREFERENCES_INVITES_ENDPOINT)
-        } Then {
-            statusCode(HttpStatus.OK.value())
+            authenticatedRequest(inviteeToken)
+                .When {
+                    post("$MATCH_INVITES_ENDPOINT/$inviteId/decline")
+                }.Then {
+                    statusCode(HttpStatus.NOT_FOUND.value())
+                }
         }
     }
 }

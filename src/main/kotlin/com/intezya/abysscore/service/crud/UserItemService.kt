@@ -1,4 +1,4 @@
-package com.intezya.abysscore.service
+package com.intezya.abysscore.service.crud
 
 import com.intezya.abysscore.enum.ItemSourceType
 import com.intezya.abysscore.model.dto.event.ItemIssueEvent
@@ -8,6 +8,8 @@ import com.intezya.abysscore.model.entity.GameItem
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserItem
 import com.intezya.abysscore.repository.UserItemRepository
+import com.intezya.abysscore.service.EventPublisher
+import com.intezya.abysscore.service.UserService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

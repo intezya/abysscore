@@ -1,10 +1,5 @@
 package com.intezya.abysscore.constants
 
-const val AUTH_BASE_PATH = "/auth"
-const val REGISTER_PATH = "$AUTH_BASE_PATH/register"
-const val LOGIN_PATH = "$AUTH_BASE_PATH/login"
-const val INFO_PATH = "$AUTH_BASE_PATH/info"
-
 const val AUTHORIZATION_HEADER = "Authorization"
 const val BEARER_PREFIX = "Bearer "
 

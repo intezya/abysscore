@@ -1,10 +1,13 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
+import com.intezya.abysscore.model.dto.user.UpdateProfileBadgeRequest
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.dto.user.toDTO
+import com.intezya.abysscore.model.entity.Match
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserGlobalStatistic
+import com.intezya.abysscore.model.entity.UserItem
 import com.intezya.abysscore.repository.UserGlobalStatisticRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.AuthRequest
@@ -56,6 +59,22 @@ class UserService(
         return userRepository.save(user).toDTO()
     }
 
+    fun updateBadge(userId: Long, request: UpdateProfileBadgeRequest): UserDTO {
+        val user = findUserWithThrow(userId)
+        val badge = user.badgeInInventory(request.itemId) ?: throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "User does not own badge",
+        )
+
+        user.currentBadge = badge
+        return userRepository.save(user).toDTO()
+    }
+
+    fun setCurrentMatch(user: User, match: Match): User {
+        user.currentMatch = match
+        return userRepository.save(user)
+    }
+
     private fun createUserNotFoundException() = ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
 
     private fun handleUserCreationError(e: Exception): Nothing {
@@ -74,4 +93,6 @@ class UserService(
         val statistic = UserGlobalStatistic().apply { this.user = user }
         userGlobalStatisticRepository.save(statistic)
     }
+
+    private fun User.badgeInInventory(badgeId: Long): UserItem? = items.firstOrNull { it.gameItem.id == badgeId }
 }

@@ -1,9 +1,12 @@
 package com.intezya.abysscore.controller
 
+import com.intezya.abysscore.controller.annotations.RequireUserInMatch
+import com.intezya.abysscore.model.dto.match.MatchDTO
+import com.intezya.abysscore.model.dto.match.toDTO
 import com.intezya.abysscore.model.dto.matchinvite.CreateMatchInviteRequest
 import com.intezya.abysscore.model.dto.matchinvite.MatchInviteDTO
 import com.intezya.abysscore.model.dto.matchinvite.toDTO
-import com.intezya.abysscore.security.dto.AuthDTO
+import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.service.MatchInviteService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -17,25 +20,27 @@ class MatchInviteController(
     private val matchInviteService: MatchInviteService,
 ) {
     @PostMapping("")
+    @RequireUserInMatch(expectedThat = false)
     fun inviteUser(
         @RequestBody @Valid inviteRequest: CreateMatchInviteRequest,
-        @AuthenticationPrincipal userDetails: AuthDTO,
+        @AuthenticationPrincipal contextUser: User,
     ): ResponseEntity<MatchInviteDTO> = ResponseEntity(
-        matchInviteService.create(userDetails.id, inviteRequest.inviteeUsername).toDTO(),
+        matchInviteService.create(contextUser.id, inviteRequest.inviteeUsername).toDTO(),
         HttpStatus.CREATED,
     )
 
     @PostMapping("{inviteId}/accept")
+    @RequireUserInMatch(expectedThat = false)
     @ResponseStatus(HttpStatus.OK)
     fun acceptInvite(
         @PathVariable inviteId: Long,
-        @AuthenticationPrincipal userDetails: AuthDTO,
-    ) = matchInviteService.acceptInvite(userDetails.id, inviteId)
+        @AuthenticationPrincipal contextUser: User,
+    ): MatchDTO = matchInviteService.acceptInvite(contextUser.id, inviteId).toDTO()
 
     @PostMapping("{inviteId}/decline")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun declineInvite(
         @PathVariable inviteId: Long,
-        @AuthenticationPrincipal userDetails: AuthDTO,
-    ) = matchInviteService.declineInvite(userDetails.id, inviteId)
+        @AuthenticationPrincipal contextUser: User,
+    ) = matchInviteService.declineInvite(contextUser.id, inviteId)
 }

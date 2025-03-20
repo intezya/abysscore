@@ -4,6 +4,7 @@ enum class AccessLevel {
     USER,
     VIEW_ALL_USERS,
     VIEW_INVENTORY,
+    VIEW_MATCHES,
     ADMIN,
     CREATE_ITEM,
     GIVE_ITEM,

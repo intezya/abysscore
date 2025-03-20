@@ -32,8 +32,8 @@ class RandomProvider {
         )
 
         fun constructCreateGameItemRequest(
-            name: String = f.marketing.unique.buzzwords(),
-            collection: String = f.marketing.unique.buzzwords(),
+            name: String = f.marketing.buzzwords(),
+            collection: String = f.marketing.buzzwords(),
             type: Int = f.random.nextInt(0, 2),
             rarity: Int = f.random.nextInt(0, 5),
         ): CreateGameItemRequest = CreateGameItemRequest(

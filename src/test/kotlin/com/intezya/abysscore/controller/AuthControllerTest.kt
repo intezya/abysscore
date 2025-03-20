@@ -2,9 +2,7 @@ package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.utils.providers.RandomProvider
-import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Extract
-import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers.notNullValue
@@ -25,16 +23,14 @@ class AuthControllerTest : BaseApiTest() {
         fun `should register valid user`() {
             val request = RandomProvider.constructAuthRequest()
 
-            val token =
-                Given {
-                    contentType(ContentType.JSON)
-                    body(request)
-                } When {
+            val token = jsonRequest()
+                .body(request)
+                .When {
                     post("/auth/register")
-                } Then {
+                }.Then {
                     statusCode(HttpStatus.OK.value())
                     body("token", notNullValue())
-                } Extract {
+                }.Extract {
                     path<String>("token")
                 }
 
@@ -46,14 +42,13 @@ class AuthControllerTest : BaseApiTest() {
         fun `shouldn't register user with invalid username`(invalidUsername: String) {
             val request = RandomProvider.constructAuthRequest(username = invalidUsername)
 
-            Given {
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/auth/register")
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-            }
+            jsonRequest()
+                .body(request)
+                .When {
+                    post("/auth/register")
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
         }
 
         @ParameterizedTest
@@ -61,50 +56,41 @@ class AuthControllerTest : BaseApiTest() {
         fun `shouldn't register user with invalid password`(invalidPassword: String) {
             val request = RandomProvider.constructAuthRequest(password = invalidPassword)
 
-            Given {
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/auth/register")
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-            }
+            jsonRequest()
+                .body(request)
+                .When {
+                    post("/auth/register")
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
         }
 
         @Test
         fun `shouldn't register user that already exists with username`() {
-            val registered = RandomProvider.constructAuthRequest()
-
-            userService.create(registered)
-
+            val registered = createUser()
             val request = RandomProvider.constructAuthRequest(username = registered.username)
 
-            Given {
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/auth/register")
-            } Then {
-                statusCode(HttpStatus.CONFLICT.value())
-            }
+            jsonRequest()
+                .body(request)
+                .When {
+                    post("/auth/register")
+                }.Then {
+                    statusCode(HttpStatus.CONFLICT.value())
+                }
         }
 
         @Test
         fun `shouldn't register user that already has account on device`() {
-            val registered = RandomProvider.constructAuthRequest()
-
-            userService.create(registered)
-
+            val registered = createUser()
             val request = RandomProvider.constructAuthRequest(hwid = registered.hwid)
 
-            Given {
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/auth/register")
-            } Then {
-                statusCode(HttpStatus.CONFLICT.value())
-            }
+            jsonRequest()
+                .body(request)
+                .When {
+                    post("/auth/register")
+                }.Then {
+                    statusCode(HttpStatus.CONFLICT.value())
+                }
         }
     }
 
@@ -113,19 +99,16 @@ class AuthControllerTest : BaseApiTest() {
     inner class Login {
         @Test
         fun `should login valid user`() {
-            val request = RandomProvider.constructAuthRequest()
-            userService.create(request)
+            val request = createUser()
 
-            val token =
-                Given {
-                    contentType(ContentType.JSON)
-                    body(request)
-                } When {
+            val token = jsonRequest()
+                .body(request)
+                .When {
                     post("/auth/login")
-                } Then {
+                }.Then {
                     statusCode(HttpStatus.OK.value())
                     body("token", notNullValue())
-                } Extract {
+                }.Extract {
                     path<String>("token")
                 }
 
@@ -136,108 +119,91 @@ class AuthControllerTest : BaseApiTest() {
         fun `shouldn't login user that not found`() {
             val request = RandomProvider.constructAuthRequest()
 
-            Given {
-                contentType(ContentType.JSON)
-                body(request)
-            } When {
-                post("/auth/login")
-            } Then {
-                statusCode(HttpStatus.UNAUTHORIZED.value())
-            }
+            jsonRequest()
+                .body(request)
+                .When {
+                    post("/auth/login")
+                }.Then {
+                    statusCode(HttpStatus.UNAUTHORIZED.value())
+                }
         }
 
         @Test
         fun `shouldn't login user with invalid password`() {
-            val registerRequest = RandomProvider.constructAuthRequest()
-            userService.create(registerRequest)
+            val registered = createUser()
+            val loginRequest = RandomProvider.constructAuthRequest(username = registered.username)
 
-            val loginRequest = RandomProvider.constructAuthRequest(username = registerRequest.username)
-
-            Given {
-                contentType(ContentType.JSON)
-                body(loginRequest)
-            } When {
-                post("/auth/login")
-            } Then {
-                statusCode(HttpStatus.UNAUTHORIZED.value())
-            }
+            jsonRequest()
+                .body(loginRequest)
+                .When {
+                    post("/auth/login")
+                }.Then {
+                    statusCode(HttpStatus.UNAUTHORIZED.value())
+                }
         }
 
         @Test
         fun `shouldn't login user with invalid hwid`() {
-            val registerRequest = RandomProvider.constructAuthRequest()
-            userService.create(registerRequest)
+            val registered = createUser()
+            val loginRequest = RandomProvider.constructAuthRequest(
+                username = registered.username,
+                password = registered.password,
+            )
 
-            val loginRequest =
-                RandomProvider.constructAuthRequest(
-                    username = registerRequest.username,
-                    password = registerRequest.password,
-                )
-
-            Given {
-                contentType(ContentType.JSON)
-                body(loginRequest)
-            } When {
-                post("/auth/login")
-            } Then {
-                statusCode(HttpStatus.UNAUTHORIZED.value())
-            }
+            jsonRequest()
+                .body(loginRequest)
+                .When {
+                    post("/auth/login")
+                }.Then {
+                    statusCode(HttpStatus.UNAUTHORIZED.value())
+                }
         }
 
         @ParameterizedTest
         @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideUsernameWithAnyCases")
-        fun `should login user with any username case`(
-            original: String,
-            target: String,
-        ) {
+        fun `should login user with any username case`(original: String, target: String) {
             val registerRequest = RandomProvider.constructAuthRequest(username = original)
-            userService.create(registerRequest)
+            createUser(registerRequest)
 
-            val loginRequest =
-                RandomProvider.constructAuthRequest(
-                    username = target,
-                    password = registerRequest.password,
-                    hwid = registerRequest.hwid,
-                )
+            val loginRequest = RandomProvider.constructAuthRequest(
+                username = target,
+                password = registerRequest.password,
+                hwid = registerRequest.hwid,
+            )
 
-            Given {
-                contentType(ContentType.JSON)
-                body(loginRequest)
-            } When {
-                post("/auth/login")
-            } Then {
-                statusCode(HttpStatus.OK.value())
-            }
+            jsonRequest()
+                .body(loginRequest)
+                .When {
+                    post("/auth/login")
+                }.Then {
+                    statusCode(HttpStatus.OK.value())
+                }
         }
 
         @Test
         fun `should login user that have null hwid`() {
             val userRegisterData = RandomProvider.constructUser()
-            val user =
-                User(
-                    username = userRegisterData.username,
-                    password = passwordUtils.hashPassword(userRegisterData.password),
-                    hwid = null,
-                )
+            val user = User(
+                username = userRegisterData.username,
+                password = passwordUtils.hashPassword(userRegisterData.password),
+                hwid = null,
+            )
             userRepository.save(user)
 
-            val loginRequest =
-                RandomProvider.constructAuthRequest(
-                    username = user.username,
-                    password = userRegisterData.password,
-                    hwid = UUID.randomUUID().toString(),
-                )
+            val loginRequest = RandomProvider.constructAuthRequest(
+                username = user.username,
+                password = userRegisterData.password,
+                hwid = UUID.randomUUID().toString(),
+            )
 
-            val token =
-                Given {
-                    contentType(ContentType.JSON)
-                    body(loginRequest)
-                } When {
+            val token = jsonRequest()
+                .body(loginRequest)
+                .When {
                     post("/auth/login")
-                } Then {
+                }.Then {
                     statusCode(HttpStatus.OK.value())
                     body("token", notNullValue())
-                } Extract {
+                }.Extract {
                     path<String>("token")
                 }
 
