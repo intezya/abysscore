@@ -1,4 +1,4 @@
-package com.intezya.abysscore.controller
+package com.intezya.abysscore.integrationTest
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.intezya.abysscore.configuration.TestPostgresConfiguration

@@ -1,4 +1,4 @@
-package com.intezya.abysscore.controller
+package com.intezya.abysscore.integrationTest
 
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import io.restassured.module.kotlin.extensions.Then

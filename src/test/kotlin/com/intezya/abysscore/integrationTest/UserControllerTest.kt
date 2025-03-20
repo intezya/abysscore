@@ -1,4 +1,4 @@
-package com.intezya.abysscore.controller
+package com.intezya.abysscore.integrationTest
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.entity.User
