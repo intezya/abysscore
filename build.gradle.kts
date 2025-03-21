@@ -49,7 +49,7 @@ val kotlinVersion = "2.1.10"
 val testcontainersVersion = "1.19.5"
 val mockKVersion = "1.13.8"
 val jwtVersion = "0.11.5"
-val bouncyCastleVersion = "1.77" // Updated to newer version
+val bouncyCastleVersion = "1.77"
 
 dependencies {
     // BOM dependencies
@@ -124,7 +124,6 @@ dependencies {
     "integrationTestImplementation"(sourceSets.test.get().output)
 }
 
-// Configure ktlint with stricter rules
 ktlint {
     version.set("1.5.0")
     android.set(false)
@@ -155,7 +154,7 @@ detekt {
     )
 }
 
-configurations.all {
+configurations.matching { it.name == "detekt" }.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "org.jetbrains.kotlin") {
             useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
@@ -179,7 +178,6 @@ tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
     }
 }
 
-// Function to check for stable versions
 fun isNonStable(version: String): Boolean {
     val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
     val regex = "^[0-9,.v-]+(-r)?$".toRegex()
@@ -187,7 +185,6 @@ fun isNonStable(version: String): Boolean {
     return isStable.not()
 }
 
-// Create task for integration tests
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
     group = "verification"
@@ -196,5 +193,4 @@ val integrationTest = task<Test>("integrationTest") {
     shouldRunAfter("test")
 }
 
-// Add integration tests to check task dependencies
 tasks.check { dependsOn(integrationTest) }
