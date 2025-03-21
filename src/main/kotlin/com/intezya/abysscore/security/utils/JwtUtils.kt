@@ -28,9 +28,6 @@ class JwtUtils(
         user: User,
         extraExpirationMinutes: Int = expirationMinutes,
     ): String {
-        println(issuer)
-        println(issuer)
-        println(issuer)
         val claims = HashMap<String, Any>()
         if (user.hwid != null) {
             claims["hwid"] = user.hwid!!

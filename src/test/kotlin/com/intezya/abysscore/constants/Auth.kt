@@ -1,7 +1,8 @@
 package com.intezya.abysscore.constants
 
-const val AUTHORIZATION_HEADER = "Authorization"
 const val BEARER_PREFIX = "Bearer "
+const val AUTHORIZATION_HEADER = "Authorization"
+const val CONTENT_TYPE_JSON = "application/json"
 
 const val TEST_IP = "127.0.0.1"
 const val INVALID_TOKEN = """
