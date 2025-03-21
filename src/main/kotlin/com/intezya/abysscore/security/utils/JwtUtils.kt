@@ -28,13 +28,16 @@ class JwtUtils(
         user: User,
         extraExpirationMinutes: Int = expirationMinutes,
     ): String {
+        println(issuer)
+        println(issuer)
+        println(issuer)
         val claims = HashMap<String, Any>()
         if (user.hwid != null) {
             claims["hwid"] = user.hwid!!
         }
         return Jwts.builder()
-            .setIssuer(issuer)
             .setClaims(claims)
+            .setIssuer(issuer)
             .setSubject(user.username)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))

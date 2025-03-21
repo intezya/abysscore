@@ -39,7 +39,7 @@ logging:
 jwt:
   secret: ${JWT_SECRET:}
   expirationMinutes: ${JWT_EXPIRATION_MINUTES:1440} # 1440
-  issuer: ${JWT_ISSUER:com.intezya.security}
+  issuer: ${JWT_ISSUER:com.intezya.abysscore.security}
 
 springdoc:
   api-docs:
