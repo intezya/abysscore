@@ -35,7 +35,7 @@ class CustomAuthenticationProvider(
         }
         if (userDetails.hwid == null) {
             userDetails.hwid = passwordUtils.hashHwid(hwidAsAdditionalField)
-            userDetailsService.updateHwid(userDetails.id, passwordUtils.hashHwid(hwidAsAdditionalField))
+            userDetailsService.updateHwid(userDetails.id, hwidAsAdditionalField)
         }
 
         if (!userDetails.isAccountNonExpired) {

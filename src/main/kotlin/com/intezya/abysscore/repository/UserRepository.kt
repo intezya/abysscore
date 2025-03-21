@@ -30,5 +30,5 @@ interface UserRepository : JpaRepository<User, Long> {
     @Modifying
     @Transactional
     @Query(UPDATE_HWID_BY_ID)
-    fun updateHwid(id: Long, hwid: String): Int
+    fun updateHwid(id: Long, hwid: String)
 }
