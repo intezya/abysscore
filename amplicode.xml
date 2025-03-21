@@ -7,14 +7,4 @@
     <component name="AmplicodeLiquibaseChangesConfig">
         <exclude-change idName="room_results#player_id, match_id" tagName="addUniqueConstraint"/>
     </component>
-    <component name="AmplicodePersistenceUnitSettings">
-        <persistence-units>
-            <persistence-unit name="Default"
-                              defaultIncludeChangeLogFile="src/main/resources/db/changelog/db.changelog-master.xml">
-                <packages>
-                    <package value="com.intezya.abysscore"/>
-                </packages>
-            </persistence-unit>
-        </persistence-units>
-    </component>
 </project>
