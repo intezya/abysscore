@@ -20,6 +20,25 @@
         </ExternalSystemSettings>
         <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
         <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+        <EXTENSION ID="com.intellij.execution.ExternalSystemRunConfigurationJavaExtension">
+            <extension name="coverage">
+                <pattern>
+                    <option name="PATTERN" value="com.intezya.abysscore.enum.*"/>
+                    <option name="ENABLED" value="true"/>
+                    <option name="INCLUDE" value="false"/>
+                </pattern>
+                <pattern>
+                    <option name="PATTERN" value="com.intezya.abysscore.model.*"/>
+                    <option name="ENABLED" value="true"/>
+                    <option name="INCLUDE" value="false"/>
+                </pattern>
+                <pattern>
+                    <option name="PATTERN" value="com.intezya.abysscore.AbyssCoreApplicationKt"/>
+                    <option name="ENABLED" value="true"/>
+                    <option name="INCLUDE" value="false"/>
+                </pattern>
+            </extension>
+        </EXTENSION>
         <DebugAllEnabled>false</DebugAllEnabled>
         <RunAsTest>true</RunAsTest>
         <method v="2"/>
