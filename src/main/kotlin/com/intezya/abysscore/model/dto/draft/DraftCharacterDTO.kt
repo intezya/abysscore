@@ -5,6 +5,13 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 
+private const val CHARACTER_MINIMUM_LEVEL = 1L
+private const val CHARACTER_MAXIMUM_LEVEL = 90L
+private const val CHARACTER_MINIMUM_RARITY = 4L
+private const val CHARACTER_MAXIMUM_RARITY = 5L
+private const val CHARACTER_MINIMUM_CONSTELLATIONS = 0L
+private const val CHARACTER_MAXIMUM_CONSTELLATIONS = 6L
+
 data class DraftCharacterDTO(
     @field:NotBlank
     val name: String,
@@ -12,16 +19,16 @@ data class DraftCharacterDTO(
     @field:NotBlank
     val element: String,
 
-    @field:Min(1)
-    @field:Max(90)
+    @field:Min(CHARACTER_MINIMUM_LEVEL)
+    @field:Max(CHARACTER_MAXIMUM_LEVEL)
     val level: Int,
 
-    @field:Min(4)
-    @field:Max(5)
+    @field:Min(CHARACTER_MINIMUM_RARITY)
+    @field:Max(CHARACTER_MAXIMUM_RARITY)
     val rarity: Int,
 
-    @field:Min(0)
-    @field:Max(6)
+    @field:Min(CHARACTER_MINIMUM_CONSTELLATIONS)
+    @field:Max(CHARACTER_MAXIMUM_CONSTELLATIONS)
     val constellations: Int,
 ) {
     fun toEntity() = DraftCharacter(

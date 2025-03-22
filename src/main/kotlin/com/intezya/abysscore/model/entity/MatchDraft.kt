@@ -18,53 +18,53 @@ val DEFAULT_DRAFT_SCHEMA = listOf(
 
 @Entity
 @Table(name = "match_drafts")
-data class MatchDraft(
+class MatchDraft {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L,
+    val id: Long = 0L
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var currentState: DraftState = DraftState.CHARACTER_REVEAL,
+    var currentState: DraftState = DraftState.CHARACTER_REVEAL
 
     @Column(nullable = false)
-    var currentStateStartTime: LocalDateTime = LocalDateTime.now(),
+    var currentStateStartTime: LocalDateTime = LocalDateTime.now()
 
     @Column(nullable = false)
-    var currentStepIndex: Int = 0,
+    var currentStepIndex: Int = 0
 
     @Column(nullable = false)
-    var penaltyTimePlayer1: Int = 0,
+    var penaltyTimePlayer1: Int = 0
 
     @Column(nullable = false)
-    var penaltyTimePlayer2: Int = 0,
+    var penaltyTimePlayer2: Int = 0
 
     @Column(nullable = false)
-    var currentStateDeadline: LocalDateTime = LocalDateTime.now().plusMinutes(5),
+    var currentStateDeadline: LocalDateTime = LocalDateTime.now().plusMinutes(5)
 
     @Column(nullable = false)
-    var isPlayer1Ready: Boolean = false,
+    var isPlayer1Ready: Boolean = false
 
     @Column(nullable = false)
-    var isPlayer2Ready: Boolean = false,
+    var isPlayer2Ready: Boolean = false
 
     @Column(columnDefinition = "TEXT")
-    var draftSchemaJson: String = "[]",
+    var draftSchemaJson: String = "[]"
 
     @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val draftActions: MutableList<DraftAction> = mutableListOf(),
+    val draftActions: MutableList<DraftAction> = mutableListOf()
 
     @ElementCollection
     @CollectionTable(name = "draft_banned_characters", joinColumns = [JoinColumn(name = "draft_id")])
-    val bannedCharacters: MutableSet<String> = mutableSetOf(),
+    val bannedCharacters: MutableSet<String> = mutableSetOf()
 
     @ElementCollection
     @CollectionTable(name = "draft_player1_characters", joinColumns = [JoinColumn(name = "draft_id")])
-    var player1Characters: MutableSet<String> = mutableSetOf(),
+    var player1Characters: MutableSet<String> = mutableSetOf()
 
     @ElementCollection
     @CollectionTable(name = "draft_player2_characters", joinColumns = [JoinColumn(name = "draft_id")])
-    var player2Characters: MutableSet<String> = mutableSetOf(),
+    var player2Characters: MutableSet<String> = mutableSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinTable(
@@ -72,7 +72,7 @@ data class MatchDraft(
         joinColumns = [JoinColumn(name = "draft_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")],
     )
-    val player1AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf(),
+    val player1AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinTable(
@@ -80,17 +80,19 @@ data class MatchDraft(
         joinColumns = [JoinColumn(name = "draft_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")],
     )
-    val player2AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf(),
+    val player2AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
 
     @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-) {
+    val createdAt: LocalDateTime = LocalDateTime.now()
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)
     lateinit var match: Match
 
     @Transient
     private val objectMapper = ObjectMapper()
+
+    constructor()
 
     @PrePersist
     fun onPersist() {
@@ -150,4 +152,15 @@ data class MatchDraft(
     fun isCurrentStepPick(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.isPick == true
 
     fun isCurrentStepBan(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.isPick == false
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MatchDraft) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun toString(): String =
+        "MatchDraft(id=$id, currentState=$currentState, currentStepIndex=$currentStepIndex)"
 }

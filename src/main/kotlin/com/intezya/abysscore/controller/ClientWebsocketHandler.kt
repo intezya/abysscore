@@ -14,6 +14,7 @@ class ClientWebsocketHandler(private val clientWebsocketService: ClientWebsocket
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
+        TODO("not implemented")
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {

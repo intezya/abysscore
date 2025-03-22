@@ -3,8 +3,8 @@ package com.intezya.abysscore.service
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.RoomResult
-import com.intezya.abysscore.model.entity.RoomRetry
+import com.intezya.abysscore.model.entity.MatchRoomResult
+import com.intezya.abysscore.model.entity.MatchRoomRetry
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.MatchRepository
 import com.intezya.abysscore.repository.RoomResultRepository
@@ -210,16 +210,17 @@ class MatchProcessService(
         }
     }
 
-    private fun createRoomRetry(user: User, match: Match, request: SubmitRoomResultRequest): RoomRetry = RoomRetry(
-        roomNumber = request.roomNumber,
-        time = request.time,
-    ).apply {
-        this.player = user
-        this.match = match
-    }
+    private fun createRoomRetry(user: User, match: Match, request: SubmitRoomResultRequest): MatchRoomRetry =
+        MatchRoomRetry(
+            roomNumber = request.roomNumber,
+            time = request.time,
+        ).apply {
+            this.player = user
+            this.match = match
+        }
 
-    private fun saveAndAddRetry(match: Match, roomRetry: RoomRetry) {
-        val savedRetry = roomRetryRepository.save(roomRetry)
+    private fun saveAndAddRetry(match: Match, matchRoomRetry: MatchRoomRetry) {
+        val savedRetry = roomRetryRepository.save(matchRoomRetry)
         match.roomRetries.add(savedRetry)
     }
 
@@ -232,14 +233,18 @@ class MatchProcessService(
         return processPenaltyTime(usedRetries)
     }
 
-    private fun createRoomResult(user: User, match: Match, request: SubmitRoomResultRequest, penalty: Int): RoomResult =
-        RoomResult(
-            roomNumber = request.roomNumber,
-            time = request.time + penalty,
-        ).apply {
-            this.player = user
-            this.match = match
-        }
+    private fun createRoomResult(
+        user: User,
+        match: Match,
+        request: SubmitRoomResultRequest,
+        penalty: Int,
+    ): MatchRoomResult = MatchRoomResult(
+        roomNumber = request.roomNumber,
+        time = request.time + penalty,
+    ).apply {
+        this.player = user
+        this.match = match
+    }
 
     private fun handleMatchCompletion(match: Match) {
         if (match.isEnded()) {

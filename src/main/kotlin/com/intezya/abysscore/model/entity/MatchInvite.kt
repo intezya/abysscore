@@ -6,18 +6,18 @@ import java.util.*
 
 @Entity
 @Table(name = "match_invites")
-data class MatchInvite(
+class MatchInvite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    var id: Long = 0L,
+    var id: Long = 0L
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now()
 
     @Column(name = "active_diff_seconds", nullable = false)
-    var activeDiffSeconds: Long = 0L,
-) {
+    var activeDiffSeconds: Long = 0L
+
     @ManyToOne
     @JoinColumn(name = "inviter_id", nullable = false)
     lateinit var inviter: User
@@ -25,6 +25,26 @@ data class MatchInvite(
     @ManyToOne
     @JoinColumn(name = "invitee_id", nullable = false)
     lateinit var invitee: User
+
+    constructor()
+
+    constructor(
+        id: Long = 0L,
+        activeDiffSeconds: Long = 0L,
+    ) {
+        this.id = id
+        this.activeDiffSeconds = activeDiffSeconds
+    }
+
+    constructor(
+        inviter: User,
+        invitee: User,
+        activeDiffSeconds: Long = 0L,
+    ) {
+        this.inviter = inviter
+        this.invitee = invitee
+        this.activeDiffSeconds = activeDiffSeconds
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -45,7 +65,6 @@ data class MatchInvite(
         Objects.hash(inviter, invitee, createdAt)
     }
 
-    @Override
     override fun toString(): String = this::class.simpleName +
         "(id = $id , inviter = $inviter , invitee = $invitee , createdAt = $createdAt , activeDiffSeconds = $activeDiffSeconds )"
 }

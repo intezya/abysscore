@@ -152,6 +152,8 @@ empty-blocks:
   EmptyFunctionBlock:
     active: true
     ignoreOverridden: false
+    excludes:
+      - '**/test/**'
   EmptyIfBlock:
     active: true
   EmptyInitBlock:
@@ -256,6 +258,9 @@ naming:
   FunctionMaxLength:
     active: true
     maximumFunctionNameLength: 30
+    excludes:
+      - '**/test/**'
+      - '**/repository/**'
   FunctionMinLength:
     active: true
     minimumFunctionNameLength: 3
@@ -382,9 +387,7 @@ potential-bugs:
   IteratorNotThrowingNoSuchElementException:
     active: true
   LateinitUsage:
-    active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/integrationTest/**' ]
-    ignoreOnClassesPattern: ''
+    active: false
   MapGetWithNotNullAssertionOperator:
     active: true
   MissingPackageDeclaration:

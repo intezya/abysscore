@@ -2,7 +2,7 @@ package com.intezya.abysscore.model.dto.roomresult
 
 import com.intezya.abysscore.model.dto.user.UserSimpleViewDTO
 import com.intezya.abysscore.model.dto.user.toSimpleView
-import com.intezya.abysscore.model.entity.RoomResult
+import com.intezya.abysscore.model.entity.MatchRoomResult
 import java.time.LocalDateTime
 
 data class RoomResultDTO(
@@ -11,12 +11,12 @@ data class RoomResultDTO(
     val time: Int,
     val completedAt: LocalDateTime = LocalDateTime.now(),
 ) {
-    constructor(roomResult: RoomResult) : this(
-        user = roomResult.player.toSimpleView(),
-        roomNumber = roomResult.roomNumber,
-        time = roomResult.time,
-        completedAt = roomResult.completedAt,
+    constructor(matchRoomResult: MatchRoomResult) : this(
+        user = matchRoomResult.player.toSimpleView(),
+        roomNumber = matchRoomResult.roomNumber,
+        time = matchRoomResult.time,
+        completedAt = matchRoomResult.completedAt,
     )
 }
 
-fun RoomResult.toDTO(): RoomResultDTO = RoomResultDTO(this)
+fun MatchRoomResult.toDTO(): RoomResultDTO = RoomResultDTO(this)

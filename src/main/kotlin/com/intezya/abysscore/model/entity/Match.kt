@@ -7,41 +7,41 @@ import java.util.*
 
 @Entity
 @Table(name = "matches")
-data class Match(
+class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L,
+    val id: Long = 0L
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "tournament_id")
 //    val tournament: Tournament? = null,
 
     @Column(nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now()
 
     @Column(nullable = false, updatable = false)
-    var startedAt: LocalDateTime = LocalDateTime.now(),
+    var startedAt: LocalDateTime = LocalDateTime.now()
 
     @Column(nullable = true)
-    var endedAt: LocalDateTime? = null,
+    var endedAt: LocalDateTime? = null
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: MatchStatus = MatchStatus.PENDING,
+    var status: MatchStatus = MatchStatus.PENDING
 
     @Column(nullable = true)
-    var technicalDefeatReason: String = "",
+    var technicalDefeatReason: String = ""
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "winner_id")
-    var winner: User? = null,
+    var winner: User? = null
 
     @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    val roomResults: MutableList<RoomResult> = mutableListOf(),
+    val roomResults: MutableList<MatchRoomResult> = mutableListOf()
 
     @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    val roomRetries: MutableList<RoomRetry> = mutableListOf(),
-) {
+    val roomRetries: MutableList<MatchRoomRetry> = mutableListOf()
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player1_id", nullable = false)
     lateinit var player1: User
@@ -52,6 +52,18 @@ data class Match(
 
     @OneToOne(mappedBy = "match", cascade = [CascadeType.ALL], orphanRemoval = true)
     lateinit var draft: MatchDraft
+
+    constructor()
+
+    constructor(
+        player1: User,
+        player2: User,
+        status: MatchStatus = MatchStatus.PENDING,
+    ) {
+        this.player1 = player1
+        this.player2 = player2
+        this.status = status
+    }
 
     fun isEnded(): Boolean = this.roomResults.filter { it.roomNumber == 3 }.size == 2
 
@@ -85,7 +97,6 @@ data class Match(
         )
     }
 
-    @Override
     override fun toString(): String = this::class.simpleName +
         "(id = $id , createdAt = $createdAt , startedAt = $startedAt , endedAt = $endedAt , status = $status )"
 }

@@ -7,21 +7,21 @@ import java.util.*
 
 @Entity
 @Table(name = "trades")
-data class Trade(
+class Trade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L,
+    val id: Long = 0L
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val status: TradeStatus = TradeStatus.PENDING,
+    val status: TradeStatus = TradeStatus.PENDING
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now()
 
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now(),
-) {
+    var updatedAt: LocalDateTime = LocalDateTime.now()
+
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
     lateinit var initiator: User
@@ -29,6 +29,8 @@ data class Trade(
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
     lateinit var receiver: User
+
+    constructor()
 
     @PreUpdate
     fun onUpdate() {
@@ -56,7 +58,6 @@ data class Trade(
         }
     }
 
-    @Override
     override fun toString(): String = this::class.simpleName +
         "(id = $id , status = $status , createdAt = $createdAt , updatedAt = $updatedAt , initiator = $initiator , receiver = $receiver )"
 }
