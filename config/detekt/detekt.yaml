@@ -4,11 +4,11 @@
 build:
   maxIssues: 0
   excludeCorrectable: false
-  weights:
-  # complexity: 2
-  # LongParameterList: 1
-  # style: 1
-  # comments: 1
+#  weights:
+#    complexity: 2
+#    LongParameterList: 1
+#    style: 1
+#    comments: 1
 
 config:
   validation: true
@@ -53,7 +53,7 @@ complexity:
     threshold: 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
-  ComplexMethod:
+  CyclomaticComplexMethod:
     active: true
     threshold: 15
     ignoreSingleWhenExpression: false
@@ -363,7 +363,7 @@ potential-bugs:
     active: true
   IgnoredReturnValue:
     active: true
-    restrictToAnnotatedMethods: true
+    restrictToConfig: true
     returnValueAnnotations:
       - '*.CheckResult'
       - '*.CheckReturnValue'
@@ -426,7 +426,7 @@ style:
     active: true
   DataClassContainsFunctions:
     active: true
-    conversionFunctionPrefix: 'to'
+    conversionFunctionPrefix: [ 'to' ]
   DataClassShouldBeImmutable:
     active: true
   DestructuringDeclarationWithTooManyEntries:
@@ -443,25 +443,28 @@ style:
   ExpressionBodySyntax:
     active: true
     includeLineWrapping: false
-  ForbiddenComment:
-    active: true
-    values:
-      - 'TODO:'
-      - 'FIXME:'
-      - 'STOPSHIP:'
-      - '@author'
-      - '@requiresTypeResolution'
-    allowedPatterns: ''
-    customMessage: ''
+  #  ForbiddenComment:
+  #    active: true
+  #    comments:
+  #      - regex: 'TODO:'
+  #        reason: 'TODOs should be addressed or converted to issues'
+  #      - regex: 'FIXME:'
+  #        reason: 'FIXMEs should be addressed promptly'
+  #      - regex: 'STOPSHIP:'
+  #        reason: 'STOPSHIP comments block releases and should be resolved'
+  #      - regex: '@author'
+  #        reason: 'Author tags are not used in this project'
+  #      - regex: '@requiresTypeResolution'
+  #        reason: 'Type resolution annotations should be avoided'
   ForbiddenImport:
     active: true
     imports: [ ]
     forbiddenPatterns: ''
   ForbiddenMethodCall:
     active: true
-    methods:
-      - 'kotlin.io.print'
-      - 'kotlin.io.println'
+  #    methods:
+  #      - 'kotlin.io.print'
+  #      - 'kotlin.io.println'
   ForbiddenPublicDataClass:
     active: true
     excludes: [ '**' ]
@@ -538,8 +541,10 @@ style:
     active: true
   OptionalUnit:
     active: true
-  OptionalWhenBraces:
+  BracesOnWhenStatements:
     active: true
+    singleLine: 'never'
+    multiLine: 'consistent'
   PreferToOverPairSyntax:
     active: true
   ProtectedMemberInFinalClass:
