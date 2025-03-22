@@ -137,7 +137,10 @@ class DraftProcessService(
         val opponentPool = if (isPlayer1) draft.player2AvailableCharacters else draft.player1AvailableCharacters
 
         if (!opponentPool.any { it.name == characterName }) {
-            throw IllegalArgumentException("Character not available for banning")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Character not available for banning",
+            )
         }
 
         opponentPool.removeIf { it.name == characterName }
@@ -164,7 +167,10 @@ class DraftProcessService(
         val opponentCharacters = if (isPlayer1) draft.player2Characters else draft.player1Characters
 
         if (!userPool.any { it.name == characterName } || opponentCharacters.contains(characterName)) {
-            throw IllegalArgumentException("Character '$characterName' is not available for picking")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Character '$characterName' is not available for picking",
+            )
         }
 
         userCharacters.add(characterName)
@@ -264,14 +270,20 @@ class DraftProcessService(
 
     private fun validateDraftState(draft: MatchDraft, expectedState: DraftState) {
         if (draft.currentState != expectedState) {
-            throw IllegalStateException("Not in needed phase. Current state: ${draft.currentState}")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Not in needed phase. Current state: ${draft.currentState}",
+            )
         }
     }
 
     private fun validateUserTurn(draft: MatchDraft, isPlayer1: Boolean) {
         val isUserTurn = (isPlayer1 && draft.isCurrentTurnPlayer1()) || (!isPlayer1 && draft.isCurrentTurnPlayer2())
         if (!isUserTurn) {
-            throw IllegalStateException("Not your turn to make a move")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Not your turn to make a move",
+            )
         }
     }
 
@@ -280,7 +292,10 @@ class DraftProcessService(
         val isPlayer2 = match.player2.id == userId
 
         if (!isPlayer1 && !isPlayer2) {
-            throw IllegalArgumentException("User with ID $userId is not part of this match")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "User with ID $userId is not part of this match",
+            )
         }
 
         return PlayerInfo(

@@ -44,12 +44,11 @@ class ClientWebsocketService(
     ): UserSessionDTO {
         val principal = session.principal ?: throw IllegalStateException("No authenticated principal found")
 
-        val authDTO = when (principal) {
-            is Authentication ->
-                principal.principal as? User
-                    ?: throw IllegalStateException("Principal is not AuthDTO")
-
-            else -> throw IllegalStateException("Unexpected principal type: ${principal.javaClass}")
+        val authDTO = if (principal is Authentication) {
+            principal.principal as? User
+                ?: throw IllegalStateException("Principal is not AuthDTO")
+        } else {
+            throw IllegalStateException("Unexpected principal type: ${principal.javaClass}")
         }
 
         val user = userService.findUserWithThrow(authDTO.id)

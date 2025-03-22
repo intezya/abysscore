@@ -123,7 +123,6 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handleNoHandlerFoundException(
-        ex: NoHandlerFoundException,
         request: HttpServletRequest,
     ): ResponseEntity<ApiError> {
         val apiError =
