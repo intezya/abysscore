@@ -38,7 +38,7 @@ class AuthControllerIntegrationTest : BaseApiTest() {
         }
 
         @ParameterizedTest
-        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideInvalidUsername")
+        @MethodSource("com.intezya.abysscore.utils.fixtures.UserProvider#provideInvalidUsername")
         fun `shouldn't register user with invalid username`(invalidUsername: String) {
             val request = RandomProvider.constructAuthRequest(username = invalidUsername)
 
@@ -52,7 +52,7 @@ class AuthControllerIntegrationTest : BaseApiTest() {
         }
 
         @ParameterizedTest
-        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideInvalidPassword")
+        @MethodSource("com.intezya.abysscore.utils.fixtures.UserProvider#provideInvalidPassword")
         fun `shouldn't register user with invalid password`(invalidPassword: String) {
             val request = RandomProvider.constructAuthRequest(password = invalidPassword)
 
@@ -160,7 +160,7 @@ class AuthControllerIntegrationTest : BaseApiTest() {
         }
 
         @ParameterizedTest
-        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideUsernameWithAnyCases")
+        @MethodSource("com.intezya.abysscore.utils.fixtures.UserProvider#provideUsernameWithAnyCases")
         fun `should login user with any username case`(original: String, target: String) {
             val registerRequest = RandomProvider.constructAuthRequest(username = original)
             createUser(registerRequest)
