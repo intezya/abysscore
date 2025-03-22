@@ -10,7 +10,7 @@ import java.util.*
 class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    var id: Long = 0L
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "tournament_id")
@@ -58,11 +58,9 @@ class Match {
     constructor(
         player1: User,
         player2: User,
-        status: MatchStatus = MatchStatus.PENDING,
     ) {
         this.player1 = player1
         this.player2 = player2
-        this.status = status
     }
 
     fun isEnded(): Boolean = this.roomResults.filter { it.roomNumber == 3 }.size == 2

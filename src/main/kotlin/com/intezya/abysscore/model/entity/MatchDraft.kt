@@ -2,6 +2,7 @@ package com.intezya.abysscore.model.entity
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.model.dto.draft.DraftStep
 import jakarta.persistence.*
@@ -21,7 +22,7 @@ val DEFAULT_DRAFT_SCHEMA = listOf(
 class MatchDraft {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    var id: Long = 0L
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -90,7 +91,9 @@ class MatchDraft {
     lateinit var match: Match
 
     @Transient
-    private val objectMapper = ObjectMapper()
+    private val objectMapper = ObjectMapper().apply {
+        registerModule(KotlinModule.Builder().build())
+    }
 
     constructor()
 
@@ -103,6 +106,7 @@ class MatchDraft {
     fun getDraftSteps(): List<DraftStep> = try {
         objectMapper.readValue(draftSchemaJson, object : TypeReference<List<DraftStep>>() {})
     } catch (e: Exception) {
+        e.printStackTrace()
         DEFAULT_DRAFT_SCHEMA
     }
 
@@ -111,6 +115,7 @@ class MatchDraft {
     }
 
     fun getCurrentStep(): DraftStep? {
+        if (currentState != DraftState.DRAFTING) return null
         val steps = getDraftSteps()
         return if (currentStepIndex < steps.size) steps[currentStepIndex] else null
     }

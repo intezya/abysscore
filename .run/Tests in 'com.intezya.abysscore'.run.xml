@@ -28,12 +28,12 @@
                     <option name="INCLUDE" value="false"/>
                 </pattern>
                 <pattern>
-                    <option name="PATTERN" value="com.intezya.abysscore.model.*"/>
+                    <option name="PATTERN" value="com.intezya.abysscore.AbyssCoreApplicationKt"/>
                     <option name="ENABLED" value="true"/>
                     <option name="INCLUDE" value="false"/>
                 </pattern>
                 <pattern>
-                    <option name="PATTERN" value="com.intezya.abysscore.AbyssCoreApplicationKt"/>
+                    <option name="PATTERN" value="com.intezya.abysscore.model.dto.*"/>
                     <option name="ENABLED" value="true"/>
                     <option name="INCLUDE" value="false"/>
                 </pattern>
