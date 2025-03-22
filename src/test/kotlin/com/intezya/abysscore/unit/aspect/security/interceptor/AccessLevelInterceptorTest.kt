@@ -1,8 +1,9 @@
-package com.intezya.abysscore.security.interceptor
+package com.intezya.abysscore.unit.aspect.security.interceptor
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
+import com.intezya.abysscore.security.interceptor.AccessLevelInterceptor
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest

@@ -1,5 +1,6 @@
-package com.intezya.abysscore.security.utils
+package com.intezya.abysscore.unit.aspect.security.utils
 
+import com.intezya.abysscore.security.utils.PasswordUtils
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

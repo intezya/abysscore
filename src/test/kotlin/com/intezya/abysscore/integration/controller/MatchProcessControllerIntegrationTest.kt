@@ -1,10 +1,10 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.jdbc.core.JdbcTemplate
 import java.time.LocalDateTime
 
-class MatchProcessControllerTest : BaseApiTest() {
+class MatchProcessControllerIntegrationTest : BaseApiTest() {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -40,7 +40,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                         post("/matches/current/process/submit-retry")
                     }.Then {
                         statusCode(200)
-                        body("id", notNullValue())
+                        body("id", CoreMatchers.notNullValue())
                     }
             }
         }
@@ -67,7 +67,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                         post("/matches/current/process/submit-retry")
                     }.Then {
                         statusCode(HttpStatus.OK.value())
-                        body("id", notNullValue())
+                        body("id", CoreMatchers.notNullValue())
                     }
             }
 
@@ -123,7 +123,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                         post("/matches/current/process/submit-result")
                     }.Then {
                         statusCode(200)
-                        body("id", notNullValue())
+                        body("id", CoreMatchers.notNullValue())
                     }
             }
         }
@@ -149,7 +149,7 @@ class MatchProcessControllerTest : BaseApiTest() {
                         post("/matches/current/process/submit-result")
                     }.Then {
                         statusCode(HttpStatus.OK.value())
-                        body("id", notNullValue())
+                        body("id", CoreMatchers.notNullValue())
                     }
 
                 authenticatedRequest(jwtUtils.generateToken(createResult.player1))

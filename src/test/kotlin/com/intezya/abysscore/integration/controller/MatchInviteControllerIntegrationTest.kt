@@ -1,14 +1,14 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.constants.MATCH_INVITES_ENDPOINT
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 
-class MatchInviteControllerTest : BaseApiTest() {
+class MatchInviteControllerIntegrationTest : BaseApiTest() {
     @Nested
     inner class CreateMatchInvite {
         @Test
@@ -114,11 +114,11 @@ class MatchInviteControllerTest : BaseApiTest() {
                     post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("id", notNullValue())
-                    body("player1.id", notNullValue())
-                    body("player1.username", notNullValue())
-                    body("player2.id", notNullValue())
-                    body("player2.username", notNullValue())
+                    body("id", CoreMatchers.notNullValue())
+                    body("player1.id", CoreMatchers.notNullValue())
+                    body("player1.username", CoreMatchers.notNullValue())
+                    body("player2.id", CoreMatchers.notNullValue())
+                    body("player2.username", CoreMatchers.notNullValue())
                 }
         }
 
