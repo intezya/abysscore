@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-    <component name="AmplicodeDatabaseMigrationSettings" liquibaseFileType="SQL"/>
-    <component name="AmplicodeJpaPluginProjectSettings">
-        <option name="lastSelectedLanguage" value="Kotlin"/>
-    </component>
-    <component name="AmplicodeLiquibaseChangesConfig">
-        <exclude-change idName="room_results#player_id, match_id" tagName="addUniqueConstraint"/>
-    </component>
+  <component name="AmplicodeDatabaseMigrationSettings" liquibaseFileType="SQL" />
+  <component name="AmplicodeJpaPluginProjectSettings">
+    <option name="lastSelectedLanguage" value="Kotlin" />
+  </component>
 </project>

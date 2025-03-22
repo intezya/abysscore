@@ -28,30 +28,20 @@ class UserItemService(
     }
 
     @Transactional(readOnly = true)
-    fun findAllUserItems(
-        userId: Long,
-        pageable: Pageable,
-    ): Page<UserItemDTO> {
+    fun findAllUserItems(userId: Long, pageable: Pageable): Page<UserItemDTO> {
         userService.findUserWithThrow(userId)
         val userItemsPage = userItemRepository.findByUserId(userId, pageable)
         return userItemsPage.map { it.toDTO() }
     }
 
-    fun issueForPlayerFromAdmin(
-        userId: Long,
-        itemId: Long,
-        adminId: Long,
-    ): UserItemDTO {
+    fun issueForPlayerFromAdmin(userId: Long, itemId: Long, adminId: Long): UserItemDTO {
         val user = userService.findUserWithThrow(userId)
         val gameItem = gameItemService.findById(itemId)
         val admin = userService.findUserWithThrow(adminId)
         return issueByAdmin(user, gameItem, admin).toDTO()
     }
 
-    private fun issueBySystem(
-        user: User,
-        item: GameItem,
-    ): UserItem {
+    private fun issueBySystem(user: User, item: GameItem): UserItem {
         val userItem = UserItem(sourceType = ItemSourceType.SYSTEM).apply {
             this.user = user
             this.gameItem = item
@@ -60,11 +50,7 @@ class UserItemService(
         return userItemRepository.save(userItem)
     }
 
-    private fun issueByAdmin(
-        user: User,
-        item: GameItem,
-        admin: User,
-    ): UserItem {
+    private fun issueByAdmin(user: User, item: GameItem, admin: User): UserItem {
         val userItem =
             UserItem(sourceType = ItemSourceType.ADMIN).apply {
                 this.user = user
@@ -74,11 +60,7 @@ class UserItemService(
         return userItemRepository.save(userItem)
     }
 
-    private fun sendEvent(
-        receiverId: Long,
-        itemId: Long,
-        issuedBy: Long,
-    ) {
+    private fun sendEvent(receiverId: Long, itemId: Long, issuedBy: Long) {
         val event =
             ItemIssueEvent(
                 itemId = itemId,

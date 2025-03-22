@@ -7,20 +7,12 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
-class PasswordUtils(
-    private val passwordEncoder: PasswordEncoder,
-) {
+class PasswordUtils(private val passwordEncoder: PasswordEncoder) {
     fun hashPassword(password: String): String = encodeToBase64(passwordEncoder.encode(password))
 
-    fun verifyPassword(
-        raw: String,
-        hash: String,
-    ): Boolean = passwordEncoder.matches(raw, decodeFromBase64(hash))
+    fun verifyPassword(raw: String, hash: String): Boolean = passwordEncoder.matches(raw, decodeFromBase64(hash))
 
     fun hashHwid(input: String): String = encodeToBase64(sha256(input))
 
-    fun verifyHwid(
-        raw: String,
-        hash: String,
-    ): Boolean = hashHwid(raw) == hash
+    fun verifyHwid(raw: String, hash: String): Boolean = hashHwid(raw) == hash
 }

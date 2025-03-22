@@ -42,5 +42,6 @@ data class GameItem(
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , name = $name , collection = $collection , type = $type , rarity = $rarity )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , name = $name , collection = $collection , type = $type , rarity = $rarity )"
 }

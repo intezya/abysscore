@@ -33,9 +33,7 @@ class AuthController(
     }
 
     @PostMapping("/login")
-    fun login(
-        @RequestBody request: AuthRequest,
-    ): ResponseEntity<AuthResponse> {
+    fun login(@RequestBody request: AuthRequest): ResponseEntity<AuthResponse> {
         val authentication = authenticationManager.authenticate(
             CustomAuthenticationToken(
                 request.username,

@@ -19,19 +19,15 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/users")
-class UserController(
-    private val userService: UserService,
-) {
+class UserController(private val userService: UserService) {
     @GetMapping("/me")
-    fun me(
-        @AuthenticationPrincipal contextUser: User,
-    ): ResponseEntity<UserDTO> = ResponseEntity.ok(userService.findUserWithThrow(contextUser.id).toDTO())
+    fun me(@AuthenticationPrincipal contextUser: User): ResponseEntity<UserDTO> =
+        ResponseEntity.ok(userService.findUserWithThrow(contextUser.id).toDTO())
 
     @GetMapping("")
     @RequiresAccessLevel(AccessLevel.VIEW_ALL_USERS)
-    fun getAll(
-        @ParameterObject @PageableDefault(size = 20) pageable: Pageable,
-    ): PagedModel<UserDTO> = PagedModel(userService.findAll(pageable))
+    fun getAll(@ParameterObject @PageableDefault(size = 20) pageable: Pageable): PagedModel<UserDTO> =
+        PagedModel(userService.findAll(pageable))
 
     @PatchMapping("/preferences/invites")
     fun updateReceiveMatchInvites(

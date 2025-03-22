@@ -70,5 +70,6 @@ data class UserGlobalStatistic(
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , matchesWon = $matchesWon , matchesLost = $matchesLost , matchesDraws = $matchesDraws , summaryTimeClear = $summaryTimeClear , xp = $xp , skill = $skill , createdAt = $createdAt , updatedAt = $updatedAt )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , matchesWon = $matchesWon , matchesLost = $matchesLost , matchesDraws = $matchesDraws , summaryTimeClear = $summaryTimeClear , xp = $xp , skill = $skill , createdAt = $createdAt , updatedAt = $updatedAt )"
 }

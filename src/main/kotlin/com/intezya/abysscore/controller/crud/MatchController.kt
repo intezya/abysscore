@@ -12,12 +12,8 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/matches")
-class MatchController(
-    private val matchService: MatchService,
-) {
+class MatchController(private val matchService: MatchService) {
     @GetMapping("/{matchId}")
     @RequiresAccessLevel(AccessLevel.VIEW_MATCHES)
-    fun findMatch(
-        @PathVariable("matchId") matchId: Long,
-    ): MatchDTO = matchService.findById(matchId).toDTO()
+    fun findMatch(@PathVariable("matchId") matchId: Long): MatchDTO = matchService.findById(matchId).toDTO()
 }

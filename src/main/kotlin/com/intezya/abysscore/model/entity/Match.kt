@@ -86,5 +86,6 @@ data class Match(
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , createdAt = $createdAt , startedAt = $startedAt , endedAt = $endedAt , status = $status )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , createdAt = $createdAt , startedAt = $startedAt , endedAt = $endedAt , status = $status )"
 }

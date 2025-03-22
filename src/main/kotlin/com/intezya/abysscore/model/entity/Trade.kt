@@ -57,5 +57,6 @@ data class Trade(
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , status = $status , createdAt = $createdAt , updatedAt = $updatedAt , initiator = $initiator , receiver = $receiver )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , status = $status , createdAt = $createdAt , updatedAt = $updatedAt , initiator = $initiator , receiver = $receiver )"
 }

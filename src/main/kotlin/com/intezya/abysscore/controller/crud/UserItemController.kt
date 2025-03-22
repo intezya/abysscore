@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/account/inventory")
 @SecurityRequirement(name = "bearer-jwt")
-class UserItemController(
-    private val userItemService: UserItemService,
-) {
+class UserItemController(private val userItemService: UserItemService) {
     @GetMapping("")
     fun getSelfInventory(
         @ParameterObject @PageableDefault(size = 20) pageable: Pageable,

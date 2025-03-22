@@ -122,10 +122,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoHandlerFoundException::class)
-    fun handleNoHandlerFoundException(
-        ex: NoHandlerFoundException,
-        request: HttpServletRequest,
-    ): ResponseEntity<ApiError> {
+    fun handleNoHandlerFoundException(request: HttpServletRequest): ResponseEntity<ApiError> {
         val apiError =
             ApiError(
                 status = HttpStatus.NOT_FOUND.value(),

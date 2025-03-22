@@ -58,6 +58,7 @@ class CustomAuthenticationProvider(
         )
     }
 
-    override fun supports(authentication: Class<*>): Boolean = authentication == UsernamePasswordAuthenticationToken::class.java ||
-        authentication == CustomAuthenticationToken::class.java
+    override fun supports(authentication: Class<*>): Boolean =
+        authentication == UsernamePasswordAuthenticationToken::class.java ||
+            authentication == CustomAuthenticationToken::class.java
 }

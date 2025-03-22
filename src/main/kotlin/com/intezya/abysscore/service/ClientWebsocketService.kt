@@ -11,10 +11,7 @@ import org.springframework.web.socket.WebSocketSession
 
 // TODO
 @Service
-class ClientWebsocketService(
-    private val objectMapper: ObjectMapper,
-    private val userService: UserService,
-) {
+class ClientWebsocketService(private val objectMapper: ObjectMapper, private val userService: UserService) {
     private val sessions = mutableSetOf<UserSessionDTO>()
     private val closingMessage = TextMessage(objectMapper.writeValueAsString(mapOf("type" to "closing")))
 
@@ -28,10 +25,7 @@ class ClientWebsocketService(
         sessions.add(getUserSession(session))
     }
 
-    fun removeConnection(
-        session: WebSocketSession,
-        status: CloseStatus,
-    ) {
+    fun removeConnection(session: WebSocketSession, status: CloseStatus) {
         val existingSession = sessions.firstOrNull { it.id.toString() == session.id }
 
         existingSession?.connection?.close()
@@ -39,17 +33,14 @@ class ClientWebsocketService(
         sessions.remove(existingSession)
     }
 
-    private fun getUserSession(
-        session: WebSocketSession,
-    ): UserSessionDTO {
+    private fun getUserSession(session: WebSocketSession): UserSessionDTO {
         val principal = session.principal ?: throw IllegalStateException("No authenticated principal found")
 
-        val authDTO = when (principal) {
-            is Authentication ->
-                principal.principal as? User
-                    ?: throw IllegalStateException("Principal is not AuthDTO")
-
-            else -> throw IllegalStateException("Unexpected principal type: ${principal.javaClass}")
+        val authDTO = if (principal is Authentication) {
+            principal.principal as? User
+                ?: throw IllegalStateException("Principal is not AuthDTO")
+        } else {
+            throw IllegalStateException("Unexpected principal type: ${principal.javaClass}")
         }
 
         val user = userService.findUserWithThrow(authDTO.id)

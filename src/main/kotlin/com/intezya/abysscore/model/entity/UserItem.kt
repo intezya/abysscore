@@ -44,10 +44,15 @@ data class UserItem(
         return if (id != 0L && other.id != 0L) {
             id == other.id
         } else {
-            sourceType == other.sourceType && createdAt == other.createdAt && user == other.user && gameItem == other.gameItem && receivedFrom == other.receivedFrom
+            sourceType == other.sourceType &&
+                createdAt == other.createdAt &&
+                user == other.user &&
+                gameItem == other.gameItem &&
+                receivedFrom == other.receivedFrom
         }
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , sourceType = $sourceType , createdAt = $createdAt )"
+    override fun toString(): String =
+        this::class.simpleName + "(id = $id , sourceType = $sourceType , createdAt = $createdAt )"
 }

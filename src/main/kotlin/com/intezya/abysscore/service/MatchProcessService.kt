@@ -232,13 +232,14 @@ class MatchProcessService(
         return processPenaltyTime(usedRetries)
     }
 
-    private fun createRoomResult(user: User, match: Match, request: SubmitRoomResultRequest, penalty: Int): RoomResult = RoomResult(
-        roomNumber = request.roomNumber,
-        time = request.time + penalty,
-    ).apply {
-        this.player = user
-        this.match = match
-    }
+    private fun createRoomResult(user: User, match: Match, request: SubmitRoomResultRequest, penalty: Int): RoomResult =
+        RoomResult(
+            roomNumber = request.roomNumber,
+            time = request.time + penalty,
+        ).apply {
+            this.player = user
+            this.match = match
+        }
 
     private fun handleMatchCompletion(match: Match) {
         if (match.isEnded()) {
@@ -257,7 +258,8 @@ class MatchProcessService(
         else -> 0
     }
 
-    private fun User.currentMatchOrThrow(): Match = currentMatch ?: throw IllegalStateException("User is not in a match")
+    private fun User.currentMatchOrThrow(): Match =
+        currentMatch ?: throw IllegalStateException("User is not in a match")
 
     private fun validateMatchIsActive(match: Match) {
         if (match.status != MatchStatus.ACTIVE) {

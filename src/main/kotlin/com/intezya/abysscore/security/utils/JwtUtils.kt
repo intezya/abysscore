@@ -24,10 +24,7 @@ class JwtUtils(
         Keys.hmacShaKeyFor(key.toByteArray())
     }
 
-    fun generateToken(
-        user: User,
-        extraExpirationMinutes: Int = expirationMinutes,
-    ): String {
+    fun generateToken(user: User, extraExpirationMinutes: Int = expirationMinutes): String {
         val claims = HashMap<String, Any>()
         if (user.hwid != null) {
             claims["hwid"] = user.hwid!!

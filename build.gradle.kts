@@ -129,13 +129,6 @@ ktlint {
     android.set(false)
     ignoreFailures.set(false)
     enableExperimentalRules.set(true)
-    additionalEditorconfig.putAll(
-        mapOf(
-            "kotlin_code_style" to "official",
-            "indent_size" to "4",
-            "max_line_length" to "120",
-        ),
-    )
     filter {
         exclude { element ->
             element.file.path.contains("generated/") ||

@@ -1,10 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="AbyssCoreApplication" type="SpringBootApplicationConfigurationType"
-                   factoryName="Spring Boot" nameIsGenerated="true">
-        <module name="abysscore.main"/>
-        <option name="SPRING_BOOT_MAIN_CLASS" value="com.intezya.abysscore.AbyssCoreApplication"/>
-        <method v="2">
-            <option name="Make" enabled="true"/>
-        </method>
-    </configuration>
+  <configuration default="false" name="AbyssCoreApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="com.intezya.abysscore.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.intezya.abysscore.AbyssCoreApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
 </component>

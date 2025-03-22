@@ -8,23 +8,15 @@ import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
 
 @Component
-class ClientWebsocketHandler(
-    private val clientWebsocketService: ClientWebsocketService,
-) : TextWebSocketHandler() {
+class ClientWebsocketHandler(private val clientWebsocketService: ClientWebsocketService) : TextWebSocketHandler() {
     override fun afterConnectionEstablished(session: WebSocketSession) {
         clientWebsocketService.addConnection(session)
     }
 
-    override fun handleTextMessage(
-        session: WebSocketSession,
-        message: TextMessage,
-    ) {
+    override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
     }
 
-    override fun afterConnectionClosed(
-        session: WebSocketSession,
-        status: CloseStatus,
-    ) {
+    override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
         clientWebsocketService.removeConnection(session, status)
     }
 }

@@ -14,10 +14,8 @@ import org.springframework.web.socket.server.HandshakeInterceptor
 // TODO
 @Configuration
 @EnableWebSocket
-class WebSocketConfig(
-    private val jwtUtils: JwtUtils,
-    private val clientWebsocketHandler: ClientWebsocketHandler,
-) : WebSocketConfigurer {
+class WebSocketConfig(private val jwtUtils: JwtUtils, private val clientWebsocketHandler: ClientWebsocketHandler) :
+    WebSocketConfigurer {
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry
             .addHandler(clientWebsocketHandler, "/websocket/hubs/client")

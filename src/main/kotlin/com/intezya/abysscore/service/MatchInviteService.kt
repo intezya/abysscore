@@ -68,7 +68,8 @@ class MatchInviteService(
         // TODO: notify inviter
     }
 
-    private fun findInviteForUser(inviteId: Long, userId: Long): MatchInvite = matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
-        ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
-    }
+    private fun findInviteForUser(inviteId: Long, userId: Long): MatchInvite =
+        matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
+            ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
+        }
 }

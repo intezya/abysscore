@@ -8,9 +8,7 @@ import org.springframework.stereotype.Repository
 private const val BATCH_SIZE_LIMIT = 50
 
 @Repository
-class CustomDraftCharacterRepositoryImpl(
-    private val entityManager: EntityManager,
-) : CustomDraftCharacterRepository {
+class CustomDraftCharacterRepositoryImpl(private val entityManager: EntityManager) : CustomDraftCharacterRepository {
     override fun saveAllIgnoringDuplicates(characters: List<DraftCharacter>): List<DraftCharacter> {
         val result = mutableListOf<DraftCharacter>()
 

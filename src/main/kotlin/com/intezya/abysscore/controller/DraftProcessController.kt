@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/matches/current/draft/process")
-class DraftProcessController(
-    private val draftProcessService: DraftProcessService,
-) {
+class DraftProcessController(private val draftProcessService: DraftProcessService) {
     @PostMapping("/characters")
     @RequireUserInMatch(expectedThat = true)
     fun revealCharacters(

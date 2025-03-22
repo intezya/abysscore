@@ -88,7 +88,8 @@ data class User(
     override fun hashCode(): Int = Objects.hash(id, username)
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
 
     override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_USER"))
 

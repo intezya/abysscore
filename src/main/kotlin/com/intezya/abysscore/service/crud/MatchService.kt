@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
-class MatchService(
-    private val matchRepository: MatchRepository,
-) {
+class MatchService(private val matchRepository: MatchRepository) {
     fun findById(matchId: Long) = matchRepository.findById(matchId).orElseThrow {
         ResponseStatusException(HttpStatus.NOT_FOUND, "Match not found")
     }

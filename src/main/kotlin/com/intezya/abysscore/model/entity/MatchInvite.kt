@@ -46,5 +46,6 @@ data class MatchInvite(
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , inviter = $inviter , invitee = $invitee , createdAt = $createdAt , activeDiffSeconds = $activeDiffSeconds )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , inviter = $inviter , invitee = $invitee , createdAt = $createdAt , activeDiffSeconds = $activeDiffSeconds )"
 }

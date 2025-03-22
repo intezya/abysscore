@@ -153,7 +153,8 @@ abstract class BaseApiTest {
         contentType(ContentType.JSON)
     }
 
-    protected fun authenticatedRequest(accessLevel: AccessLevel = AccessLevel.USER) = authenticatedRequest(generateToken(accessLevel))
+    protected fun authenticatedRequest(accessLevel: AccessLevel = AccessLevel.USER) =
+        authenticatedRequest(generateToken(accessLevel))
 
     protected fun createGameItem(): GameItem {
         val gameItem = RandomProvider.constructCreateGameItemRequest().toEntity()
@@ -169,7 +170,8 @@ abstract class BaseApiTest {
         return userRequest
     }
 
-    protected fun createUserInviteRequest(inviteeUsername: String) = CreateMatchInviteRequest(inviteeUsername = inviteeUsername)
+    protected fun createUserInviteRequest(inviteeUsername: String) =
+        CreateMatchInviteRequest(inviteeUsername = inviteeUsername)
 
     protected fun setAcceptInvites(token: String, accept: Boolean) {
         val request = UpdateMatchInvitesRequest(receiveMatchInvites = accept)
@@ -229,9 +231,5 @@ abstract class BaseApiTest {
         return CreateMatchResult(user1, user2, match)
     }
 
-    data class CreateMatchResult(
-        val player1: User,
-        val player2: User,
-        val match: Match,
-    )
+    data class CreateMatchResult(val player1: User, val player2: User, val match: Match)
 }

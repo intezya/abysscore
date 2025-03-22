@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/matches/current/process")
-class MatchProcessController(
-    private val matchProcessService: MatchProcessService,
-) {
+class MatchProcessController(private val matchProcessService: MatchProcessService) {
     @PostMapping("/submit-retry")
     @RequireUserInMatch(expectedThat = true)
     fun submitRetry(

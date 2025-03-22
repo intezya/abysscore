@@ -47,5 +47,6 @@ data class TradeItem(
     }
 
     @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , trade = $trade , userItem = $userItem , owner = $owner )"
+    override fun toString(): String =
+        this::class.simpleName + "(id = $id , trade = $trade , userItem = $userItem , owner = $owner )"
 }
