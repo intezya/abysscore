@@ -32,7 +32,7 @@ class JwtUtils(
         return Jwts.builder()
             .setClaims(claims)
             .setIssuer(issuer)
-            .setSubject(user.username)
+            .setSubject(user.getUsername())
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))
             .signWith(secret, SignatureAlgorithm.HS256)

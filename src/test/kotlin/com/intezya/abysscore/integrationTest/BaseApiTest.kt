@@ -127,13 +127,13 @@ abstract class BaseApiTest {
     protected fun createAuthorizationHeader(token: JwtToken): String = "$BEARER_PREFIX$token"
 
     protected fun generateUserWithToken(accessLevel: AccessLevel = AccessLevel.USER): Pair<User, JwtToken> {
-        val user =
-            User(
-                username = f.name.firstName(),
-                password = passwordUtils.hashPassword("password"),
-                hwid = passwordUtils.hashHwid(f.random.nextUUID()),
-                accessLevel = accessLevel,
-            )
+        val user = User(
+            username = f.name.firstName(),
+            password = passwordUtils.hashPassword("password"),
+            hwid = passwordUtils.hashHwid(f.random.nextUUID()),
+        ).apply {
+            this.accessLevel = accessLevel
+        }
         userRepository.save(user)
         val statistic = UserGlobalStatistic().apply { this.user = user }
         userGlobalStatisticRepository.save(statistic)
@@ -162,7 +162,7 @@ abstract class BaseApiTest {
     }
 
     protected fun createMultipleGameItems(count: Int): List<GameItem> = (1..count).map {
-        gameItemRepository.save(RandomProvider.constructCreateGameItemRequest().toEntity().copy())
+        gameItemRepository.save(RandomProvider.constructCreateGameItemRequest().toEntity())
     }
 
     protected fun createUser(userRequest: AuthRequest = RandomProvider.constructAuthRequest()): AuthRequest {

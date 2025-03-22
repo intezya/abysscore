@@ -161,9 +161,7 @@ class UserItemControllerTest : BaseApiTest() {
     }
 
     private fun createUserItem(user: User, gameItem: GameItem): UserItem {
-        val userItem = UserItem(
-            id = 0L,
-        ).apply {
+        val userItem = UserItem().apply {
             this.user = user
             this.gameItem = gameItem
         }

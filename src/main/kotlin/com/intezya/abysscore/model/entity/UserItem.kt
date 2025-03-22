@@ -7,18 +7,18 @@ import java.util.*
 
 @Entity
 @Table(name = "user_items")
-class UserItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L
-
+class UserItem(
     @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false)
-    val sourceType: ItemSourceType = ItemSourceType.SYSTEM
+    val sourceType: ItemSourceType = ItemSourceType.SYSTEM,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trade_id")
-    val receivedFrom: Trade? = null
+    val receivedFrom: Trade? = null,
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
@@ -31,7 +31,7 @@ class UserItem {
     @JoinColumn(name = "item_id", nullable = false)
     lateinit var gameItem: GameItem
 
-    constructor()
+    constructor() : this(ItemSourceType.SYSTEM)
 
     override fun hashCode(): Int = if (id != 0L) {
         id.hashCode()

@@ -5,8 +5,8 @@ import com.intezya.abysscore.security.public.PUBLIC_PATHS
 import com.intezya.abysscore.security.service.CustomUserDetailsService
 import com.intezya.abysscore.security.utils.JwtUtils
 import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -171,14 +171,14 @@ class JwtAuthenticationFilter(
                 "AUTH_MALFORMED_TOKEN",
             )
             return false
-        } catch (e: SignatureException) {
-            log.warn("JWT signature validation failed")
+        } catch (e: JwtException) {
+            log.warn("JWT exception: ${e.message}")
             sendErrorResponse(
                 request,
                 response,
                 HttpServletResponse.SC_UNAUTHORIZED,
-                "Invalid token signature",
-                "AUTH_INVALID_SIGNATURE",
+                "Invalid token",
+                "AUTH_INVALID_TOKEN",
             )
             return false
         }

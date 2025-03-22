@@ -14,11 +14,10 @@ object RandomProvider {
         password: String = f.random.randomString(length = 20, numericalChars = true) + "1",
         hwid: String? = f.random.nextUUID(),
     ): User = User(
-        id = id,
         username = username,
         password = password,
         hwid = hwid,
-    )
+    ).apply { this.id = id }
 
     fun constructAuthRequest(
         username: String = f.name.firstName().take(16),

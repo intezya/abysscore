@@ -20,7 +20,7 @@ class CustomAuthenticationProvider(
 
         val userDetails = userDetailsService.loadUserByUsername(username)
 
-        if (!passwordUtils.verifyPassword(password, userDetails.password)) {
+        if (!passwordUtils.verifyPassword(password, userDetails.getPassword())) {
             throw BadCredentialsException("Wrong password")
         }
 
@@ -38,22 +38,22 @@ class CustomAuthenticationProvider(
             userDetailsService.updateHwid(userDetails.id, hwidAsAdditionalField)
         }
 
-        if (!userDetails.isAccountNonExpired) {
+        if (!userDetails.isAccountNonExpired()) {
             throw BadCredentialsException("User is expired")
         }
 
-        if (!userDetails.isAccountNonLocked) {
+        if (!userDetails.isAccountNonLocked()) {
             throw BadCredentialsException("User is locked")
         }
 
-        if (!userDetails.isEnabled) {
+        if (!userDetails.isEnabled()) {
             throw BadCredentialsException("User is disabled")
         }
 
         return CustomAuthenticationToken(
             userDetails,
             null,
-            userDetails.authorities,
+            userDetails.getAuthorities(),
             hwidAsAdditionalField,
         )
     }

@@ -62,7 +62,7 @@ class UserControllerTest : BaseApiTest() {
             val token = generateToken(AccessLevel.VIEW_ALL_USERS)
             val n = 100
 
-            repeat(10) {
+            repeat(n) {
                 val request = RandomProvider.constructAuthRequest(username = UUID.randomUUID().toString().take(16))
                 userService.create(request)
             }

@@ -5,12 +5,13 @@ import com.intezya.abysscore.utils.converter.AccessLevelConverter
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
 import java.util.*
 
 @Entity
 @Table(name = "users")
-class User {
+class User : UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
@@ -59,21 +60,17 @@ class User {
     constructor() : this(
         username = "",
         password = "",
-        hwid = null,
+        hwid = "",
     )
 
     constructor(
         username: String,
         password: String,
         hwid: String?,
-        accessLevel: AccessLevel = AccessLevel.USER,
-        receiveMatchInvites: Boolean = false,
     ) {
         this.username = username
         this.password = password
         this.hwid = hwid
-        this.accessLevel = accessLevel
-        this.receiveMatchInvites = receiveMatchInvites
     }
 
     @PreUpdate
@@ -97,17 +94,17 @@ class User {
     override fun toString(): String = this::class.simpleName +
         "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
 
-    fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_USER"))
+    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_USER"))
 
-    fun getPassword(): String = password
+    override fun getPassword(): String = password
 
-    fun getUsername(): String = username
+    override fun getUsername(): String = username
 
-    fun isAccountNonExpired(): Boolean = true
+    override fun isAccountNonExpired(): Boolean = true
 
-    fun isAccountNonLocked(): Boolean = true
+    override fun isAccountNonLocked(): Boolean = true
 
-    fun isCredentialsNonExpired(): Boolean = true
+    override fun isCredentialsNonExpired(): Boolean = true
 
-    fun isEnabled(): Boolean = true
+    override fun isEnabled(): Boolean = true
 }
