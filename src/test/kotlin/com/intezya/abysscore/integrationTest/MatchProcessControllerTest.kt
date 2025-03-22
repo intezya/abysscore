@@ -153,6 +153,24 @@ class MatchProcessControllerTest : BaseApiTest() {
                     statusCode(HttpStatus.BAD_REQUEST.value())
                 }
         }
+
+        @Test
+        fun `shouldn't work if match not in active stage`() {
+            val (_, token) = createUser()
+
+            val request = SubmitRoomResultRequest(
+                roomNumber = 1,
+                time = 20,
+            )
+
+            authenticatedRequest(token)
+                .body(request)
+                .When {
+                    post("/match/current/process/submit-result")
+                }.Then {
+                    statusCode(HttpStatus.BAD_REQUEST.value())
+                }
+        }
     }
 
     @Nested
