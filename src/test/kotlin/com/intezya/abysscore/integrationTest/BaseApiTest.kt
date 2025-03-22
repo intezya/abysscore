@@ -17,6 +17,7 @@ import com.intezya.abysscore.repository.*
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
+import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.service.UserService
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.github.serpro69.kfaker.Faker
@@ -53,6 +54,9 @@ typealias JwtToken = String
 @Import(TestPostgresConfiguration::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseApiTest {
+
+    @Autowired
+    private lateinit var matchMakingService: MatchMakingService
 
     @Autowired
     protected lateinit var jwtUtils: JwtUtils
@@ -214,11 +218,9 @@ abstract class BaseApiTest {
         val (user1, _) = generateUserWithToken()
         val (user2, _) = generateUserWithToken()
 
-        val match = Match().apply {
-            this.player1 = user1
-            this.player2 = user2
-            this.status = withStatus
-        }
+        val match = matchMakingService.createMatch(user1, user2)
+
+        match.apply { this.status = withStatus }
 
         matchRepository.saveAndFlush(match)
 

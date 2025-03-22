@@ -50,7 +50,7 @@ class Match {
     @JoinColumn(name = "player2_id", nullable = false)
     lateinit var player2: User
 
-    @OneToOne(mappedBy = "match", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToOne(mappedBy = "match", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     lateinit var draft: MatchDraft
 
     constructor()

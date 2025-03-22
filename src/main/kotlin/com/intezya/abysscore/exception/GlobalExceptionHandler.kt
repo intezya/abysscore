@@ -136,6 +136,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception): ResponseEntity<ErrorResponse> {
+        ex.printStackTrace()
         logger.error(ex.message, ex.cause)
         val errorResponse =
             ErrorResponse(

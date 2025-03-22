@@ -1,5 +1,6 @@
 package com.intezya.abysscore.integrationTest
 
+import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
@@ -21,6 +22,12 @@ class MatchProcessControllerTest : BaseApiTest() {
         fun `should submit retry`() {
             val createResult = createMatch()
 
+            val savedMatch = createResult.match
+            savedMatch.apply {
+                status = MatchStatus.ACTIVE
+            }
+            matchRepository.save(savedMatch)
+
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,
                 time = 20,
@@ -41,6 +48,12 @@ class MatchProcessControllerTest : BaseApiTest() {
         @Test
         fun `should not send a retry if there are too many of them`() {
             val createResult = createMatch()
+
+            val savedMatch = createResult.match
+            savedMatch.apply {
+                status = MatchStatus.ACTIVE
+            }
+            matchRepository.save(savedMatch)
 
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,
@@ -92,6 +105,12 @@ class MatchProcessControllerTest : BaseApiTest() {
         fun `should submit result`() {
             val createResult = createMatch()
 
+            val savedMatch = createResult.match
+            savedMatch.apply {
+                status = MatchStatus.ACTIVE
+            }
+            matchRepository.save(savedMatch)
+
             for (i in 1..3) {
                 val request = SubmitRoomResultRequest(
                     roomNumber = i,
@@ -112,6 +131,13 @@ class MatchProcessControllerTest : BaseApiTest() {
         @Test
         fun `should not send a result if there already result in number`() {
             val createResult = createMatch()
+
+            val savedMatch = createResult.match
+            savedMatch.apply {
+                status = MatchStatus.ACTIVE
+            }
+            matchRepository.save(savedMatch)
+
             for (i in 1..3) {
                 val request = SubmitRoomResultRequest(
                     roomNumber = i,

@@ -24,10 +24,10 @@ class MatchMakingService(
         }
         matchRepository.save(match)
 
-        createDraft(match)
-
         userService.setCurrentMatch(user1, match)
         userService.setCurrentMatch(user2, match)
+
+        match.apply { this.draft = createDraft(match) }
 
         // TODO: notify users
 

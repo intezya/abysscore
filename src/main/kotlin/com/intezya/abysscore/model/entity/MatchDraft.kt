@@ -51,22 +51,22 @@ class MatchDraft {
     @Column(columnDefinition = "TEXT")
     var draftSchemaJson: String = "[]"
 
-    @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val draftActions: MutableList<DraftAction> = mutableListOf()
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "draft_banned_characters", joinColumns = [JoinColumn(name = "draft_id")])
     val bannedCharacters: MutableSet<String> = mutableSetOf()
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "draft_player1_characters", joinColumns = [JoinColumn(name = "draft_id")])
     var player1Characters: MutableSet<String> = mutableSetOf()
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "draft_player2_characters", joinColumns = [JoinColumn(name = "draft_id")])
     var player2Characters: MutableSet<String> = mutableSetOf()
 
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "draft_player1_available_characters",
         joinColumns = [JoinColumn(name = "draft_id")],
@@ -74,7 +74,7 @@ class MatchDraft {
     )
     val player1AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
 
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "draft_player2_available_characters",
         joinColumns = [JoinColumn(name = "draft_id")],
