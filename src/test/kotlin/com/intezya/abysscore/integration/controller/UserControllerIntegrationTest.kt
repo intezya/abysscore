@@ -1,4 +1,4 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.entity.User
@@ -7,16 +7,14 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.notNullValue
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.hamcrest.CoreMatchers
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import java.util.*
 
-class UserControllerTest : BaseApiTest() {
+class UserControllerIntegrationTest : BaseApiTest() {
     @Nested
     inner class UserInfo {
         @Test
@@ -24,7 +22,7 @@ class UserControllerTest : BaseApiTest() {
             val token = generateToken()
             val username = jwtUtils.extractUsername(token)
 
-            assertTrue(jwtUtils.isTokenValid(token))
+            Assertions.assertTrue(jwtUtils.isTokenValid(token))
 
             authenticatedRequest(token)
                 .When {
@@ -32,9 +30,9 @@ class UserControllerTest : BaseApiTest() {
                 }.Then {
                     statusCode(HttpStatus.OK.value())
                     contentType(ContentType.JSON)
-                    body("id", notNullValue())
-                    body("username", equalTo(username))
-                    body("created_at", notNullValue())
+                    body("id", CoreMatchers.notNullValue())
+                    body("username", CoreMatchers.equalTo(username))
+                    body("created_at", CoreMatchers.notNullValue())
                 }
         }
 
@@ -72,7 +70,7 @@ class UserControllerTest : BaseApiTest() {
                     get("/users")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content", notNullValue())
+                    body("content", CoreMatchers.notNullValue())
                 }.Extract {
                     response().jsonPath()
                 }
@@ -82,11 +80,11 @@ class UserControllerTest : BaseApiTest() {
             val totalElements = page["total_elements"].toString().toInt()
             val size = page["size"].toString().toInt()
 
-            assertEquals(n + 1, totalElements)
+            Assertions.assertEquals(n + 1, totalElements)
             if (totalElements < size) {
-                assertEquals(totalElements, content.size)
+                Assertions.assertEquals(totalElements, content.size)
             } else {
-                assertEquals(size, content.size)
+                Assertions.assertEquals(size, content.size)
             }
         }
 
@@ -109,15 +107,15 @@ class UserControllerTest : BaseApiTest() {
         fun `should set invites state`() {
             val (user, token) = generateUserWithToken()
 
-            assertEquals(false, userService.findUserWithThrow(user.username).receiveMatchInvites)
+            Assertions.assertEquals(false, userService.findUserWithThrow(user.username).receiveMatchInvites)
 
             setAcceptInvites(token, accept = true)
 
-            assertEquals(true, userService.findUserWithThrow(user.username).receiveMatchInvites)
+            Assertions.assertEquals(true, userService.findUserWithThrow(user.username).receiveMatchInvites)
 
             setAcceptInvites(token, accept = false)
 
-            assertEquals(false, userService.findUserWithThrow(user.username).receiveMatchInvites)
+            Assertions.assertEquals(false, userService.findUserWithThrow(user.username).receiveMatchInvites)
         }
     }
 }

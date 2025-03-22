@@ -1,6 +1,6 @@
 package com.intezya.abysscore
 
-import com.intezya.abysscore.configuration.TestPostgresConfiguration
+import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 

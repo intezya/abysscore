@@ -1,6 +1,7 @@
-package com.intezya.abysscore.security.utils
+package com.intezya.abysscore.unit.aspect.security.utils
 
 import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.security.utils.JwtUtils
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*

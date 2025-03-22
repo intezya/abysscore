@@ -1,4 +1,4 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.constants.ACCOUNT_INVENTORY_ENDPOINT
 import com.intezya.abysscore.enum.AccessLevel
@@ -7,12 +7,12 @@ import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.entity.UserItem
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Nested
 import org.springframework.http.HttpStatus
 import kotlin.test.Test
 
-class UserItemControllerTest : BaseApiTest() {
+class UserItemControllerIntegratonTest : BaseApiTest() {
     @Nested
     inner class GetSelfInventory {
         @Test
@@ -26,8 +26,8 @@ class UserItemControllerTest : BaseApiTest() {
                     get(ACCOUNT_INVENTORY_ENDPOINT)
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content.size()", equalTo(1))
-                    body("content[0].game_item.id", equalTo(gameItem.id.toInt()))
+                    body("content.size()", CoreMatchers.equalTo(1))
+                    body("content[0].game_item.id", CoreMatchers.equalTo(gameItem.id.toInt()))
                 }
         }
 
@@ -40,7 +40,7 @@ class UserItemControllerTest : BaseApiTest() {
                     get(ACCOUNT_INVENTORY_ENDPOINT)
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content.size()", equalTo(0))
+                    body("content.size()", CoreMatchers.equalTo(0))
                 }
         }
 
@@ -57,8 +57,8 @@ class UserItemControllerTest : BaseApiTest() {
                     get(ACCOUNT_INVENTORY_ENDPOINT)
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content.size()", equalTo(10))
-                    body("page.total_elements", equalTo(25))
+                    body("content.size()", CoreMatchers.equalTo(10))
+                    body("page.total_elements", CoreMatchers.equalTo(25))
                 }
         }
     }
@@ -77,8 +77,8 @@ class UserItemControllerTest : BaseApiTest() {
                     get("$ACCOUNT_INVENTORY_ENDPOINT/${user.id}")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content.size()", equalTo(1))
-                    body("content[0].game_item.id", equalTo(gameItem.id.toInt()))
+                    body("content.size()", CoreMatchers.equalTo(1))
+                    body("content[0].game_item.id", CoreMatchers.equalTo(gameItem.id.toInt()))
                 }
         }
 
@@ -110,7 +110,7 @@ class UserItemControllerTest : BaseApiTest() {
                     post("$ACCOUNT_INVENTORY_ENDPOINT/${user.id}")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("game_item.id", equalTo(gameItem.id.toInt()))
+                    body("game_item.id", CoreMatchers.equalTo(gameItem.id.toInt()))
                 }
         }
 

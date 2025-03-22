@@ -1,12 +1,12 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.notNullValue
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.hamcrest.CoreMatchers
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpStatus
 import java.util.*
 
-class AuthControllerTest : BaseApiTest() {
+class AuthControllerIntegrationTest : BaseApiTest() {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Nested
     inner class Registration {
@@ -29,16 +29,16 @@ class AuthControllerTest : BaseApiTest() {
                     post("/auth/register")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("token", notNullValue())
+                    body("token", CoreMatchers.notNullValue())
                 }.Extract {
                     path<String>("token")
                 }
 
-            assertTrue(jwtUtils.isTokenValid(token))
+            Assertions.assertTrue(jwtUtils.isTokenValid(token))
         }
 
         @ParameterizedTest
-        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideInvalidUsername")
+        @MethodSource("com.intezya.abysscore.utils.fixtures.UserProvider#provideInvalidUsername")
         fun `shouldn't register user with invalid username`(invalidUsername: String) {
             val request = RandomProvider.constructAuthRequest(username = invalidUsername)
 
@@ -52,7 +52,7 @@ class AuthControllerTest : BaseApiTest() {
         }
 
         @ParameterizedTest
-        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideInvalidPassword")
+        @MethodSource("com.intezya.abysscore.utils.fixtures.UserProvider#provideInvalidPassword")
         fun `shouldn't register user with invalid password`(invalidPassword: String) {
             val request = RandomProvider.constructAuthRequest(password = invalidPassword)
 
@@ -107,12 +107,12 @@ class AuthControllerTest : BaseApiTest() {
                     post("/auth/login")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("token", notNullValue())
+                    body("token", CoreMatchers.notNullValue())
                 }.Extract {
                     path<String>("token")
                 }
 
-            assertTrue(jwtUtils.isTokenValid(token))
+            Assertions.assertTrue(jwtUtils.isTokenValid(token))
         }
 
         @Test
@@ -160,7 +160,7 @@ class AuthControllerTest : BaseApiTest() {
         }
 
         @ParameterizedTest
-        @MethodSource("com.intezya.abysscore.utils.providers.UserProvider#provideUsernameWithAnyCases")
+        @MethodSource("com.intezya.abysscore.utils.fixtures.UserProvider#provideUsernameWithAnyCases")
         fun `should login user with any username case`(original: String, target: String) {
             val registerRequest = RandomProvider.constructAuthRequest(username = original)
             createUser(registerRequest)
@@ -202,13 +202,13 @@ class AuthControllerTest : BaseApiTest() {
                     post("/auth/login")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("token", notNullValue())
+                    body("token", CoreMatchers.notNullValue())
                 }.Extract {
                     path<String>("token")
                 }
 
             val authHWID = jwtUtils.extractHwid(token)
-            assertTrue(passwordUtils.verifyHwid(loginRequest.hwid, authHWID))
+            Assertions.assertTrue(passwordUtils.verifyHwid(loginRequest.hwid, authHWID))
         }
     }
 }

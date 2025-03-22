@@ -1,4 +1,4 @@
-package com.intezya.abysscore.configuration
+package com.intezya.abysscore.utils.containers
 
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.boot.test.context.TestConfiguration

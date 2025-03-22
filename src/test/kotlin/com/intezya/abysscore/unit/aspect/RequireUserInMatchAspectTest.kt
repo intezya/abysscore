@@ -1,4 +1,4 @@
-package com.intezya.abysscore.aspect
+package com.intezya.abysscore.unit.aspect
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
 import com.intezya.abysscore.controller.aspect.RequireUserInMatchAspect

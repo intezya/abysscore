@@ -1,4 +1,4 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.utils.providers.RandomProvider
@@ -7,14 +7,13 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.notNullValue
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.hamcrest.CoreMatchers
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.springframework.http.HttpStatus
 import kotlin.test.Test
 
-class GameItemControllerTest : BaseApiTest() {
+class GameItemControllerIntegratonTest : BaseApiTest() {
     @Nested
     inner class GameItemCreate {
         @Test
@@ -27,7 +26,7 @@ class GameItemControllerTest : BaseApiTest() {
                     post("/items")
                 }.Then {
                     statusCode(201)
-                    body("id", notNullValue())
+                    body("id", CoreMatchers.notNullValue())
                 }
         }
 
@@ -106,7 +105,7 @@ class GameItemControllerTest : BaseApiTest() {
                     get("/items")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content", notNullValue())
+                    body("content", CoreMatchers.notNullValue())
                 }
         }
 
@@ -120,7 +119,7 @@ class GameItemControllerTest : BaseApiTest() {
                     get("/items")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("content", notNullValue())
+                    body("content", CoreMatchers.notNullValue())
                 }.Extract {
                     response().jsonPath()
                 }
@@ -128,8 +127,8 @@ class GameItemControllerTest : BaseApiTest() {
             val content = response.getList<Map<String, Any>>("content")
             val page = response.getMap<String, String>("page")
 
-            assertEquals(page["size"], content.size)
-            assertEquals(n, page["total_elements"])
+            Assertions.assertEquals(page["size"], content.size)
+            Assertions.assertEquals(n, page["total_elements"])
         }
 
         @Test
@@ -155,11 +154,11 @@ class GameItemControllerTest : BaseApiTest() {
                     get("/items/${gameItem.id}")
                 }.Then {
                     statusCode(HttpStatus.OK.value())
-                    body("id", equalTo(gameItem.id.toInt()))
-                    body("name", equalTo(gameItem.name))
-                    body("collection", equalTo(gameItem.collection))
-                    body("type", equalTo(gameItem.type))
-                    body("rarity", equalTo(gameItem.rarity))
+                    body("id", CoreMatchers.equalTo(gameItem.id.toInt()))
+                    body("name", CoreMatchers.equalTo(gameItem.name))
+                    body("collection", CoreMatchers.equalTo(gameItem.collection))
+                    body("type", CoreMatchers.equalTo(gameItem.type))
+                    body("rarity", CoreMatchers.equalTo(gameItem.rarity))
                 }
         }
 

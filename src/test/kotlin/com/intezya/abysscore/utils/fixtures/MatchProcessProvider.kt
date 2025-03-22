@@ -1,4 +1,4 @@
-package com.intezya.abysscore.utils.providers
+package com.intezya.abysscore.utils.fixtures
 
 import org.junit.jupiter.params.provider.Arguments
 import java.util.stream.Stream

@@ -1,7 +1,6 @@
-package com.intezya.abysscore.integrationTest
+package com.intezya.abysscore.integration.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.intezya.abysscore.configuration.TestPostgresConfiguration
 import com.intezya.abysscore.constants.BEARER_PREFIX
 import com.intezya.abysscore.constants.MATCH_INVITES_ENDPOINT
 import com.intezya.abysscore.constants.USER_PREFERENCES_INVITES_ENDPOINT
@@ -19,6 +18,7 @@ import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
 import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.service.UserService
+import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.faker
@@ -33,11 +33,7 @@ import io.restassured.module.kotlin.extensions.When
 import io.restassured.parsing.Parser
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -125,7 +121,7 @@ abstract class BaseApiTest {
 
     @Test
     fun `context loads`() {
-        assertTrue(true)
+        Assertions.assertTrue(true)
     }
 
     protected fun createAuthorizationHeader(token: JwtToken): String = "$BEARER_PREFIX$token"
