@@ -33,7 +33,7 @@ logging:
   level:
     root: warn
     org.springframework: warn
-    com.intezya.abysscore: debug
+    com.intezya.abysscore: info
 
 
 jwt:

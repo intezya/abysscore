@@ -2,6 +2,7 @@ package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
+import com.intezya.abysscore.utils.fixtures.MatchFixtures
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers
@@ -82,7 +83,13 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
 
         @Test
         fun `shouldn't work if user not in match`() {
-            val (_, token) = createUser()
+            val (user, token) = generateUserWithToken()
+
+            val match = MatchFixtures.createDefaultMatch(user1 = user)
+            userRepository.save(match.player2)
+            matchRepository.save(match)
+            user.currentMatch = match
+            userRepository.save(user)
 
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,
@@ -164,7 +171,13 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
 
         @Test
         fun `shouldn't work if user not in match`() {
-            val (_, token) = createUser()
+            val (user, token) = generateUserWithToken()
+
+            val match = MatchFixtures.createDefaultMatch(user1 = user)
+            userRepository.save(match.player2)
+            matchRepository.save(match)
+            user.currentMatch = match
+            userRepository.save(user)
 
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,
@@ -174,7 +187,7 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
             authenticatedRequest(token)
                 .body(request)
                 .When {
-                    post("/match/current/process/submit-result")
+                    post("/matches/current/process/submit-result")
                 }.Then {
                     statusCode(HttpStatus.BAD_REQUEST.value())
                 }
@@ -182,7 +195,14 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
 
         @Test
         fun `shouldn't work if match not in active stage`() {
-            val (_, token) = createUser()
+            val (user, token) = generateUserWithToken()
+
+            val match = MatchFixtures.createDefaultMatch(user1 = user)
+            userRepository.save(match.player2)
+            matchRepository.save(match)
+            user.currentMatch = match
+            userRepository.save(user)
+
 
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,
@@ -192,7 +212,7 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
             authenticatedRequest(token)
                 .body(request)
                 .When {
-                    post("/match/current/process/submit-result")
+                    post("/matches/current/process/submit-result")
                 }.Then {
                     statusCode(HttpStatus.BAD_REQUEST.value())
                 }

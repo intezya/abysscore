@@ -45,6 +45,9 @@ class MatchProcessService(
     }
 
     fun submitResult(user: User, request: SubmitRoomResultRequest): Match {
+        println("PRINTING SUBMIT RESULT")
+        println(user)
+        println(user.currentMatch)
         val currentMatch = user.currentMatchOrThrow()
         validateMatchIsActive(currentMatch)
 
@@ -66,10 +69,10 @@ class MatchProcessService(
 
     @Scheduled(fixedRate = MATCH_TIMEOUT_CHECK_INTERVAL_MS)
     fun checkMatchTimeouts() {
-        logger.info("Starting match timeout check")
+        logger.debug("Starting match timeout check")
 
         val activeMatches = matchRepository.findByStatus(MatchStatus.ACTIVE)
-        logger.info("Processing ${activeMatches.size} active matches for timeouts")
+        logger.debug("Processing ${activeMatches.size} active matches for timeouts")
 
         activeMatches.forEach { match ->
             try {
@@ -79,7 +82,7 @@ class MatchProcessService(
             }
         }
 
-        logger.info("Completed match timeout check")
+        logger.debug("Completed match timeout check")
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

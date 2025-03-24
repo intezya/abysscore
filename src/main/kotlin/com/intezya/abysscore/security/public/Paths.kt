@@ -6,4 +6,5 @@ val PUBLIC_PATHS = arrayOf(
     "/auth/admin/login",
     "/swagger-ui/**",
     "/api-docs/**",
+    "/match-chat/**",
 )
