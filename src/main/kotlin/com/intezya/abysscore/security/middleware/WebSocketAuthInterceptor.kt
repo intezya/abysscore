@@ -1,20 +1,21 @@
 package com.intezya.abysscore.security.middleware
 
-import com.intezya.abysscore.security.service.CustomAuthenticationProvider
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.security.service.JwtAuthenticationService
+import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.logging.LogFactory
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
+import org.springframework.http.server.ServletServerHttpResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.HandshakeInterceptor
 
-const val USER_AUTH_TOKEN = "user_auth_token"
+const val USER_AUTHORIZATION = "user_authorization"
 
 class WebSocketAuthInterceptor(
     private val jwtAuthenticationService: JwtAuthenticationService,
-    private val authenticationProvider: CustomAuthenticationProvider,
+    private val objectMapper: ObjectMapper,
 ) : HandshakeInterceptor {
     private val logger = LogFactory.getLog(this.javaClass)
 
@@ -26,38 +27,73 @@ class WebSocketAuthInterceptor(
     ): Boolean {
         val authHeader = request.headers["Authorization"]?.firstOrNull()
 
-        if (authHeader == null) {
-            logger.warn("WebSocket: Missing Authorization header")
-            return false
+        return if (authHeader == null) {
+            sendRejectionMessage(response, "Missing Authorization header")
+            false
+        } else {
+            handleTokenAuthentication(authHeader, response, attributes)
         }
+    }
 
+    private fun handleTokenAuthentication(
+        authHeader: String,
+        response: ServerHttpResponse,
+        attributes: MutableMap<String, Any>,
+    ): Boolean {
         val (jwtValid, jwtOrError) = jwtAuthenticationService.extractJwtFromHeader(authHeader)
 
+        logger.debug("jwt valid: $jwtValid, jwt: $jwtOrError")
+
         if (!jwtValid) {
-            logger.warn("WebSocket: $jwtOrError")
+            sendRejectionMessage(response, jwtOrError)
             return false
         }
 
-        try {
+        return try {
             val (authenticated, userDetails) = jwtAuthenticationService.authenticateWithToken(jwtOrError)
 
-            if (!authenticated || userDetails == null) {
-                logger.warn("WebSocket: Authentication failed")
-                return false
-            }
+            logger.debug("authenticated: $authenticated, user: $userDetails")
 
-            val authToken = UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.authorities,
+            if (!authenticated || userDetails == null) {
+                sendRejectionMessage(response, "Authentication failed")
+                false
+            } else {
+                val authToken = UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.authorities,
+                )
+
+                attributes[USER_AUTHORIZATION] = authToken
+                logger.info("WebSocket: User authenticated successfully: ${userDetails.username}")
+                true
+            }
+        } catch (e: Exception) {
+            sendRejectionMessage(response, "Unexpected authentication error")
+            logger.error("WebSocket: Unexpected error during authentication", e)
+            false
+        }
+    }
+
+    private fun sendRejectionMessage(response: ServerHttpResponse, reason: String) {
+        try {
+            val rejectionMessage = mapOf(
+                "type" to "CONNECTION_REJECTED",
+                "reason" to reason,
             )
 
-            SecurityContextHolder.getContext().authentication = authToken
-            logger.info("WebSocket: User authenticated successfully: ${userDetails.username}")
-            return true
+            if (response is ServletServerHttpResponse) {
+                response.servletResponse.status = HttpServletResponse.SC_UNAUTHORIZED
+            }
+
+            response.body.use { outputStream ->
+                outputStream.write(objectMapper.writeValueAsBytes(rejectionMessage))
+                outputStream.flush()
+            }
+
+            logger.warn("WebSocket connection rejected: $reason")
         } catch (e: Exception) {
-            logger.error("WebSocket: Unexpected error during authentication", e)
-            return false
+            logger.error("Failed to send WebSocket rejection message", e)
         }
     }
 
@@ -67,5 +103,8 @@ class WebSocketAuthInterceptor(
         wsHandler: WebSocketHandler,
         exception: Exception?,
     ) {
+        exception?.let {
+            logger.error("WebSocket handshake error", it)
+        }
     }
 }
