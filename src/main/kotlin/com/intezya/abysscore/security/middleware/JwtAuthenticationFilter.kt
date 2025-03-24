@@ -80,6 +80,7 @@ class JwtAuthenticationFilter(
             filterChain.doFilter(request, response)
         } catch (e: Exception) {
             log.error("Unexpected error during authentication", e)
+            e.printStackTrace()
             sendErrorResponse(
                 request,
                 response,

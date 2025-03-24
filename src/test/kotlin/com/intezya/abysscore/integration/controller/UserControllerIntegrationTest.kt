@@ -45,7 +45,7 @@ class UserControllerIntegrationTest : BaseApiTest() {
                 .When {
                     get("/users/me")
                 }.Then {
-                    statusCode(HttpStatus.FORBIDDEN.value())
+                    statusCode(HttpStatus.UNAUTHORIZED.value())
                     contentType(ContentType.JSON)
                 }
         }
