@@ -1,7 +1,7 @@
 package com.intezya.abysscore.listener
 
-import com.intezya.abysscore.event.UserConnectedEvent
-import com.intezya.abysscore.event.UserDisconnectedEvent
+import com.intezya.abysscore.event.useraction.UserConnectedEvent
+import com.intezya.abysscore.event.useraction.UserDisconnectedEvent
 import com.intezya.abysscore.service.WebsocketNotificationService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component

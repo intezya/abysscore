@@ -1,9 +1,11 @@
-package com.intezya.abysscore.event
+package com.intezya.abysscore.event.matchmaking
 
 import com.intezya.abysscore.model.entity.User
 import org.springframework.context.ApplicationEvent
 
-class UserConnectedEvent(
+class InviteReceivedEvent(
     source: Any,
-    val user: User,
+    val inviteId: Long,
+    val invitee: User,
+    val inviter: User,
 ) : ApplicationEvent(source)

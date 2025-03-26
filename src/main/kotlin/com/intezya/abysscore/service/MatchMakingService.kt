@@ -7,6 +7,7 @@ import com.intezya.abysscore.model.entity.MatchDraft
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.repository.MatchRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,6 +17,7 @@ class MatchMakingService(
     private val userService: UserService,
     private val matchRepository: MatchRepository,
     private val matchDraftRepository: MatchDraftRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     fun createMatch(user1: User, user2: User): Match {
         val match = Match().apply {

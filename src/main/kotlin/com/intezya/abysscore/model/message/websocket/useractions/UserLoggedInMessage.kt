@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.message.websocket
+package com.intezya.abysscore.model.message.websocket.useractions
 
 data class UserLoggedInMessage(
     val username: String,
