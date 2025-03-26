@@ -1,9 +1,9 @@
 package com.intezya.abysscore.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.handlers.ChatWebSocketHandler
 import com.intezya.abysscore.security.middleware.WebSocketAuthInterceptor
 import com.intezya.abysscore.security.service.JwtAuthenticationService
+import com.intezya.abysscore.service.WebsocketConnectionService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.WebSocketHandler
@@ -26,9 +26,7 @@ class WebSocketConfig(
     }
 
     @Bean
-    fun chatWebSocketHandler(): WebSocketHandler {
-        return ChatWebSocketHandler()
-    }
+    fun chatWebSocketHandler(): WebSocketHandler = WebsocketConnectionService()
 
     @Bean
     fun servletServerContainerFactoryBean(): ServletServerContainerFactoryBean {

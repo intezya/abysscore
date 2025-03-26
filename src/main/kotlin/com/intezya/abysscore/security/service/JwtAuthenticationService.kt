@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service
 
 private const val BEARER_PREFIX = "Bearer "
 
-
 @Service
 class JwtAuthenticationService(
     private val jwtService: JwtUtils,

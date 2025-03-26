@@ -17,9 +17,8 @@ private const val AUTHORIZATION_HEADER = "Authorization"
 private const val CONTENT_TYPE_JSON = "application/json"
 
 @Component
-class JwtAuthenticationFilter(
-    private val jwtAuthenticationService: JwtAuthenticationService,
-) : OncePerRequestFilter() {
+class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthenticationService) :
+    OncePerRequestFilter() {
     private val antPathMatcher = AntPathMatcher()
     private val log = LogFactory.getLog(this.javaClass)
 
@@ -45,8 +44,11 @@ class JwtAuthenticationFilter(
                 "Invalid token format" -> "AUTH_TOKEN_TOO_LONG"
                 else -> "AUTH_ERROR"
             }
-            val statusCode = if (jwtOrError == "Authentication required")
-                HttpServletResponse.SC_UNAUTHORIZED else HttpServletResponse.SC_BAD_REQUEST
+            val statusCode = if (jwtOrError == "Authentication required") {
+                HttpServletResponse.SC_UNAUTHORIZED
+            } else {
+                HttpServletResponse.SC_BAD_REQUEST
+            }
 
             sendErrorResponse(
                 request,

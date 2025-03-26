@@ -203,7 +203,6 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
             user.currentMatch = match
             userRepository.save(user)
 
-
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,
                 time = 20,
