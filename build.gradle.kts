@@ -1,9 +1,13 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
+    val kotlinVersion = "2.1.10"
+
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.1.10"
-    kotlin("plugin.spring") version "2.1.10"
-    kotlin("plugin.jpa") version "2.1.10"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.spring") version kotlinVersion
+    kotlin("plugin.jpa") version kotlinVersion
     id("com.autonomousapps.dependency-analysis") version "2.10.1"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
@@ -122,6 +126,9 @@ dependencies {
 
     // Integration test specific dependencies
     "integrationTestImplementation"(sourceSets.test.get().output)
+
+    // Development tools
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 ktlint {

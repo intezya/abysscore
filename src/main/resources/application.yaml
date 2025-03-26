@@ -32,6 +32,10 @@ spring:
   web:
     resources:
       add-mappings: false
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/kotlin, src/main/resources
 logging:
   level:
     root: warn
