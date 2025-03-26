@@ -1,6 +1,8 @@
 package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.intezya.abysscore.event.UserConnectedEvent
+import com.intezya.abysscore.event.UserDisconnectedEvent
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.model.message.websocket.WebsocketDisconnectMessageBase
 import com.intezya.abysscore.security.middleware.USER_AUTHORIZATION
@@ -9,7 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.stereotype.Service
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -18,11 +22,14 @@ import java.util.concurrent.ConcurrentHashMap
 
 private const val DISCONNECT_REASON = "Connected from another client"
 
-class WebsocketConnectionService :
+@Service
+class MainWebsocketConnectionService(
+    private val eventPublisher: ApplicationEventPublisher,
+) :
     TextWebSocketHandler(),
     WebsocketMessageBroker<Long> {
     private val objectMapper = ObjectMapper()
-    private val logger = LoggerFactory.getLogger(WebsocketConnectionService::class.java)
+    private val logger = LoggerFactory.getLogger(MainWebsocketConnectionService::class.java)
     private val sessions = ConcurrentHashMap<Long, WebSocketSession>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
@@ -40,6 +47,8 @@ class WebsocketConnectionService :
             session
         }
 
+        eventPublisher.publishEvent(UserConnectedEvent(user))
+
         logger.debug("Connection established for user: ${user.id}")
     }
 
@@ -47,6 +56,9 @@ class WebsocketConnectionService :
         val user = extractCurrentUser(session.attributes)
 
         sessions.remove(user.id)
+
+        eventPublisher.publishEvent(UserDisconnectedEvent(user))
+
         logger.debug("Connection closed for user: ${user.id} with status ${status.code}")
     }
 
