@@ -20,8 +20,7 @@ private const val DISCONNECT_REASON = "Connected from another client"
 
 class WebsocketConnectionService :
     TextWebSocketHandler(),
-    WebsocketMessageBroker {
-
+    WebsocketMessageBroker<Long> {
     private val objectMapper = ObjectMapper()
     private val logger = LoggerFactory.getLogger(WebsocketConnectionService::class.java)
     private val sessions = ConcurrentHashMap<Long, WebSocketSession>()
@@ -29,7 +28,6 @@ class WebsocketConnectionService :
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val user = extractCurrentUser(session.attributes)
 
-        // Use atomic operation to handle multiple concurrent connections
         sessions.compute(user.id) { _, existingSession ->
             existingSession?.let {
                 runCatching {
@@ -62,20 +60,24 @@ class WebsocketConnectionService :
         return sessions.size
     }
 
-    override fun broadcast(messageContent: Any) = runBlocking {
-        sessions.map { (key, session) ->
-            async(Dispatchers.IO) {
-                if (!session.isOpen) {
-                    sessions.remove(key)
-                } else {
-                    runCatching {
-                        sendMessage(session, messageContent)
-                    }.onFailure { e ->
-                        logger.error("Failed to send broadcast message to user $key: ${e.message}")
+    override fun broadcast(messageContent: Any) = broadcast(messageContent, except = emptyList())
+
+    override fun broadcast(messageContent: Any, except: List<Long>) {
+        runBlocking {
+            sessions.map { (key, session) ->
+                async(Dispatchers.IO) {
+                    if (!session.isOpen) {
+                        sessions.remove(key)
+                    } else if (!except.contains(key)) {
+                        runCatching {
+                            sendMessage(session, messageContent)
+                        }.onFailure { e ->
+                            logger.error("Failed to send broadcast message to user $key: ${e.message}")
+                        }
                     }
                 }
-            }
-        }.forEach { it.await() }
+            }.forEach { it.await() }
+        }
     }
 
     private fun sendMessage(session: WebSocketSession, messageContent: Any) {
