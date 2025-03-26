@@ -47,7 +47,7 @@ class MainWebsocketConnectionService(
             session
         }
 
-        eventPublisher.publishEvent(UserConnectedEvent(user))
+        eventPublisher.publishEvent(UserConnectedEvent(this, user))
 
         logger.debug("Connection established for user: ${user.id}")
     }
@@ -57,7 +57,7 @@ class MainWebsocketConnectionService(
 
         sessions.remove(user.id)
 
-        eventPublisher.publishEvent(UserDisconnectedEvent(user))
+        eventPublisher.publishEvent(UserDisconnectedEvent(this, user))
 
         logger.debug("Connection closed for user: ${user.id} with status ${status.code}")
     }
