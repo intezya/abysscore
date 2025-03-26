@@ -25,10 +25,11 @@ private const val DISCONNECT_REASON = "Connected from another client"
 @Service
 class MainWebsocketConnectionService(
     private val eventPublisher: ApplicationEventPublisher,
+    private val objectMapper: ObjectMapper,
 ) :
     TextWebSocketHandler(),
     WebsocketMessageBroker<Long> {
-    private val objectMapper = ObjectMapper()
+        
     private val logger = LoggerFactory.getLogger(MainWebsocketConnectionService::class.java)
     private val sessions = ConcurrentHashMap<Long, WebSocketSession>()
 
@@ -75,6 +76,8 @@ class MainWebsocketConnectionService(
     override fun broadcast(messageContent: Any) = broadcast(messageContent, except = emptyList())
 
     override fun broadcast(messageContent: Any, except: List<Long>) {
+        val message = TextMessage(objectMapper.writeValueAsString(messageContent))
+
         runBlocking {
             sessions.map { (key, session) ->
                 async(Dispatchers.IO) {
@@ -82,7 +85,7 @@ class MainWebsocketConnectionService(
                         sessions.remove(key)
                     } else if (!except.contains(key)) {
                         runCatching {
-                            sendMessage(session, messageContent)
+                            session.sendMessage(message)
                         }.onFailure { e ->
                             logger.error("Failed to send broadcast message to user $key: ${e.message}")
                         }
