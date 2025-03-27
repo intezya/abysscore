@@ -141,6 +141,7 @@ abstract class BaseApiTest {
         }
         userRepository.save(user)
         val statistic = UserGlobalStatistic().apply { this.user = user }
+        user.globalStatistic = statistic
         userGlobalStatisticRepository.save(statistic)
         return Pair(user, jwtUtils.generateToken(user))
     }
