@@ -1,8 +1,8 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.event.matchinvite.InviteAcceptedEvent
+import com.intezya.abysscore.event.matchinvite.InviteReceivedEvent
 import com.intezya.abysscore.event.matchinvite.InviteRejectedEvent
-import com.intezya.abysscore.event.matchmaking.InviteReceivedEvent
 import com.intezya.abysscore.model.entity.Match
 import com.intezya.abysscore.model.entity.MatchInvite
 import com.intezya.abysscore.model.entity.User

@@ -1,8 +1,8 @@
 package com.intezya.abysscore.listener
 
 import com.intezya.abysscore.event.matchinvite.InviteAcceptedEvent
+import com.intezya.abysscore.event.matchinvite.InviteReceivedEvent
 import com.intezya.abysscore.event.matchinvite.InviteRejectedEvent
-import com.intezya.abysscore.event.matchmaking.InviteReceivedEvent
 import com.intezya.abysscore.service.WebsocketNotificationService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
