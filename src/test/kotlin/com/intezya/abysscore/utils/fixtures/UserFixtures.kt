@@ -4,7 +4,7 @@ import com.intezya.abysscore.model.entity.User
 import java.util.*
 
 object UserFixtures {
-    fun createDefaultUser(
+    fun generateDefaultUser(
         id: Long = 0L,
         username: String = "test_user",
         password: String = "test_password",
@@ -15,7 +15,7 @@ object UserFixtures {
         hwid = hwid,
     ).apply { this.id = id }
 
-    fun createDefaultUserWithRandomCreds(id: Long = 0L): User = User(
+    fun generateDefaultUserWithRandomCreds(id: Long = 0L): User = User(
         username = UUID.randomUUID().toString(),
         password = UUID.randomUUID().toString(),
         hwid = UUID.randomUUID().toString(),

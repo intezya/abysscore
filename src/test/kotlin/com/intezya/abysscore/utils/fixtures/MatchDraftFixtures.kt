@@ -14,8 +14,8 @@ object MatchDraftFixtures {
 
     fun createDefaultMatchDraft(
         id: Long = 0L,
-        user1: User = UserFixtures.createDefaultUser(),
-        user2: User = UserFixtures.createDefaultUser(),
+        user1: User = UserFixtures.generateDefaultUser(),
+        user2: User = UserFixtures.generateDefaultUser(),
     ): MatchDraft = MatchDraft().apply { this.id = id }
 
     fun provideRandomDraftSchema(): List<DraftStep> {

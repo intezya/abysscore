@@ -317,7 +317,7 @@ class DraftProcessService(
             val opponentId = if (isActingPlayerOne) match.player2.id else match.player1.id
 
             // TODO
-            val notification = DraftNotification(
+            DraftNotification(
                 draftId = draft.id,
                 type = notificationType,
                 characterName = characterName,

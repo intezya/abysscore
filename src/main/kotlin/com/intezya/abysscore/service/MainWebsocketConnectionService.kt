@@ -19,116 +19,107 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
-private const val DISCONNECT_REASON = "Connected from another client"
-private const val DISCONNECT_REASON_NEW_SESSION = "New connection established"
-
 @Service
 class MainWebsocketConnectionService(
     private val eventPublisher: ApplicationEventPublisher,
     private val objectMapper: ObjectMapper,
-) :
-    TextWebSocketHandler(),
-    WebsocketMessageBroker<Long> {
+) : TextWebSocketHandler(), WebsocketMessageBroker<Long> {
 
     private val logger = LoggerFactory.getLogger(MainWebsocketConnectionService::class.java)
     private val sessions = ConcurrentHashMap<Long, WebSocketSession>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val user = extractCurrentUser(session) ?: run {
-            logger.warn("Connection established but no authenticated user found. Closing session ${session.id}")
-            closeSessionQuietly(session, CloseStatus.POLICY_VIOLATION.withReason("User not authenticated"))
+            closeUnauthenticatedSession(session)
             return
         }
+
+        handleNewConnection(user, session)
+    }
+
+    private fun handleNewConnection(user: User, session: WebSocketSession) {
         val userId = user.id
 
-        logger.debug("Attempting to establish connection for user: $userId, session: ${session.id}")
-
-        val oldSession = sessions.put(userId, session)
-
-        if (oldSession != null && oldSession.id != session.id) {
+        sessions[userId]?.let { oldSession ->
             logger.warn("User $userId already had an active session (${oldSession.id}). Closing the old session.")
-            sendDisconnectNotification(userId, oldSession, DISCONNECT_REASON_NEW_SESSION)
-            closeSessionQuietly(oldSession, CloseStatus.POLICY_VIOLATION.withReason(DISCONNECT_REASON_NEW_SESSION))
+            sendDisconnectNotification(userId, oldSession, "New connection established")
+            closeSessionQuietly(oldSession, CloseStatus.POLICY_VIOLATION.withReason("New connection"))
         }
 
+        sessions[userId] = session
         eventPublisher.publishEvent(UserConnectedEvent(this, user))
         logger.info("Connection established for user: $userId, session: ${session.id}. Total online: ${sessions.size}")
     }
 
+    private fun closeUnauthenticatedSession(session: WebSocketSession) {
+        logger.warn("Connection established but no authenticated user found. Closing session ${session.id}")
+        closeSessionQuietly(session, CloseStatus.POLICY_VIOLATION.withReason("User not authenticated"))
+    }
+
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        val user = extractCurrentUser(session) ?: run {
-            val entry = sessions.entries.find { it.value.id == session.id }
-            if (entry != null) {
-                val userId = entry.key
-                val removed = sessions.remove(userId, session)
-                if (removed) {
-                    logger.warn("Connection closed for potentially unauthenticated session ${session.id} associated with user $userId. Status: ${status.code}. Total online: ${sessions.size}")
-                } else {
-                    logger.debug("Connection closed for stale/replaced session ${session.id} associated with user $userId. Status: ${status.code}. No removal needed.")
-                }
-            } else {
-                logger.debug("Connection closed for session ${session.id} with no associated user found in active sessions. Status: ${status.code}")
-            }
+        val user = extractCurrentUser(session)
+
+        if (user == null) {
+            findAndRemoveUnknownSession(session, status)
             return
         }
 
         val userId = user.id
-        val removed = sessions.remove(userId, session)
-
-        if (removed) {
+        if (sessions.remove(userId, session)) {
             eventPublisher.publishEvent(UserDisconnectedEvent(this, user))
             logger.info("Connection closed for user: $userId, session: ${session.id}. Status: ${status.code}. Total online: ${sessions.size}")
-        } else {
-            logger.debug("Connection closed for stale/replaced session ${session.id} for user $userId. Status: ${status.code}. No event published as it wasn't the active session.")
+        }
+    }
+
+    private fun findAndRemoveUnknownSession(session: WebSocketSession, status: CloseStatus) {
+        sessions.entries.find { it.value.id == session.id }?.let { entry ->
+            val userId = entry.key
+            if (sessions.remove(userId, entry.value)) {
+                logger.warn("Connection closed for session ${session.id} associated with user $userId. Status: ${status.code}. Total online: ${sessions.size}")
+            }
         }
     }
 
     override fun handleTransportError(session: WebSocketSession, exception: Throwable) {
-        logger.error("Transport error for session ${session.id}: ${exception.message}", exception)
         val user = extractCurrentUser(session)
-        if (user != null) {
-            val userId = user.id
-            val removed = sessions.remove(userId, session)
-            if (removed) {
-                eventPublisher.publishEvent(UserDisconnectedEvent(this, user))
-                logger.info("Session removed for user $userId due to transport error. Total online: ${sessions.size}")
-            }
-        } else {
-            logger.warn("Transport error for session ${session.id} with no associated user.")
-        }
+        user?.let { handleUserTransportError(it, session, exception) }
+            ?: logger.warn("Transport error for session ${session.id} with no associated user.")
+
         closeSessionQuietly(session, CloseStatus.SERVER_ERROR.withReason("Transport error"))
     }
 
+    private fun handleUserTransportError(user: User, session: WebSocketSession, exception: Throwable) {
+        val userId = user.id
+        logger.error("Transport error for session ${session.id} for user $userId: ${exception.message}", exception)
+
+        sessions.remove(userId, session)
+        eventPublisher.publishEvent(UserDisconnectedEvent(this, user))
+        logger.info("Session removed for user $userId due to transport error. Total online: ${sessions.size}")
+    }
+
     override fun sendToUser(userId: Long, messageContent: Any) {
-        val session = sessions[userId]
-        if (session == null) {
-            logger.debug("Cannot send message to user $userId: No active session found.")
-            return
-        }
-
-        val textMessage = createTextMessage(messageContent) ?: return
-        sendMessageInternal(userId, session, textMessage)
+        sessions[userId]?.let { session ->
+            createTextMessage(messageContent)?.let { textMessage ->
+                sendMessageInternal(userId, session, textMessage)
+            }
+        } ?: logger.debug("Cannot send message to user $userId: No active session found.")
     }
 
-    override fun getOnline(): Int {
-        return sessions.size
-    }
+    override fun getOnline(): Int = sessions.size
 
-    override fun broadcast(messageContent: Any) {
-        broadcast(messageContent, emptyList())
-    }
+    override fun broadcast(messageContent: Any) = broadcast(messageContent, emptyList())
 
     override fun broadcast(messageContent: Any, except: List<Long>) {
         val textMessage = createTextMessage(messageContent) ?: return
+        val exceptions = except.toSet()
 
-        val recipientCount = sessions.size - except.size
+        val recipientCount = sessions.size - exceptions.size
         if (recipientCount <= 0) {
             logger.debug("Broadcast skipped: No recipients after exceptions.")
             return
         }
 
-        logger.debug("Broadcasting message to $recipientCount user(s) (excluding ${except.size}).")
-        val exceptions = except.toSet()
+        logger.debug("Broadcasting message to $recipientCount user(s) (excluding ${exceptions.size}).")
 
         sessions.forEach { (userId, session) ->
             if (userId !in exceptions) {
@@ -137,19 +128,18 @@ class MainWebsocketConnectionService(
         }
     }
 
-    private fun createTextMessage(messageContent: Any): TextMessage? {
-        return try {
+    private fun createTextMessage(messageContent: Any): TextMessage? =
+        try {
             TextMessage(objectMapper.writeValueAsString(messageContent))
         } catch (e: JsonProcessingException) {
             logger.error("Failed to serialize message content to JSON: ${e.message}", e)
             null
         }
-    }
 
     private fun sendMessageInternal(userId: Long, session: WebSocketSession, message: TextMessage) {
         if (!session.isOpen) {
             logger.warn("Attempted to send message to closed session ${session.id} for user $userId. Removing session.")
-            sessions.remove(userId, session) // Use conditional remove
+            sessions.remove(userId, session)
             return
         }
 
@@ -159,33 +149,30 @@ class MainWebsocketConnectionService(
                     session.sendMessage(message)
                     logger.trace("Message sent to user $userId, session ${session.id}")
                 } else {
-                    logger.warn("Session ${session.id} for user $userId closed before message could be sent (inside synchronized block).")
+                    logger.warn("Session ${session.id} for user $userId closed before message could be sent.")
                     sessions.remove(userId, session)
                 }
             }
-        } catch (e: IOException) {
-            logger.error("Failed to send message to user $userId, session ${session.id}: ${e.message}", e)
-            closeSessionQuietly(session, CloseStatus.GOING_AWAY.withReason("Failed to send message"))
-            sessions.remove(userId, session)
-            extractCurrentUser(session)?.let {
-                eventPublisher.publishEvent(UserDisconnectedEvent(this, it))
-                logger.info("Session removed for user $userId due to send error. Total online: ${sessions.size}")
-            }
         } catch (e: Exception) {
-            logger.error("Unexpected error sending message to user $userId, session ${session.id}: ${e.message}", e)
-            closeSessionQuietly(session, CloseStatus.SERVER_ERROR.withReason("Unexpected send error"))
-            sessions.remove(userId, session)
-            extractCurrentUser(session)?.let { // Publish disconnect if we know the user
-                eventPublisher.publishEvent(UserDisconnectedEvent(this, it))
-                logger.info("Session removed for user $userId due to unexpected send error. Total online: ${sessions.size}")
-            }
+            handleMessageSendError(userId, session, e)
+        }
+    }
+
+    private fun handleMessageSendError(userId: Long, session: WebSocketSession, exception: Exception) {
+        logger.error("Error sending message to user $userId, session ${session.id}: ${exception.message}", exception)
+
+        closeSessionQuietly(session, CloseStatus.GOING_AWAY.withReason("Failed to send message"))
+        sessions.remove(userId, session)
+
+        extractCurrentUser(session)?.let { user ->
+            eventPublisher.publishEvent(UserDisconnectedEvent(this, user))
+            logger.info("Session removed for user $userId due to send error. Total online: ${sessions.size}")
         }
     }
 
     private fun sendDisconnectNotification(userId: Long, session: WebSocketSession, reason: String) {
         val disconnectMessage = WebsocketDisconnectMessageBase(reason = reason)
-        val textMessage = createTextMessage(disconnectMessage)
-        if (textMessage != null) {
+        createTextMessage(disconnectMessage)?.let { textMessage ->
             if (session.isOpen) {
                 try {
                     session.sendMessage(textMessage)
@@ -202,25 +189,19 @@ class MainWebsocketConnectionService(
         if (session.isOpen) {
             try {
                 session.close(status)
-            } catch (e: IOException) {
-                logger.warn("Error closing session ${session.id}: ${e.message}")
             } catch (e: Exception) {
-                logger.warn("Unexpected error closing session ${session.id}: ${e.message}")
+                logger.warn("Error closing session ${session.id}: ${e.message}")
             }
         }
     }
 
-    private fun extractCurrentUser(session: WebSocketSession): User? = extractCurrentUser(session.attributes)
+    private fun extractCurrentUser(session: WebSocketSession): User? =
+        extractCurrentUser(session.attributes)
 
-    private fun extractCurrentUser(attributes: Map<String, Any>): User? = runCatching {
-        when (val authentication = attributes[USER_AUTHORIZATION]) {
-            is UsernamePasswordAuthenticationToken -> authentication.principal as? User
-            else -> {
-                logger.warn("Cannot extract user: Authentication object not found or not of expected type in session attributes. Found: ${authentication?.javaClass?.name}")
-                null
-            }
-        }
-    }.onFailure { e ->
-        logger.error("Error extracting user from session attributes: ${e.message}", e)
-    }.getOrNull()
+    private fun extractCurrentUser(attributes: Map<String, Any>): User? =
+        runCatching {
+            (attributes[USER_AUTHORIZATION] as? UsernamePasswordAuthenticationToken)?.principal as? User
+        }.onFailure { e ->
+            logger.error("Error extracting user from session attributes: ${e.message}", e)
+        }.getOrNull()
 }

@@ -19,6 +19,7 @@ import com.intezya.abysscore.security.utils.PasswordUtils
 import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.service.UserService
 import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
+import com.intezya.abysscore.utils.fixtures.UserFixtures
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.faker
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
@@ -80,6 +82,9 @@ abstract class BaseApiTest {
 
     @Autowired
     private lateinit var userGlobalStatisticRepository: UserGlobalStatisticRepository
+
+    @Autowired
+    protected lateinit var eventPublisher: ApplicationEventPublisher
 
     private val f: Faker = faker {}
 
@@ -127,11 +132,7 @@ abstract class BaseApiTest {
     protected fun createAuthorizationHeader(token: JwtToken): String = "$BEARER_PREFIX$token"
 
     protected fun generateUserWithToken(accessLevel: AccessLevel = AccessLevel.USER): Pair<User, JwtToken> {
-        val user = User(
-            username = f.name.firstName(),
-            password = passwordUtils.hashPassword("password"),
-            hwid = passwordUtils.hashHwid(f.random.nextUUID()),
-        ).apply {
+        val user = UserFixtures.generateDefaultUserWithRandomCreds().apply {
             this.accessLevel = accessLevel
         }
         userRepository.save(user)
