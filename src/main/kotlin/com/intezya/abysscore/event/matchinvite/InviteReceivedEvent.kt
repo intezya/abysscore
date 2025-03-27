@@ -1,4 +1,4 @@
-package com.intezya.abysscore.event.matchmaking
+package com.intezya.abysscore.event.matchinvite
 
 import com.intezya.abysscore.model.entity.User
 import org.springframework.context.ApplicationEvent

@@ -102,7 +102,6 @@ abstract class BaseApiTest {
 
     protected var mainWebsocketUrl = ""
 
-
     @BeforeEach
     fun setUp() {
         RestAssured.baseURI = "http://localhost"
@@ -135,6 +134,7 @@ abstract class BaseApiTest {
 
     protected fun createAuthorizationHeader(token: JwtToken): String = "$BEARER_PREFIX$token"
 
+    // TODO: return dto with user and token fields
     protected fun generateUserWithToken(accessLevel: AccessLevel = AccessLevel.USER): Pair<User, JwtToken> {
         val user = UserFixtures.generateDefaultUserWithRandomCreds().apply {
             this.accessLevel = accessLevel

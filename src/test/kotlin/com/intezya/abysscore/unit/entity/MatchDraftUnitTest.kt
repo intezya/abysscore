@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
-class MatchDraftIntegrationTest {
+class MatchDraftUnitTest {
     @Nested
     inner class DraftStepsSerializationTest {
         @Test
