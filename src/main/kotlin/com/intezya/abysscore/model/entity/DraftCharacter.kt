@@ -4,16 +4,11 @@ import jakarta.persistence.*
 import java.util.*
 
 @Entity
-@Table(
-    name = "draft_characters",
-    uniqueConstraints = [
-        UniqueConstraint(columnNames = ["name", "constellations", "element", "level", "rarity"]),
-    ],
-)
+@Table(name = "draft_characters")
 class DraftCharacter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long
+    var id: Long
 
     @Column(nullable = false)
     val name: String

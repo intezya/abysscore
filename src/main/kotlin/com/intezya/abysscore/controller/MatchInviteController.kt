@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/match/invites")
+@RequestMapping("/invites")
 class MatchInviteController(private val matchInviteService: MatchInviteService) {
     @PostMapping("")
     @RequireUserInMatch(expectedThat = false)

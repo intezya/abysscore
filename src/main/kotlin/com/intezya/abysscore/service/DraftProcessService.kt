@@ -34,6 +34,10 @@ class DraftProcessService(
         val match = validateMatchStatus(user, MatchStatus.PENDING, "Match is not in reveal characters stage")
         val draft = match.draft
 
+        if (match.player1.id == user.id && draft.player1AvailableCharacters.isNotEmpty() || match.player2.id == user.id && draft.player2AvailableCharacters.isNotEmpty()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You have already revealed your characters")
+        }
+
         validateDraftState(draft, expectedState = DraftState.CHARACTER_REVEAL)
         val playerInfo = getPlayerInfo(match, user.id)
 
@@ -129,9 +133,7 @@ class DraftProcessService(
     }
 
     private fun banCharacter(draft: MatchDraft, playerInfo: PlayerInfo, characterName: String): MatchDraft {
-        val userId = playerInfo.player.id
         val isPlayer1 = playerInfo.isPlayer1
-        val match = draft.match
 
         val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
         val opponentPool = if (isPlayer1) draft.player2AvailableCharacters else draft.player1AvailableCharacters
@@ -314,6 +316,7 @@ class DraftProcessService(
             val match = draft.match
             val opponentId = if (isActingPlayerOne) match.player2.id else match.player1.id
 
+            // TODO
             val notification = DraftNotification(
                 draftId = draft.id,
                 type = notificationType,
@@ -323,7 +326,6 @@ class DraftProcessService(
                 deadline = draft.currentStateDeadline,
             )
 
-            // TODO: Имплементация отправки уведомлений через WebSocket
             // websocketService.sendToUser(
             //     userId = opponentId,
             //     destination = "/topic/draft.${draft.id}",
