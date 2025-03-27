@@ -13,11 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor
 
 @Component
 class AccessLevelInterceptor : HandlerInterceptor {
-    override fun preHandle(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        handler: Any,
-    ): Boolean {
+    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod) {
             val requiredAccessLevel = handler.method.getAnnotation(RequiresAccessLevel::class.java)
             if (requiredAccessLevel != null) {

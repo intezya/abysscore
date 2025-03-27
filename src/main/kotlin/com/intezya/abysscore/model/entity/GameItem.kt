@@ -5,22 +5,39 @@ import java.util.*
 
 @Entity
 @Table(name = "game_items")
-data class GameItem(
+class GameItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
-    val name: String,
-    val collection: String,
-    val type: Int,
-    val rarity: Int,
-) {
+    var id: Long = 0L
+
+    val name: String
+
+    val collection: String
+
+    val type: Int
+
+    val rarity: Int
+
     constructor() : this(
-        id = 0L,
         name = "",
         collection = "",
         type = 0,
         rarity = 0,
     )
+
+    constructor(
+        id: Long = 0L,
+        name: String,
+        collection: String,
+        type: Int,
+        rarity: Int,
+    ) {
+        this.id = id
+        this.name = name
+        this.collection = collection
+        this.type = type
+        this.rarity = rarity
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -41,6 +58,6 @@ data class GameItem(
         Objects.hash(name, collection, type, rarity)
     }
 
-    @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , name = $name , collection = $collection , type = $type , rarity = $rarity )"
+    override fun toString(): String = this::class.simpleName +
+        "(id = $id , name = $name , collection = $collection , type = $type , rarity = $rarity )"
 }

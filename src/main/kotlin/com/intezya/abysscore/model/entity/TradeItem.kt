@@ -6,15 +6,10 @@ import java.util.*
 
 @Entity
 @Table(name = "trade_items")
-data class TradeItem(
+class TradeItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
-
-) {
-    constructor() : this(
-        id = 0L,
-    )
+    var id: Long = 0L
 
     @ManyToOne
     @JoinColumn(name = "trade_id", nullable = false)
@@ -27,6 +22,18 @@ data class TradeItem(
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     lateinit var owner: User
+
+    constructor()
+
+    constructor(id: Long) {
+        this.id = id
+    }
+
+    constructor(trade: Trade, userItem: UserItem, owner: User) {
+        this.trade = trade
+        this.userItem = userItem
+        this.owner = owner
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -46,6 +53,6 @@ data class TradeItem(
         Objects.hash(trade, userItem, owner)
     }
 
-    @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , trade = $trade , userItem = $userItem , owner = $owner )"
+    override fun toString(): String =
+        this::class.simpleName + "(id = $id , trade = $trade , userItem = $userItem , owner = $owner )"
 }

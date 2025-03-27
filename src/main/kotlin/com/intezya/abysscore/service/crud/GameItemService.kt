@@ -12,9 +12,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @Service
 @Transactional
-class GameItemService(
-    private val gameItemRepository: GameItemRepository,
-) {
+class GameItemService(private val gameItemRepository: GameItemRepository) {
     fun createGameItem(request: CreateGameItemRequest): GameItem = gameItemRepository.save(request.toEntity())
 
     @Transactional(readOnly = true)

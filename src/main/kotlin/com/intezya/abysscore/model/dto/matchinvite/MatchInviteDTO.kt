@@ -8,7 +8,7 @@ import com.intezya.abysscore.model.entity.MatchInvite
 import java.time.LocalDateTime
 
 data class MatchInviteDTO(
-    var id: Long,
+    val id: Long,
     val inviter: UserDTO,
     val invitee: UserSimpleViewDTO,
     val expiresAt: LocalDateTime,

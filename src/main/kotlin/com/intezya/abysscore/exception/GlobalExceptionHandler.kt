@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -122,10 +123,20 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoHandlerFoundException::class)
-    fun handleNoHandlerFoundException(
-        ex: NoHandlerFoundException,
-        request: HttpServletRequest,
-    ): ResponseEntity<ApiError> {
+    fun handleNoHandlerFoundException(request: HttpServletRequest): ResponseEntity<ApiError> {
+        val apiError =
+            ApiError(
+                status = HttpStatus.NOT_FOUND.value(),
+                error = "Not Found",
+                message = "No matching route found for ${request.method} ${request.requestURI}",
+                path = request.requestURI,
+            )
+
+        return ResponseEntity(apiError, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    fun handleNoRequestMethodSupported(request: HttpServletRequest): ResponseEntity<ApiError> {
         val apiError =
             ApiError(
                 status = HttpStatus.NOT_FOUND.value(),
@@ -139,6 +150,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception): ResponseEntity<ErrorResponse> {
+        ex.printStackTrace()
         logger.error(ex.message, ex.cause)
         val errorResponse =
             ErrorResponse(

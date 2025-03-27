@@ -24,18 +24,15 @@ class JwtUtils(
         Keys.hmacShaKeyFor(key.toByteArray())
     }
 
-    fun generateToken(
-        user: User,
-        extraExpirationMinutes: Int = expirationMinutes,
-    ): String {
+    fun generateToken(user: User, extraExpirationMinutes: Int = expirationMinutes): String {
         val claims = HashMap<String, Any>()
         if (user.hwid != null) {
             claims["hwid"] = user.hwid!!
         }
         return Jwts.builder()
-            .setIssuer(issuer)
             .setClaims(claims)
-            .setSubject(user.username)
+            .setIssuer(issuer)
+            .setSubject(user.getUsername())
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))
             .signWith(secret, SignatureAlgorithm.HS256)

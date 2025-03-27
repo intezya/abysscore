@@ -28,19 +28,13 @@ interface MatchInviteRepository : JpaRepository<MatchInvite, Long> {
         FIND_ACTIVE_BY_INVITER_ID_AND_INVITEE_ID_QUERY,
         nativeQuery = true,
     )
-    fun findActiveByInviterIdAndInviteeId(
-        inviterId: Long,
-        inviteeId: Long,
-    ): Optional<MatchInvite>
+    fun findActiveByInviterIdAndInviteeId(inviterId: Long, inviteeId: Long): Optional<MatchInvite>
 
     @Query(
         FIND_ACTIVE_BY_INVITER_ID_QUERY,
         nativeQuery = true,
     )
-    fun findActiveByInviterId(
-        inviterId: Long,
-        pageable: Pageable,
-    ): Page<MatchInvite>
+    fun findActiveByInviterId(inviterId: Long, pageable: Pageable): Page<MatchInvite>
 
     fun findByIdAndInviteeId(id: Long, inviteeId: Long): Optional<MatchInvite>
 }

@@ -1,10 +1,14 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.event.matchinvite.InviteAcceptedEvent
+import com.intezya.abysscore.event.matchinvite.InviteReceivedEvent
+import com.intezya.abysscore.event.matchinvite.InviteRejectedEvent
 import com.intezya.abysscore.model.entity.Match
 import com.intezya.abysscore.model.entity.MatchInvite
 import com.intezya.abysscore.model.entity.User
 import com.intezya.abysscore.repository.MatchInviteRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,6 +20,7 @@ class MatchInviteService(
     private val matchInviteRepository: MatchInviteRepository,
     private val userService: UserService,
     private val matchService: MatchMakingService,
+    private val eventPublisher: ApplicationEventPublisher,
     @Value("\${abysscore.match-invite.active-diff-seconds:}") private val activeDiffSeconds: Long = 15,
 ) {
 
@@ -27,12 +32,23 @@ class MatchInviteService(
         checkForExistingInvite(userId, invitee.id)
         // TODO: notify invited user
 
-        return matchInviteRepository.save(
+        val invite = matchInviteRepository.save(
             MatchInvite(activeDiffSeconds = activeDiffSeconds).apply {
                 this.inviter = inviter
                 this.invitee = invitee
             },
         )
+
+        eventPublisher.publishEvent(
+            InviteReceivedEvent(
+                this,
+                inviteId = invite.id,
+                invitee = invitee,
+                inviter = inviter,
+            ),
+        )
+
+        return invite
     }
 
     private fun validateInviteRequest(inviter: User, invitee: User) {
@@ -58,6 +74,16 @@ class MatchInviteService(
     fun acceptInvite(userId: Long, inviteId: Long): Match {
         val invite = findInviteForUser(inviteId, userId)
         matchInviteRepository.delete(invite)
+
+        eventPublisher.publishEvent(
+            InviteAcceptedEvent(
+                this,
+                inviteId = inviteId,
+                invitee = invite.invitee,
+                inviter = invite.inviter,
+            ),
+        )
+
         return matchService.createMatchFromInvite(invite.inviter, invite.invitee)
     }
 
@@ -65,10 +91,18 @@ class MatchInviteService(
         val invite = findInviteForUser(inviteId, userId)
         matchInviteRepository.delete(invite)
 
-        // TODO: notify inviter
+        eventPublisher.publishEvent(
+            InviteRejectedEvent(
+                this,
+                inviteId = inviteId,
+                invitee = invite.invitee,
+                inviter = invite.inviter,
+            ),
+        )
     }
 
-    private fun findInviteForUser(inviteId: Long, userId: Long): MatchInvite = matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
-        ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
-    }
+    private fun findInviteForUser(inviteId: Long, userId: Long): MatchInvite =
+        matchInviteRepository.findByIdAndInviteeId(inviteId, userId).orElseThrow {
+            ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not found")
+        }
 }

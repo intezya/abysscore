@@ -7,11 +7,7 @@ import java.util.*
 
 @Entity
 @Table(name = "user_items")
-data class UserItem(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
-
+class UserItem(
     @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false)
     val sourceType: ItemSourceType = ItemSourceType.SYSTEM,
@@ -19,10 +15,14 @@ data class UserItem(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trade_id")
     val receivedFrom: Trade? = null,
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-) {
+    val createdAt: LocalDateTime = LocalDateTime.now()
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     lateinit var user: User
@@ -30,6 +30,8 @@ data class UserItem(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     lateinit var gameItem: GameItem
+
+    constructor() : this(ItemSourceType.SYSTEM)
 
     override fun hashCode(): Int = if (id != 0L) {
         id.hashCode()
@@ -44,10 +46,14 @@ data class UserItem(
         return if (id != 0L && other.id != 0L) {
             id == other.id
         } else {
-            sourceType == other.sourceType && createdAt == other.createdAt && user == other.user && gameItem == other.gameItem && receivedFrom == other.receivedFrom
+            sourceType == other.sourceType &&
+                createdAt == other.createdAt &&
+                user == other.user &&
+                gameItem == other.gameItem &&
+                receivedFrom == other.receivedFrom
         }
     }
 
-    @Override
-    override fun toString(): String = this::class.simpleName + "(id = $id , sourceType = $sourceType , createdAt = $createdAt )"
+    override fun toString(): String =
+        this::class.simpleName + "(id = $id , sourceType = $sourceType , createdAt = $createdAt )"
 }

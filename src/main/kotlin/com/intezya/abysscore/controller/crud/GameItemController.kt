@@ -19,30 +19,22 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/items")
 @SecurityRequirement(name = "bearer-jwt")
-class GameItemController(
-    private val gameItemService: GameItemService,
-) {
+class GameItemController(private val gameItemService: GameItemService) {
     @PostMapping("")
     @RequiresAccessLevel(AccessLevel.CREATE_ITEM)
-    fun createItem(
-        @RequestBody @Valid request: CreateGameItemRequest,
-    ): ResponseEntity<GameItem> = ResponseEntity(
+    fun createItem(@RequestBody @Valid request: CreateGameItemRequest): ResponseEntity<GameItem> = ResponseEntity(
         gameItemService.createGameItem(request),
         HttpStatus.CREATED,
     )
 
     @GetMapping
-    fun getAll(
-        @ParameterObject @PageableDefault(size = 20) pageable: Pageable,
-    ): PagedModel<GameItem> {
+    fun getAll(@ParameterObject @PageableDefault(size = 20) pageable: Pageable): PagedModel<GameItem> {
         val gameItems: Page<GameItem> = gameItemService.findAll(pageable)
         return PagedModel(gameItems)
     }
 
     @GetMapping("/{id}")
-    fun getOne(
-        @PathVariable id: Long,
-    ): GameItem = gameItemService.findById(id)
+    fun getOne(@PathVariable id: Long): GameItem = gameItemService.findById(id)
 
     @PutMapping("/{itemId}")
     @RequiresAccessLevel(AccessLevel.UPDATE_ITEM)
@@ -56,9 +48,7 @@ class GameItemController(
 
     @DeleteMapping("/{itemId}")
     @RequiresAccessLevel(AccessLevel.DELETE_ITEM)
-    fun deleteItem(
-        @PathVariable itemId: Long,
-    ): ResponseEntity<Unit> {
+    fun deleteItem(@PathVariable itemId: Long): ResponseEntity<Unit> {
         gameItemService.deleteItem(itemId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }

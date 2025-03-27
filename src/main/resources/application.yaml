@@ -1,7 +1,11 @@
+#file: noinspection SpringBootApplicationYaml
 server:
   port: ${SERVER_PORT:8080}
   error:
     include-stacktrace: never
+  websocket:
+    session:
+      timeout: 30000
 
 spring:
   application:
@@ -29,17 +33,21 @@ spring:
   web:
     resources:
       add-mappings: false
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/kotlin, src/main/resources
 logging:
   level:
     root: warn
     org.springframework: warn
-    com.intezya.abysscore: debug
+    com.intezya.abysscore: info
 
 
 jwt:
   secret: ${JWT_SECRET:}
   expirationMinutes: ${JWT_EXPIRATION_MINUTES:1440} # 1440
-  issuer: ${JWT_ISSUER:com.intezya.security}
+  issuer: ${JWT_ISSUER:com.intezya.abysscore.security}
 
 springdoc:
   api-docs:

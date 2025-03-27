@@ -2,35 +2,24 @@ package com.intezya.abysscore.security.middleware
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.security.public.PUBLIC_PATHS
-import com.intezya.abysscore.security.service.CustomUserDetailsService
-import com.intezya.abysscore.security.utils.JwtUtils
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureException
+import com.intezya.abysscore.security.service.JwtAuthenticationService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.logging.LogFactory
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 
-private const val BEARER_PREFIX = "Bearer "
 private const val AUTHORIZATION_HEADER = "Authorization"
 private const val CONTENT_TYPE_JSON = "application/json"
 
 @Component
-class JwtAuthenticationFilter(
-    private val jwtService: JwtUtils,
-    private val userDetailsService: CustomUserDetailsService,
-) : OncePerRequestFilter() {
+class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthenticationService) :
+    OncePerRequestFilter() {
     private val antPathMatcher = AntPathMatcher()
-
     private val log = LogFactory.getLog(this.javaClass)
 
     override fun doFilterInternal(
@@ -46,53 +35,54 @@ class JwtAuthenticationFilter(
         log.debug("Processing authentication for request: ${request.requestURI}")
 
         val authHeader = request.getHeader(AUTHORIZATION_HEADER)
+        val (jwtValid, jwtOrError) = jwtAuthenticationService.extractJwtFromHeader(authHeader)
 
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            log.debug("No Authentication header found or invalid format")
+        if (!jwtValid) {
+            val errorCode = when (jwtOrError) {
+                "Authentication required" -> "AUTH_REQUIRED"
+                "Empty token" -> "AUTH_EMPTY_TOKEN"
+                "Invalid token format" -> "AUTH_TOKEN_TOO_LONG"
+                else -> "AUTH_ERROR"
+            }
+            val statusCode = if (jwtOrError == "Authentication required") {
+                HttpServletResponse.SC_UNAUTHORIZED
+            } else {
+                HttpServletResponse.SC_BAD_REQUEST
+            }
+
             sendErrorResponse(
                 request,
                 response,
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "Authentication required",
-                "AUTH_REQUIRED",
-            )
-            return
-        }
-
-        val jwt = authHeader.substring(BEARER_PREFIX.length)
-
-        if (jwt.isBlank()) {
-            log.warn("Empty JWT token provided")
-            sendErrorResponse(
-                request,
-                response,
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Empty token",
-                "AUTH_EMPTY_TOKEN",
-            )
-            return
-        }
-
-        if (jwt.length > 10000) {
-            log.warn("JWT token exceeds maximum allowed length")
-            sendErrorResponse(
-                request,
-                response,
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Invalid token format",
-                "AUTH_TOKEN_TOO_LONG",
+                statusCode,
+                jwtOrError,
+                errorCode,
             )
             return
         }
 
         try {
-            if (!authenticateWithToken(jwt, request, response)) {
+            val (authenticated, userDetails) = jwtAuthenticationService.authenticateWithToken(jwtOrError)
+
+            if (!authenticated || userDetails == null) {
+                sendErrorResponse(
+                    request,
+                    response,
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Access denied",
+                    "AUTH_FAILED",
+                )
                 return
+            }
+
+            if (SecurityContextHolder.getContext().authentication == null) {
+                val authToken = jwtAuthenticationService.createAuthenticationToken(userDetails, request)
+                SecurityContextHolder.getContext().authentication = authToken
             }
 
             filterChain.doFilter(request, response)
         } catch (e: Exception) {
             log.error("Unexpected error during authentication", e)
+            e.printStackTrace()
             sendErrorResponse(
                 request,
                 response,
@@ -100,87 +90,6 @@ class JwtAuthenticationFilter(
                 "Authentication error",
                 "AUTH_INTERNAL_ERROR",
             )
-        }
-    }
-
-    private fun authenticateWithToken(
-        jwt: String,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Boolean {
-        try {
-            val username = jwtService.extractUsername(jwt)
-
-            if (SecurityContextHolder.getContext().authentication != null) {
-                return true
-            }
-
-            val userDetails = try {
-                userDetailsService.loadUserByUsername(username)
-            } catch (e: UsernameNotFoundException) {
-                log.warn("User not found: $username")
-                sendErrorResponse(
-                    request,
-                    response,
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "Access denied",
-                    "AUTH_USER_NOT_FOUND",
-                )
-                return false
-            }
-
-            if (!jwtService.isTokenValid(jwt, userDetails)) {
-                log.warn("Invalid JWT token for user: $username")
-                sendErrorResponse(
-                    request,
-                    response,
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "Access denied",
-                    "AUTH_INVALID_TOKEN",
-                )
-                return false
-            }
-
-            val authToken = UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.authorities,
-            )
-            authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-            SecurityContextHolder.getContext().authentication = authToken
-
-            log.debug("User authenticated successfully: $username")
-            return true
-        } catch (e: ExpiredJwtException) {
-            log.warn("JWT token expired")
-            sendErrorResponse(
-                request,
-                response,
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "Token expired",
-                "AUTH_TOKEN_EXPIRED",
-            )
-            return false
-        } catch (e: MalformedJwtException) {
-            log.warn("Invalid JWT token format")
-            sendErrorResponse(
-                request,
-                response,
-                HttpServletResponse.SC_BAD_REQUEST,
-                "Invalid token format",
-                "AUTH_MALFORMED_TOKEN",
-            )
-            return false
-        } catch (e: SignatureException) {
-            log.warn("JWT signature validation failed")
-            sendErrorResponse(
-                request,
-                response,
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "Invalid token signature",
-                "AUTH_INVALID_SIGNATURE",
-            )
-            return false
         }
     }
 

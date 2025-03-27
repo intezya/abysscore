@@ -20,7 +20,7 @@ class CustomAuthenticationProvider(
 
         val userDetails = userDetailsService.loadUserByUsername(username)
 
-        if (!passwordUtils.verifyPassword(password, userDetails.password)) {
+        if (!passwordUtils.verifyPassword(password, userDetails.getPassword())) {
             throw BadCredentialsException("Wrong password")
         }
 
@@ -35,29 +35,30 @@ class CustomAuthenticationProvider(
         }
         if (userDetails.hwid == null) {
             userDetails.hwid = passwordUtils.hashHwid(hwidAsAdditionalField)
-            userDetailsService.updateHwid(userDetails.id, passwordUtils.hashHwid(hwidAsAdditionalField))
+            userDetailsService.updateHwid(userDetails.id, hwidAsAdditionalField)
         }
 
-        if (!userDetails.isAccountNonExpired) {
+        if (!userDetails.isAccountNonExpired()) {
             throw BadCredentialsException("User is expired")
         }
 
-        if (!userDetails.isAccountNonLocked) {
+        if (!userDetails.isAccountNonLocked()) {
             throw BadCredentialsException("User is locked")
         }
 
-        if (!userDetails.isEnabled) {
+        if (!userDetails.isEnabled()) {
             throw BadCredentialsException("User is disabled")
         }
 
         return CustomAuthenticationToken(
             userDetails,
             null,
-            userDetails.authorities,
+            userDetails.getAuthorities(),
             hwidAsAdditionalField,
         )
     }
 
-    override fun supports(authentication: Class<*>): Boolean = authentication == UsernamePasswordAuthenticationToken::class.java ||
-        authentication == CustomAuthenticationToken::class.java
+    override fun supports(authentication: Class<*>): Boolean =
+        authentication == UsernamePasswordAuthenticationToken::class.java ||
+            authentication == CustomAuthenticationToken::class.java
 }
