@@ -34,7 +34,10 @@ import io.restassured.module.kotlin.extensions.When
 import io.restassured.parsing.Parser
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -97,6 +100,9 @@ abstract class BaseApiTest {
     @Autowired
     private lateinit var transactionManager: PlatformTransactionManager
 
+    protected var mainWebsocketUrl = ""
+
+
     @BeforeEach
     fun setUp() {
         RestAssured.baseURI = "http://localhost"
@@ -105,6 +111,8 @@ abstract class BaseApiTest {
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
             ObjectMapperConfig().jackson2ObjectMapperFactory { _, _ -> jacksonObjectMapper() },
         )
+
+        mainWebsocketUrl = "ws://localhost:$port/hubs/main"
 
         val transactionTemplate = TransactionTemplate(transactionManager)
 
@@ -118,10 +126,6 @@ abstract class BaseApiTest {
             gameItemRepository.deleteAll()
             userItemRepository.deleteAll()
         }
-    }
-
-    @AfterEach
-    fun cleanUp() {
     }
 
     @Test
