@@ -1,5 +1,6 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.event.matchmaking.MatchCreatedEvent
 import com.intezya.abysscore.model.dto.draft.DraftStep
 import com.intezya.abysscore.model.entity.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.model.entity.Match
@@ -31,7 +32,7 @@ class MatchMakingService(
 
         match.apply { this.draft = createDraft(match) }
 
-        // TODO: notify users
+        eventPublisher.publishEvent(MatchCreatedEvent(this, match))
 
         return match
     }
