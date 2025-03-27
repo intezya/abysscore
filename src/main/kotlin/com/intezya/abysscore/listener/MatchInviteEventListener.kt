@@ -8,9 +8,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 @Component
-class MatchInviteEventListener(
-    private val websocketNotificationService: WebsocketNotificationService,
-) {
+class MatchInviteEventListener(private val websocketNotificationService: WebsocketNotificationService) {
     @EventListener
     fun inviteReceived(event: InviteReceivedEvent) {
         websocketNotificationService.inviteReceived(

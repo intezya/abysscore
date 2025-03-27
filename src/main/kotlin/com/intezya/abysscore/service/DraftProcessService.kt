@@ -34,7 +34,11 @@ class DraftProcessService(
         val match = validateMatchStatus(user, MatchStatus.PENDING, "Match is not in reveal characters stage")
         val draft = match.draft
 
-        if (match.player1.id == user.id && draft.player1AvailableCharacters.isNotEmpty() || match.player2.id == user.id && draft.player2AvailableCharacters.isNotEmpty()) {
+        if (match.player1.id == user.id &&
+            draft.player1AvailableCharacters.isNotEmpty() ||
+            match.player2.id == user.id &&
+            draft.player2AvailableCharacters.isNotEmpty()
+        ) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You have already revealed your characters")
         }
 

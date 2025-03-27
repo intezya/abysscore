@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap
 class MainWebsocketConnectionService(
     private val eventPublisher: ApplicationEventPublisher,
     private val objectMapper: ObjectMapper,
-) : TextWebSocketHandler(), WebsocketMessageBroker<Long> {
+) : TextWebSocketHandler(),
+    WebsocketMessageBroker<Long> {
 
     private val logger = LoggerFactory.getLogger(MainWebsocketConnectionService::class.java)
     private val sessions = ConcurrentHashMap<Long, WebSocketSession>()
@@ -67,7 +68,9 @@ class MainWebsocketConnectionService(
         val userId = user.id
         if (sessions.remove(userId, session)) {
             eventPublisher.publishEvent(UserDisconnectedEvent(this, user))
-            logger.info("Connection closed for user: $userId, session: ${session.id}. Status: ${status.code}. Total online: ${sessions.size}")
+            logger.info(
+                "Connection closed for user: $userId, session: ${session.id}. Status: ${status.code}. Total online: ${sessions.size}",
+            )
         }
     }
 
@@ -75,7 +78,9 @@ class MainWebsocketConnectionService(
         sessions.entries.find { it.value.id == session.id }?.let { entry ->
             val userId = entry.key
             if (sessions.remove(userId, entry.value)) {
-                logger.warn("Connection closed for session ${session.id} associated with user $userId. Status: ${status.code}. Total online: ${sessions.size}")
+                logger.warn(
+                    "Connection closed for session ${session.id} associated with user $userId. Status: ${status.code}. Total online: ${sessions.size}",
+                )
             }
         }
     }
@@ -128,13 +133,12 @@ class MainWebsocketConnectionService(
         }
     }
 
-    private fun createTextMessage(messageContent: Any): TextMessage? =
-        try {
-            TextMessage(objectMapper.writeValueAsString(messageContent))
-        } catch (e: JsonProcessingException) {
-            logger.error("Failed to serialize message content to JSON: ${e.message}", e)
-            null
-        }
+    private fun createTextMessage(messageContent: Any): TextMessage? = try {
+        TextMessage(objectMapper.writeValueAsString(messageContent))
+    } catch (e: JsonProcessingException) {
+        logger.error("Failed to serialize message content to JSON: ${e.message}", e)
+        null
+    }
 
     private fun sendMessageInternal(userId: Long, session: WebSocketSession, message: TextMessage) {
         if (!session.isOpen) {
@@ -195,13 +199,11 @@ class MainWebsocketConnectionService(
         }
     }
 
-    private fun extractCurrentUser(session: WebSocketSession): User? =
-        extractCurrentUser(session.attributes)
+    private fun extractCurrentUser(session: WebSocketSession): User? = extractCurrentUser(session.attributes)
 
-    private fun extractCurrentUser(attributes: Map<String, Any>): User? =
-        runCatching {
-            (attributes[USER_AUTHORIZATION] as? UsernamePasswordAuthenticationToken)?.principal as? User
-        }.onFailure { e ->
-            logger.error("Error extracting user from session attributes: ${e.message}", e)
-        }.getOrNull()
+    private fun extractCurrentUser(attributes: Map<String, Any>): User? = runCatching {
+        (attributes[USER_AUTHORIZATION] as? UsernamePasswordAuthenticationToken)?.principal as? User
+    }.onFailure { e ->
+        logger.error("Error extracting user from session attributes: ${e.message}", e)
+    }.getOrNull()
 }

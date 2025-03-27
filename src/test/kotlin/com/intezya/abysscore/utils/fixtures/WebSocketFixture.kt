@@ -12,17 +12,11 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 object WebSocketFixture {
-    fun getSession(
-        authToken: String,
-        uri: String,
-    ): ProvidedSession {
+    fun getSession(authToken: String, uri: String): ProvidedSession {
         val messageQueue: BlockingQueue<String> = LinkedBlockingQueue()
 
         val clientHandler = object : TextWebSocketHandler() {
-            override fun handleTextMessage(
-                session: WebSocketSession,
-                message: TextMessage,
-            ) {
+            override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
                 try {
                     messageQueue.put(message.payload)
                 } catch (e: InterruptedException) {
@@ -60,13 +54,16 @@ object WebSocketFixture {
                 session = session,
             )
         } catch (e: Exception) {
-            System.err.println("Failed to establish WebSocket connection for token starting with ${authToken.take(5)}...: ${e.message}")
+            System.err.println(
+                "Failed to establish WebSocket connection for token starting with ${
+                    authToken.take(
+                        5,
+                    )
+                }...: ${e.message}",
+            )
             throw IllegalStateException("Failed to establish WebSocket connection", e)
         }
     }
 
-    data class ProvidedSession(
-        val messageQueue: BlockingQueue<String>,
-        val session: WebSocketSession,
-    )
+    data class ProvidedSession(val messageQueue: BlockingQueue<String>, val session: WebSocketSession)
 }

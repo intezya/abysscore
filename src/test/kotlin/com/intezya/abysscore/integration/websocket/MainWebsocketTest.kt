@@ -29,7 +29,6 @@ class MainWebsocketTest : BaseApiTest() {
         userRepository.deleteAll()
     }
 
-
     @Nested
     inner class WebsocketTests {
         @Test
@@ -59,10 +58,7 @@ class MainWebsocketTest : BaseApiTest() {
             val receivedMessages = mutableListOf<String>()
 
             val clientHandler = object : TextWebSocketHandler() {
-                override fun handleTextMessage(
-                    session: WebSocketSession,
-                    message: TextMessage,
-                ) {
+                override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
                     receivedMessages.add(message.payload)
                     latch.countDown()
                 }

@@ -7,9 +7,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 @Component
-class UserActionEventListener(
-    private val websocketNotificationService: WebsocketNotificationService,
-) {
+class UserActionEventListener(private val websocketNotificationService: WebsocketNotificationService) {
     @EventListener
     fun userLoggedIn(event: UserConnectedEvent) {
         websocketNotificationService.userLoggedIn(event.user.id, event.user.username)
