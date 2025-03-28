@@ -3,6 +3,7 @@ package com.intezya.abysscore.service
 import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.event.draftprocess.CharactersRevealEvent
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.entity.DraftAction
 import com.intezya.abysscore.model.entity.Match
@@ -12,6 +13,7 @@ import com.intezya.abysscore.repository.DraftActionRepository
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.repository.MatchRepository
 import org.apache.commons.logging.LogFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -27,6 +29,7 @@ class DraftProcessService(
     private val draftActionRepository: DraftActionRepository,
     private val matchProcessService: MatchProcessService,
     private val matchRepository: MatchRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
 
@@ -53,6 +56,7 @@ class DraftProcessService(
             advanceToDraftingState(match, draft)
         }
 
+        eventPublisher.publishEvent(CharactersRevealEvent(this, match, user, characters))
         notifyOpponent(draft, playerInfo.isPlayer1, DraftNotificationType.CHARACTERS_REVEALED)
 
         return matchDraftRepository.save(draft)
@@ -73,13 +77,13 @@ class DraftProcessService(
             banCharacter(draft, playerInfo, characterName)
         }
 
-        val notificationType = if (isPick) {
+        if (isPick) {
             DraftNotificationType.CHARACTER_PICKED
         } else {
             DraftNotificationType.CHARACTER_BANNED
         }
 
-        notifyOpponent(draft, playerInfo.isPlayer1, notificationType, characterName)
+//        notifyOpponent(draft, playerInfo.isPlayer1, notificationType, characterName)
 
         return result
     }
@@ -260,8 +264,8 @@ class DraftProcessService(
         notificationType: DraftNotificationType,
         characterName: String? = null,
     ) {
-        notifyOpponent(draft, true, notificationType, characterName)
-        notifyOpponent(draft, false, notificationType, characterName)
+//        notifyOpponent(draft, true, notificationType, characterName)
+//        notifyOpponent(draft, false, notificationType, characterName)
     }
 
     private fun validateMatchStatus(user: User, expectedStatus: MatchStatus, errorMessage: String): Match {
@@ -308,38 +312,6 @@ class DraftProcessService(
             player = if (isPlayer1) match.player1 else match.player2,
             isPlayer1 = isPlayer1,
         )
-    }
-
-    private fun notifyOpponent(
-        draft: MatchDraft,
-        isActingPlayerOne: Boolean,
-        notificationType: DraftNotificationType,
-        characterName: String? = null,
-    ) {
-        try {
-            val match = draft.match
-            val opponentId = if (isActingPlayerOne) match.player2.id else match.player1.id
-
-            // TODO
-            DraftNotification(
-                draftId = draft.id,
-                type = notificationType,
-                characterName = characterName,
-                currentState = draft.currentState,
-                currentStepIndex = draft.currentStepIndex,
-                deadline = draft.currentStateDeadline,
-            )
-
-            // websocketService.sendToUser(
-            //     userId = opponentId,
-            //     destination = "/topic/draft.${draft.id}",
-            //     payload = objectMapper.writeValueAsString(notification)
-            // )
-
-            logger.debug("Notification sent to user $opponentId: $notificationType")
-        } catch (e: Exception) {
-            logger.error("Failed to send notification for draft ${draft.id}", e)
-        }
     }
 
     private fun advanceDraftToDraftingState(draft: MatchDraft) {

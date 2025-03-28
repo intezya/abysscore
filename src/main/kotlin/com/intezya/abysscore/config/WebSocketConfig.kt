@@ -21,9 +21,7 @@ class WebSocketConfig(
     private val draftWebSocketConnectionService: DraftWebSocketConnectionService,
 ) : WebSocketConfigurer {
 
-    override fun registerWebSocketHandlers(
-        registry: WebSocketHandlerRegistry,
-    ) {
+    override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(mainWebSocketConnectionService, "/hubs/main")
             .setAllowedOriginPatterns("*")
             .addInterceptors(webSocketAuthInterceptor())

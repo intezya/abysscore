@@ -65,6 +65,8 @@ class Match {
 
     fun isEnded(): Boolean = this.roomResults.filter { it.roomNumber == 3 }.size == 2
 
+    fun getOpponent(user: User): User = if (user.id == player1.id) player2 else player1
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Match) return false
