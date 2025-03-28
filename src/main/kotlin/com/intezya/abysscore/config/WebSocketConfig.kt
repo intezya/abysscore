@@ -3,7 +3,8 @@ package com.intezya.abysscore.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.security.middleware.WebSocketAuthInterceptor
 import com.intezya.abysscore.security.service.JwtAuthenticationService
-import com.intezya.abysscore.service.MainWebsocketConnectionService
+import com.intezya.abysscore.service.DraftWebSocketConnectionService
+import com.intezya.abysscore.service.MainWebSocketConnectionService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.config.annotation.EnableWebSocket
@@ -16,13 +17,19 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 class WebSocketConfig(
     private val jwtAuthenticationService: JwtAuthenticationService,
     private val objectMapper: ObjectMapper,
-    private val mainWebsocketMessageService: MainWebsocketConnectionService,
+    private val mainWebSocketConnectionService: MainWebSocketConnectionService,
+    private val draftWebSocketConnectionService: DraftWebSocketConnectionService,
 ) : WebSocketConfigurer {
 
-    override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(mainWebsocketMessageService, "/hubs/main")
+    override fun registerWebSocketHandlers(
+        registry: WebSocketHandlerRegistry,
+    ) {
+        registry.addHandler(mainWebSocketConnectionService, "/hubs/main")
             .setAllowedOriginPatterns("*")
-            .addInterceptors(WebSocketAuthInterceptor(jwtAuthenticationService, objectMapper))
+            .addInterceptors(webSocketAuthInterceptor())
+        registry.addHandler(draftWebSocketConnectionService, "/hubs/draft")
+            .setAllowedOriginPatterns("*")
+            .addInterceptors(webSocketAuthInterceptor())
     }
 
     @Bean
@@ -33,4 +40,10 @@ class WebSocketConfig(
         container.setMaxBinaryMessageBufferSize(8192)
         return container
     }
+
+    @Bean
+    fun webSocketAuthInterceptor() = WebSocketAuthInterceptor(
+        jwtAuthenticationService = jwtAuthenticationService,
+        objectMapper = objectMapper,
+    )
 }

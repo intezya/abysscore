@@ -8,11 +8,12 @@ import com.intezya.abysscore.model.message.websocket.matchmaking.MatchCreatedMes
 import com.intezya.abysscore.model.message.websocket.useractions.UserLoggedInMessage
 import com.intezya.abysscore.model.message.websocket.useractions.UserLoggedOutMessage
 import com.intezya.abysscore.service.interfaces.WebsocketMessageBroker
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class WebsocketNotificationService(
-    private val mainWebsocketMessageService: WebsocketMessageBroker<Long>,
+    @Qualifier("mainWebSocketMessageService") private val mainWebsocketMessageService: WebsocketMessageBroker<Long>,
 //    private val matchWebsocketMessageService: WebsocketMessageBroker<Long>,
 //    private val draftWebsocketMessageService: WebsocketMessageBroker<Long>,
 ) {

@@ -20,13 +20,13 @@ import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class MainWebsocketConnectionService(
+class BaseWebSocketConnectionService(
     private val eventPublisher: ApplicationEventPublisher,
     private val objectMapper: ObjectMapper,
 ) : TextWebSocketHandler(),
     WebsocketMessageBroker<Long> {
 
-    private val logger = LoggerFactory.getLogger(MainWebsocketConnectionService::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
     private val sessions = ConcurrentHashMap<Long, WebSocketSession>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
