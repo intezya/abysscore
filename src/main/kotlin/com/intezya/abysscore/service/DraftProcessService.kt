@@ -57,7 +57,7 @@ class DraftProcessService(
         }
 
         eventPublisher.publishEvent(CharactersRevealEvent(this, match, user, characters))
-        notifyOpponent(draft, playerInfo.isPlayer1, DraftNotificationType.CHARACTERS_REVEALED)
+//        notifyOpponent(draft, playerInfo.isPlayer1, DraftNotificationType.CHARACTERS_REVEALED)
 
         return matchDraftRepository.save(draft)
     }
