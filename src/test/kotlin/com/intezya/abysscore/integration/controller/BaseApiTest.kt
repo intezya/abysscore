@@ -57,7 +57,7 @@ typealias JwtToken = String
 abstract class BaseApiTest {
 
     @Autowired
-    private lateinit var matchMakingService: MatchMakingService
+    protected lateinit var matchMakingService: MatchMakingService
 
     @Autowired
     protected lateinit var jwtUtils: JwtUtils

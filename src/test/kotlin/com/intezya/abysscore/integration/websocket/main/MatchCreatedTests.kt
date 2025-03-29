@@ -2,17 +2,12 @@ package com.intezya.abysscore.integration.websocket.main
 
 import com.intezya.abysscore.integration.controller.BaseApiTest
 import com.intezya.abysscore.model.message.websocket.Messages
-import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.springframework.beans.factory.annotation.Autowired
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 
 class MatchCreatedTests : BaseApiTest() {
-    @Autowired
-    private lateinit var matchMakingService: MatchMakingService
-
     @Test
     fun `should notify both users that match created`() {
         val user1 = generateUserWithToken()

@@ -48,6 +48,12 @@ object WebSocketFixture {
             val session = StandardWebSocketClient()
                 .execute(clientHandler, headers, URI(uri))
                 .get(5, TimeUnit.SECONDS)
+                .apply {
+                    this.textMessageSizeLimit = 10000000
+
+                    this.binaryMessageSizeLimit = 10000000
+                }
+
 
             return ProvidedSession(
                 messageQueue = messageQueue,
