@@ -49,9 +49,9 @@ object WebSocketFixture {
                 .execute(clientHandler, headers, URI(uri))
                 .get(5, TimeUnit.SECONDS)
                 .apply {
-                    this.textMessageSizeLimit = 10000000
+                    this.textMessageSizeLimit = 100000
 
-                    this.binaryMessageSizeLimit = 10000000
+                    this.binaryMessageSizeLimit = 100000
                 }
 
 

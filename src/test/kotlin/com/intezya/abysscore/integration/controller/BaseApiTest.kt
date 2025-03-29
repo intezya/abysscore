@@ -89,6 +89,9 @@ abstract class BaseApiTest {
     @Autowired
     protected lateinit var eventPublisher: ApplicationEventPublisher
 
+    @Autowired
+    private lateinit var draftActionRepository: DraftActionRepository
+
     private val f: Faker = faker {}
 
     @LocalServerPort
@@ -118,7 +121,10 @@ abstract class BaseApiTest {
         transactionTemplate.execute {
             entityManager.createQuery("UPDATE User u SET u.currentMatch = NULL").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentBadge = NULL").executeUpdate()
+            entityManager.createQuery("UPDATE DraftAction da SET da.draft = NULL WHERE da.draft IS NOT NULL")
+                .executeUpdate()
 
+            draftActionRepository.deleteAll()
             matchDraftRepository.deleteAll()
             matchRepository.deleteAll()
             userRepository.deleteAll()
