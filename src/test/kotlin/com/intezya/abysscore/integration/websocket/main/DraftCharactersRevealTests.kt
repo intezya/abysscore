@@ -44,19 +44,16 @@ class DraftCharactersRevealTests : BaseApiTest() {
                 foundNotification = true
                 break
             }
-
         }
 
         assertTrue(foundNotification)
     }
 
-    private fun verifyMessage(message: String?, characters: List<DraftCharacterDTO>): Boolean {
-        return try {
-            message != null &&
-                message.contains(Messages.DRAFT_CHARACTERS_REVEAL) &&
-                objectMapper.readValue(message, CharactersRevealMessage::class.java).characters == characters
-        } catch (_: Exception) {
-            false
-        }
+    private fun verifyMessage(message: String?, characters: List<DraftCharacterDTO>): Boolean = try {
+        message != null &&
+            message.contains(Messages.DRAFT_CHARACTERS_REVEAL) &&
+            objectMapper.readValue(message, CharactersRevealMessage::class.java).characters == characters
+    } catch (_: Exception) {
+        false
     }
 }

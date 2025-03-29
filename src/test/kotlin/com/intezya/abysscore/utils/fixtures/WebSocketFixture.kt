@@ -54,7 +54,6 @@ object WebSocketFixture {
                     this.binaryMessageSizeLimit = 100000
                 }
 
-
             return ProvidedSession(
                 messageQueue = messageQueue,
                 session = session,
