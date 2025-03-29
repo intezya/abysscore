@@ -119,10 +119,9 @@ abstract class BaseApiTest {
         val transactionTemplate = TransactionTemplate(transactionManager)
 
         transactionTemplate.execute {
+            entityManager.createNativeQuery("TRUNCATE draft_actions CASCADE").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentMatch = NULL").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentBadge = NULL").executeUpdate()
-            entityManager.createQuery("UPDATE DraftAction da SET da.draft = NULL WHERE da.draft IS NOT NULL")
-                .executeUpdate()
 
             draftActionRepository.deleteAll()
             matchDraftRepository.deleteAll()
