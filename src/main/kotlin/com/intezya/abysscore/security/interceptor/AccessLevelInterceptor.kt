@@ -1,6 +1,6 @@
 package com.intezya.abysscore.security.interceptor
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

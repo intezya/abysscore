@@ -2,9 +2,9 @@ package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.constants.ACCOUNT_INVENTORY_ENDPOINT
 import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.entity.GameItem
-import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.model.entity.UserItem
+import com.intezya.abysscore.model.entity.item.GameItem
+import com.intezya.abysscore.model.entity.item.UserItem
+import com.intezya.abysscore.model.entity.user.User
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers

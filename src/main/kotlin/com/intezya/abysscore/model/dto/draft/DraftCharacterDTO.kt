@@ -1,6 +1,6 @@
 package com.intezya.abysscore.model.dto.draft
 
-import com.intezya.abysscore.model.entity.DraftCharacter
+import com.intezya.abysscore.model.entity.draft.DraftCharacter
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank

@@ -6,7 +6,7 @@ import com.intezya.abysscore.model.dto.statistic.UserGlobalStatisticDTO
 import com.intezya.abysscore.model.dto.statistic.toDTO
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.model.dto.useritem.toDTO
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import java.time.LocalDateTime
 
 data class UserDTO(

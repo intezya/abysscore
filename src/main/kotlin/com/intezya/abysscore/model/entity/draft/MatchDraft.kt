@@ -1,10 +1,11 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.draft
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.model.dto.draft.DraftStep
+import com.intezya.abysscore.model.entity.match.Match
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import kotlin.jvm.Transient

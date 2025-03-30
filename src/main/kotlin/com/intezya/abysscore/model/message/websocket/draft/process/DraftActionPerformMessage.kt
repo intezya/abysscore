@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.message.websocket.draftprocess
+package com.intezya.abysscore.model.message.websocket.draft.process
 
 import com.intezya.abysscore.model.dto.draft.DraftActionDTO
 import com.intezya.abysscore.model.message.websocket.Messages

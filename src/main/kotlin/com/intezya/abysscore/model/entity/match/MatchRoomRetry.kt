@@ -1,20 +1,12 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.match
 
+import com.intezya.abysscore.model.entity.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(
-    name = "room_results",
-    uniqueConstraints = [
-        UniqueConstraint(
-            name = "uk_room_player_match_no_retry",
-            // You must check that migration index contains room_number
-            columnNames = ["room_number", "player_id", "match_id"],
-        ),
-    ],
-)
-data class MatchRoomResult(
+@Table(name = "room_retries")
+data class MatchRoomRetry(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,

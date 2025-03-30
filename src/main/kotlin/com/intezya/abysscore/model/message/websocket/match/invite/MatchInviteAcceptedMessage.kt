@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.message.websocket.matchinvites
+package com.intezya.abysscore.model.message.websocket.match.invite
 
 import com.intezya.abysscore.model.message.websocket.Messages
 

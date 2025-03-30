@@ -4,10 +4,10 @@ import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
 import com.intezya.abysscore.model.dto.user.UpdateProfileBadgeRequest
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.dto.user.toDTO
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.model.entity.UserGlobalStatistic
-import com.intezya.abysscore.model.entity.UserItem
+import com.intezya.abysscore.model.entity.item.UserItem
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.user.User
+import com.intezya.abysscore.model.entity.user.UserGlobalStatistic
 import com.intezya.abysscore.repository.UserGlobalStatisticRepository
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.dto.AuthRequest

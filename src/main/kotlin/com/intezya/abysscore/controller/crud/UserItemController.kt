@@ -2,7 +2,7 @@ package com.intezya.abysscore.controller.crud
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.service.crud.UserItemService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement

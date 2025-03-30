@@ -1,7 +1,7 @@
 package com.intezya.abysscore.controller.aspect
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect

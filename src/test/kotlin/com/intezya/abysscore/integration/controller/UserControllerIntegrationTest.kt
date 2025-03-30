@@ -1,7 +1,7 @@
 package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Extract

@@ -1,6 +1,9 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.user
 
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.model.entity.item.UserItem
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.match.matchmaking.MatchInvite
 import com.intezya.abysscore.utils.converter.AccessLevelConverter
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority

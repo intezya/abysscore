@@ -5,8 +5,8 @@ import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.dto.draft.MatchDraftDTO
 import com.intezya.abysscore.model.dto.draft.PerformDraftActionRequest
 import com.intezya.abysscore.model.dto.draft.toDTO
-import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.service.DraftProcessService
+import com.intezya.abysscore.model.entity.user.User
+import com.intezya.abysscore.service.draft.DraftProcessService
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping

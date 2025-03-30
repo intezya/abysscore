@@ -2,7 +2,7 @@ package com.intezya.abysscore.model.dto.user
 
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.model.dto.useritem.toDTO
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import java.time.LocalDateTime
 
 data class UserSimpleViewDTO(

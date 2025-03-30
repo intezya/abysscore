@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.integration.controller.BaseApiTest
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.message.websocket.Messages
-import com.intezya.abysscore.model.message.websocket.draftprocess.CharactersRevealMessage
+import com.intezya.abysscore.model.message.websocket.draft.process.CharactersRevealMessage
 import com.intezya.abysscore.utils.fixtures.DraftCharactersFixtures
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import org.junit.jupiter.api.Assertions.assertTrue

@@ -2,8 +2,8 @@ package com.intezya.abysscore.unit.aspect
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
 import com.intezya.abysscore.controller.aspect.RequireUserInMatchAspect
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.user.User
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk

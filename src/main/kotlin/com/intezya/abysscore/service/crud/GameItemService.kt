@@ -1,7 +1,7 @@
 package com.intezya.abysscore.service.crud
 
 import com.intezya.abysscore.model.dto.gameitem.CreateGameItemRequest
-import com.intezya.abysscore.model.entity.GameItem
+import com.intezya.abysscore.model.entity.item.GameItem
 import com.intezya.abysscore.repository.GameItemRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

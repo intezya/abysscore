@@ -1,7 +1,7 @@
 package com.intezya.abysscore.event.matchprocess
 
 import com.intezya.abysscore.enum.TimeoutResult
-import com.intezya.abysscore.model.entity.Match
+import com.intezya.abysscore.model.entity.match.Match
 import org.springframework.context.ApplicationEvent
 import java.time.Duration
 

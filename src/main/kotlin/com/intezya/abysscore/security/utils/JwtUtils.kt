@@ -1,6 +1,6 @@
 package com.intezya.abysscore.security.utils
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.utils.crypto.sha512
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts

@@ -1,6 +1,8 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.item
 
 import com.intezya.abysscore.enum.ItemSourceType
+import com.intezya.abysscore.model.entity.trade.Trade
+import com.intezya.abysscore.model.entity.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*

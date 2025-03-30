@@ -3,7 +3,7 @@ package com.intezya.abysscore.model.dto.draft
 import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.model.dto.user.UserSimpleViewDTO
 import com.intezya.abysscore.model.dto.user.toSimpleView
-import com.intezya.abysscore.model.entity.DraftAction
+import com.intezya.abysscore.model.entity.draft.DraftAction
 import java.time.LocalDateTime
 
 data class DraftActionDTO(

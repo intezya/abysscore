@@ -1,6 +1,8 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.match
 
 import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.model.entity.draft.MatchDraft
+import com.intezya.abysscore.model.entity.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*

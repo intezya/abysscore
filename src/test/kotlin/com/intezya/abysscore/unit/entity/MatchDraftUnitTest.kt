@@ -1,7 +1,7 @@
 package com.intezya.abysscore.unit.entity
 
 import com.intezya.abysscore.enum.DraftState
-import com.intezya.abysscore.model.entity.DEFAULT_DRAFT_SCHEMA
+import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.utils.fixtures.MatchDraftFixtures
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested

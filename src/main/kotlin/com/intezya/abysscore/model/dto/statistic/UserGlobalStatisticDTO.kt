@@ -1,6 +1,6 @@
 package com.intezya.abysscore.model.dto.statistic
 
-import com.intezya.abysscore.model.entity.UserGlobalStatistic
+import com.intezya.abysscore.model.entity.user.UserGlobalStatistic
 
 data class UserGlobalStatisticDTO(
     var matchesWon: Int = 0,

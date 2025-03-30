@@ -4,7 +4,7 @@ import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.dto.user.UserSimpleViewDTO
 import com.intezya.abysscore.model.dto.user.toDTO
 import com.intezya.abysscore.model.dto.user.toSimpleView
-import com.intezya.abysscore.model.entity.MatchInvite
+import com.intezya.abysscore.model.entity.match.matchmaking.MatchInvite
 import java.time.LocalDateTime
 
 data class MatchInviteDTO(

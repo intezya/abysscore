@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.message.websocket.matchprocess
+package com.intezya.abysscore.model.message.websocket.match.process
 
 data class MatchTimeoutMessage(
     val matchId: Long,

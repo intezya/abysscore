@@ -2,10 +2,10 @@ package com.intezya.abysscore.service
 
 import com.intezya.abysscore.event.matchmaking.MatchCreatedEvent
 import com.intezya.abysscore.model.dto.draft.DraftStep
-import com.intezya.abysscore.model.entity.DEFAULT_DRAFT_SCHEMA
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.MatchDraft
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
+import com.intezya.abysscore.model.entity.draft.MatchDraft
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.repository.MatchRepository
 import org.springframework.context.ApplicationEventPublisher

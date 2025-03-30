@@ -4,10 +4,10 @@ import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.enum.TimeoutResult
 import com.intezya.abysscore.event.matchprocess.MatchTimeoutEvent
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.MatchRoomResult
-import com.intezya.abysscore.model.entity.MatchRoomRetry
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.match.MatchRoomResult
+import com.intezya.abysscore.model.entity.match.MatchRoomRetry
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchRepository
 import com.intezya.abysscore.repository.RoomResultRepository
 import com.intezya.abysscore.repository.RoomRetryRepository

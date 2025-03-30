@@ -5,7 +5,7 @@ import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
 import com.intezya.abysscore.model.dto.user.UpdateProfileBadgeRequest
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.dto.user.toDTO
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.service.UserService
 import jakarta.validation.Valid

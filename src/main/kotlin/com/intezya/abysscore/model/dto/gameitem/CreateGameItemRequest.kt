@@ -1,6 +1,6 @@
 package com.intezya.abysscore.model.dto.gameitem
 
-import com.intezya.abysscore.model.entity.GameItem
+import com.intezya.abysscore.model.entity.item.GameItem
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull

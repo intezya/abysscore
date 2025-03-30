@@ -1,5 +1,6 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.match.matchmaking
 
+import com.intezya.abysscore.model.entity.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*

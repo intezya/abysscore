@@ -1,6 +1,6 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.dto.AuthResponse
 import com.intezya.abysscore.security.utils.CustomAuthenticationToken

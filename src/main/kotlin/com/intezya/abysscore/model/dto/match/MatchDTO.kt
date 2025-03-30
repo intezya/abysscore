@@ -8,7 +8,7 @@ import com.intezya.abysscore.model.dto.roomresult.RoomRetryDTO
 import com.intezya.abysscore.model.dto.roomresult.toDTO
 import com.intezya.abysscore.model.dto.user.UserSimpleViewDTO
 import com.intezya.abysscore.model.dto.user.toSimpleView
-import com.intezya.abysscore.model.entity.Match
+import com.intezya.abysscore.model.entity.match.Match
 import java.time.LocalDateTime
 
 data class MatchDTO(

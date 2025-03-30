@@ -1,7 +1,7 @@
 package com.intezya.abysscore.model.dto.draft
 
 import com.intezya.abysscore.enum.DraftState
-import com.intezya.abysscore.model.entity.MatchDraft
+import com.intezya.abysscore.model.entity.draft.MatchDraft
 import java.time.LocalDateTime
 
 data class MatchDraftDTO(

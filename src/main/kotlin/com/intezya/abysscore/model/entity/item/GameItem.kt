@@ -1,4 +1,4 @@
-package com.intezya.abysscore.model.entity
+package com.intezya.abysscore.model.entity.item
 
 import jakarta.persistence.*
 import java.util.*
