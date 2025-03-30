@@ -18,7 +18,8 @@ import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
 import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.service.UserService
-import com.intezya.abysscore.service.draft.DraftProcessService
+import com.intezya.abysscore.service.draft.DraftActionService
+import com.intezya.abysscore.service.draft.DraftCharacterRevealService
 import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
 import com.intezya.abysscore.utils.fixtures.UserFixtures
 import com.intezya.abysscore.utils.providers.RandomProvider
@@ -57,7 +58,10 @@ typealias JwtToken = String
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseApiTest {
     @Autowired
-    protected lateinit var draftProcessService: DraftProcessService
+    protected lateinit var draftCharacterRevealService: DraftCharacterRevealService
+
+    @Autowired
+    protected lateinit var draftActionService: DraftActionService
 
     @Autowired
     protected lateinit var matchMakingService: MatchMakingService

@@ -27,7 +27,7 @@ class DraftCharactersRevealTests : BaseApiTest() {
         matchMakingService.createMatch(sender.first, receiver.first)
         val characters = DraftCharactersFixtures.createDraftCharacters(200)
 
-        draftProcessService.revealCharacters(sender.first, characters)
+        draftCharacterRevealService.revealCharacters(sender.first, characters)
 
         val waitTimeoutSeconds = 5L
         var foundNotification = false

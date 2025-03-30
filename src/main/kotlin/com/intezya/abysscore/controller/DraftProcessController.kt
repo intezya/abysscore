@@ -6,7 +6,8 @@ import com.intezya.abysscore.model.dto.draft.MatchDraftDTO
 import com.intezya.abysscore.model.dto.draft.PerformDraftActionRequest
 import com.intezya.abysscore.model.dto.draft.toDTO
 import com.intezya.abysscore.model.entity.user.User
-import com.intezya.abysscore.service.draft.DraftProcessService
+import com.intezya.abysscore.service.draft.DraftActionService
+import com.intezya.abysscore.service.draft.DraftCharacterRevealService
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,18 +17,21 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/matches/current/draft/process")
-class DraftProcessController(private val draftProcessService: DraftProcessService) {
+class DraftProcessController(
+    private val draftCharacterRevealService: DraftCharacterRevealService,
+    private val draftActionService: DraftActionService,
+) {
     @PostMapping("/characters")
     @RequireUserInMatch(expectedThat = true)
     fun revealCharacters(
         @AuthenticationPrincipal user: User,
         @RequestBody @Valid characters: List<DraftCharacterDTO>,
-    ): MatchDraftDTO = draftProcessService.revealCharacters(user, characters).toDTO()
+    ): MatchDraftDTO = draftCharacterRevealService.revealCharacters(user, characters).toDTO()
 
     @PostMapping("")
     @RequireUserInMatch(expectedThat = true)
     fun performDraftAction(
         @AuthenticationPrincipal user: User,
         @RequestBody @Valid request: PerformDraftActionRequest,
-    ): MatchDraftDTO = draftProcessService.performDraftAction(user, request.characterName).toDTO()
+    ): MatchDraftDTO = draftActionService.performDraftAction(user, request.characterName).toDTO()
 }

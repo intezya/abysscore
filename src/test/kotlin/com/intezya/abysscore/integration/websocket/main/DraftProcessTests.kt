@@ -24,8 +24,8 @@ class DraftProcessTests : BaseApiTest() {
         val characters1 = DraftCharactersFixtures.createDraftCharacters(4) // Random.nextInt() (can cause exception)
         val characters2 = DraftCharactersFixtures.createDraftCharacters(4) // Random.nextInt()
 
-        draftProcessService.revealCharacters(player1.first, characters1)
-        draftProcessService.revealCharacters(player2.first, characters2)
+        draftCharacterRevealService.revealCharacters(player1.first, characters1)
+        draftCharacterRevealService.revealCharacters(player2.first, characters2)
 
         // TODO: add test that forbid any action (that not reveal) if players not ready
 
@@ -45,7 +45,7 @@ class DraftProcessTests : BaseApiTest() {
             // TODO: test case when 1playerCharacters.size < draft schema size
             val randomCharacter = availableCharacters.random()
 
-            draftProcessService.performDraftAction(
+            draftActionService.performDraftAction(
                 user = currentStepPlayer,
                 characterName = randomCharacter.name,
             )
