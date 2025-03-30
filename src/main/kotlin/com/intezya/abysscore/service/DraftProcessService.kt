@@ -37,7 +37,7 @@ class DraftProcessService(
         val match = validateMatchStatus(user, MatchStatus.PENDING, "Match is not in reveal characters stage")
         val draft = match.draft
 
-        if (hasPlayerAlreadyRevealedCharacters(match, user, draft)) {
+        if (match.hasPlayerAlreadyRevealedCharacters(user)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You have already revealed your characters")
         }
 
@@ -47,8 +47,7 @@ class DraftProcessService(
         registerPlayerCharacters(draft, playerInfo, characters)
         logDraftAction(draft, playerInfo.player, DraftActionType.REVEAL_CHARACTERS)
 
-        if (areBothPlayersReady(draft)) {
-            // TODO: rm player ready; use if player characters size != 0
+        if (draft.bothPlayersReady()) {
             advanceToDraftingState(match, draft)
         }
 
@@ -86,17 +85,6 @@ class DraftProcessService(
         )
 
         expiredDrafts.forEach { handleExpiredDraft(it) }
-    }
-
-    // TODO: move to draft methods
-    private fun hasPlayerAlreadyRevealedCharacters(match: Match, user: User, draft: MatchDraft): Boolean {
-        return (match.player1.id == user.id && draft.player1AvailableCharacters.isNotEmpty()) ||
-            (match.player2.id == user.id && draft.player2AvailableCharacters.isNotEmpty())
-    }
-
-    // TODO: move to draft methods
-    private fun areBothPlayersReady(draft: MatchDraft): Boolean {
-        return draft.isPlayer1Ready && draft.isPlayer2Ready
     }
 
     private fun registerPlayerCharacters(
@@ -348,12 +336,6 @@ class DraftProcessService(
     }
 
     private data class PlayerInfo(val player: User, val isPlayer1: Boolean)
-
-    //        CHARACTERS_REVEALED,
-    //        CHARACTER_PICKED,
-    //        CHARACTER_BANNED,
-    //        AUTO_SELECTION,
-    //        DRAFT_COMPLETED,
 
     private data class MatchDraftWithDraftAction(
         val draft: MatchDraft,

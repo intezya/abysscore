@@ -156,7 +156,7 @@ class MatchDraft {
 
     fun isCurrentStepPick(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.isPick == true
 
-    fun isCurrentStepBan(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.isPick == false
+    fun bothPlayersReady() = this.isPlayer1Ready && this.isPlayer2Ready
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

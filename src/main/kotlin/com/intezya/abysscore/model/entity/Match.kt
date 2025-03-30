@@ -67,6 +67,11 @@ class Match {
 
     fun getOpponent(user: User): User = if (user.id == player1.id) player2 else player1
 
+    fun hasPlayerAlreadyRevealedCharacters(user: User): Boolean {
+        return (this.player1.id == user.id && this.draft.player1AvailableCharacters.isNotEmpty()) ||
+            (this.player2.id == user.id && this.draft.player2AvailableCharacters.isNotEmpty())
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Match) return false
