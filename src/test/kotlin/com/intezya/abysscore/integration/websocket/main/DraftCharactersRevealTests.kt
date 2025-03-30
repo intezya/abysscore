@@ -5,7 +5,6 @@ import com.intezya.abysscore.integration.controller.BaseApiTest
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.message.websocket.Messages
 import com.intezya.abysscore.model.message.websocket.draftprocess.CharactersRevealMessage
-import com.intezya.abysscore.service.DraftProcessService
 import com.intezya.abysscore.utils.fixtures.DraftCharactersFixtures
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -14,8 +13,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 
 class DraftCharactersRevealTests : BaseApiTest() {
-    @Autowired
-    private lateinit var draftProcessService: DraftProcessService
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper

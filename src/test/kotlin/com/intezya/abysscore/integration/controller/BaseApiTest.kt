@@ -16,6 +16,7 @@ import com.intezya.abysscore.repository.*
 import com.intezya.abysscore.security.dto.AuthRequest
 import com.intezya.abysscore.security.utils.JwtUtils
 import com.intezya.abysscore.security.utils.PasswordUtils
+import com.intezya.abysscore.service.DraftProcessService
 import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.service.UserService
 import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
@@ -55,6 +56,8 @@ typealias JwtToken = String
 @Import(TestPostgresConfiguration::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseApiTest {
+    @Autowired
+    protected lateinit var draftProcessService: DraftProcessService
 
     @Autowired
     protected lateinit var matchMakingService: MatchMakingService
