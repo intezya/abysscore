@@ -1,6 +1,8 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.enum.TimeoutResult
+import com.intezya.abysscore.event.matchprocess.MatchTimeoutEvent
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.Match
 import com.intezya.abysscore.model.entity.MatchRoomResult
@@ -10,6 +12,7 @@ import com.intezya.abysscore.repository.MatchRepository
 import com.intezya.abysscore.repository.RoomResultRepository
 import com.intezya.abysscore.repository.RoomRetryRepository
 import org.apache.commons.logging.LogFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
@@ -30,6 +33,7 @@ class MatchProcessService(
     private val roomResultRepository: RoomResultRepository,
     private val roomRetryRepository: RoomRetryRepository,
     private val matchRepository: MatchRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
 
@@ -99,6 +103,7 @@ class MatchProcessService(
     ) {
         val player1 = match.player1
         val player2 = match.player2
+
         val player1LastResult = playerResults[player1] ?: match.startedAt
         val player2LastResult = playerResults[player2] ?: match.startedAt
 
@@ -116,10 +121,22 @@ class MatchProcessService(
                 handleBothPlayersTimeout(match, player1Inactivity, player2Inactivity)
 
             player1Inactivity > timeoutThreshold ->
-                assignTechnicalDefeat(match, player1, "Timeout exceeded")
+                assignTechnicalDefeat(
+                    match,
+                    player1,
+                    "Timeout exceeded",
+                    player1Inactivity,
+                    player2Inactivity,
+                )
 
             player2Inactivity > timeoutThreshold ->
-                assignTechnicalDefeat(match, player2, "Timeout exceeded")
+                assignTechnicalDefeat(
+                    match,
+                    player2,
+                    "Timeout exceeded",
+                    player1Inactivity,
+                    player2Inactivity,
+                )
         }
     }
 
@@ -140,13 +157,35 @@ class MatchProcessService(
     private fun handleBothPlayersTimeout(match: Match, player1Inactivity: Duration, player2Inactivity: Duration) {
         when {
             player1Inactivity < player2Inactivity ->
-                assignTechnicalDefeat(match, match.player2, "Longer inactivity compared to opponent")
+                assignTechnicalDefeat(
+                    match,
+                    match.player2,
+                    "Longer inactivity compared to opponent",
+                    player1Inactivity,
+                    player2Inactivity,
+                )
 
             player2Inactivity < player1Inactivity ->
-                assignTechnicalDefeat(match, match.player1, "Longer inactivity compared to opponent")
+                assignTechnicalDefeat(
+                    match,
+                    match.player1,
+                    "Longer inactivity compared to opponent",
+                    player1Inactivity,
+                    player2Inactivity,
+                )
 
             else -> declareMatchAsDraw(match)
         }
+
+        eventPublisher.publishEvent(
+            MatchTimeoutEvent(
+                this,
+                match,
+                TimeoutResult.BOTH_TIMEOUT,
+                player1Inactivity,
+                player2Inactivity,
+            ),
+        )
     }
 
     private fun declareMatchAsDraw(match: Match) {
@@ -160,7 +199,13 @@ class MatchProcessService(
         notifyPlayersAboutDraw(match)
     }
 
-    private fun assignTechnicalDefeat(match: Match, timeoutPlayer: User, reason: String) {
+    private fun assignTechnicalDefeat(
+        match: Match,
+        timeoutPlayer: User,
+        reason: String,
+        player1Inactivity: Duration,
+        player2Inactivity: Duration,
+    ) {
         val winner = if (timeoutPlayer == match.player1) match.player2 else match.player1
 
         endMatch(
@@ -173,6 +218,18 @@ class MatchProcessService(
         logger.info("Technical defeat assigned to player ${timeoutPlayer.id} in match ${match.id} due to $reason")
         notifyPlayerAboutTechnicalDefeat(match, timeoutPlayer, reason)
         notifyPlayerAboutTechnicalWin(match, winner)
+
+
+
+        eventPublisher.publishEvent(
+            MatchTimeoutEvent(
+                this,
+                match,
+                if (timeoutPlayer == match.player1) TimeoutResult.PLAYER1_TIMEOUT else TimeoutResult.PLAYER2_TIMEOUT,
+                player1Inactivity,
+                player2Inactivity,
+            ),
+        )
     }
 
     private fun endMatch(match: Match, status: MatchStatus, winner: User?, reason: String) {

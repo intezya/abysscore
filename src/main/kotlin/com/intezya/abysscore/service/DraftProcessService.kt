@@ -6,10 +6,7 @@ import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.event.draftprocess.CharactersRevealEvent
 import com.intezya.abysscore.event.draftprocess.DraftActionPerformEvent
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
-import com.intezya.abysscore.model.entity.DraftAction
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.MatchDraft
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.*
 import com.intezya.abysscore.repository.DraftActionRepository
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.repository.MatchRepository
@@ -22,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 import java.time.LocalDateTime
+
 
 @Service
 @Transactional
@@ -39,11 +37,7 @@ class DraftProcessService(
         val match = validateMatchStatus(user, MatchStatus.PENDING, "Match is not in reveal characters stage")
         val draft = match.draft
 
-        if (match.player1.id == user.id &&
-            draft.player1AvailableCharacters.isNotEmpty() ||
-            match.player2.id == user.id &&
-            draft.player2AvailableCharacters.isNotEmpty()
-        ) {
+        if (hasPlayerAlreadyRevealedCharacters(match, user, draft)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You have already revealed your characters")
         }
 
@@ -51,10 +45,9 @@ class DraftProcessService(
         val playerInfo = getPlayerInfo(match, user.id)
 
         registerPlayerCharacters(draft, playerInfo, characters)
-
         logDraftAction(draft, playerInfo.player, DraftActionType.REVEAL_CHARACTERS)
 
-        if (draft.isPlayer1Ready && draft.isPlayer2Ready) {
+        if (areBothPlayersReady(draft)) {
             // TODO: rm player ready; use if player characters size != 0
             advanceToDraftingState(match, draft)
         }
@@ -73,8 +66,7 @@ class DraftProcessService(
         val playerInfo = getPlayerInfo(match, user.id)
         validateUserTurn(draft, playerInfo.isPlayer1)
 
-        val isPick = draft.isCurrentStepPick()
-        val result = if (isPick) {
+        val result = if (draft.isCurrentStepPick()) {
             pickCharacter(draft, playerInfo, characterName)
         } else {
             banCharacter(draft, playerInfo, characterName)
@@ -94,6 +86,17 @@ class DraftProcessService(
         )
 
         expiredDrafts.forEach { handleExpiredDraft(it) }
+    }
+
+    // TODO: move to draft methods
+    private fun hasPlayerAlreadyRevealedCharacters(match: Match, user: User, draft: MatchDraft): Boolean {
+        return (match.player1.id == user.id && draft.player1AvailableCharacters.isNotEmpty()) ||
+            (match.player2.id == user.id && draft.player2AvailableCharacters.isNotEmpty())
+    }
+
+    // TODO: move to draft methods
+    private fun areBothPlayersReady(draft: MatchDraft): Boolean {
+        return draft.isPlayer1Ready && draft.isPlayer2Ready
     }
 
     private fun registerPlayerCharacters(
@@ -147,7 +150,7 @@ class DraftProcessService(
         val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
         val opponentPool = if (isPlayer1) draft.player2AvailableCharacters else draft.player1AvailableCharacters
 
-        if (!opponentPool.any { it.name == characterName }) {
+        if (!isCharacterAvailableForBanning(opponentPool, characterName)) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character not available for banning",
@@ -170,6 +173,13 @@ class DraftProcessService(
         return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
     }
 
+    private fun isCharacterAvailableForBanning(
+        characterPool: Collection<DraftCharacter>,
+        characterName: String,
+    ): Boolean {
+        return characterPool.any { it.name == characterName }
+    }
+
     private fun pickCharacter(
         draft: MatchDraft,
         playerInfo: PlayerInfo,
@@ -181,7 +191,7 @@ class DraftProcessService(
         val userCharacters = if (isPlayer1) draft.player1Characters else draft.player2Characters
         val opponentCharacters = if (isPlayer1) draft.player2Characters else draft.player1Characters
 
-        if (!userPool.any { it.name == characterName } || opponentCharacters.contains(characterName)) {
+        if (!isCharacterAvailableForPicking(userPool, opponentCharacters, characterName)) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character '$characterName' is not available for picking",
@@ -203,6 +213,14 @@ class DraftProcessService(
         return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
     }
 
+    private fun isCharacterAvailableForPicking(
+        userPool: Collection<DraftCharacter>,
+        opponentCharacters: Collection<String>,
+        characterName: String,
+    ): Boolean {
+        return userPool.any { it.name == characterName } && !opponentCharacters.contains(characterName)
+    }
+
     private fun handleExpiredDraft(draft: MatchDraft) {
         logger.info("Processing expired draft: ${draft.id}")
 
@@ -212,15 +230,20 @@ class DraftProcessService(
             else -> {}
         }
 
-        if (draft.currentStepIndex >= draft.draftActions.size) {
+        if (isDraftCompleted(draft)) {
             completeDraft(draft)
         }
     }
 
+    private fun isDraftCompleted(draft: MatchDraft): Boolean {
+        return draft.currentStepIndex >= draft.draftActions.size
+    }
+
     private fun handleExpiredCharacterReveal(draft: MatchDraft) {
+        // TODO: don't update players statistics
         matchProcessService.checkPlayerTimeouts(
             draft.match,
-            Duration.ofMinutes(1),
+            timeoutThreshold = Duration.ofSeconds(TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS),
             playerResults = mapOf(
                 draft.match.player1 to draft.currentStateStartTime,
                 draft.match.player2 to draft.currentStateStartTime,
@@ -237,31 +260,39 @@ class DraftProcessService(
         }
 
         if (availablePool.isNotEmpty()) {
-            val randomCharacter = availablePool.random()
-            val player = if (isPlayer1Turn) draft.match.player1 else draft.match.player2
-            val playerInfo = PlayerInfo(player, isPlayer1Turn)
-
-            if (draft.isCurrentStepPick()) {
-                pickCharacter(draft, playerInfo, randomCharacter.name)
-            } else {
-                banCharacter(draft, playerInfo, randomCharacter.name)
-            }
-
-            val action = if (draft.isCurrentStepPick()) "picked" else "banned"
-            logger.info("Auto-$action character ${randomCharacter.name} for timeout in draft ${draft.id}")
-
-//       TODO:     notifyBothPlayers(draft, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
+            performAutomaticDraftAction(draft, isPlayer1Turn, availablePool)
         } else {
             draft.moveToNextStep()
             matchDraftRepository.save(draft)
         }
     }
 
+    private fun performAutomaticDraftAction(
+        draft: MatchDraft,
+        isPlayer1Turn: Boolean,
+        availablePool: Set<DraftCharacter>,
+    ) {
+        val randomCharacter = availablePool.random()
+        val player = if (isPlayer1Turn) draft.match.player1 else draft.match.player2
+        val playerInfo = PlayerInfo(player, isPlayer1Turn)
+
+        if (draft.isCurrentStepPick()) {
+            pickCharacter(draft, playerInfo, randomCharacter.name)
+        } else {
+            banCharacter(draft, playerInfo, randomCharacter.name)
+        }
+
+        val action = if (draft.isCurrentStepPick()) "picked" else "banned"
+        logger.info("Auto-$action character ${randomCharacter.name} for timeout in draft ${draft.id}")
+
+        // TODO: notifyBothPlayers(draft, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
+    }
+
     private fun completeDraft(draft: MatchDraft) {
         draft.currentState = DraftState.COMPLETED
         matchDraftRepository.save(draft)
 
-//       TODO: notifyBothPlayers(draft, DraftNotificationType.DRAFT_COMPLETED)
+        // TODO: notifyBothPlayers(draft, DraftNotificationType.DRAFT_COMPLETED)
     }
 
     private fun validateMatchStatus(user: User, expectedStatus: MatchStatus, errorMessage: String): Match {
@@ -318,11 +349,11 @@ class DraftProcessService(
 
     private data class PlayerInfo(val player: User, val isPlayer1: Boolean)
 
-//        CHARACTERS_REVEALED,
-//        CHARACTER_PICKED,
-//        CHARACTER_BANNED,
-//        AUTO_SELECTION,
-//        DRAFT_COMPLETED,
+    //        CHARACTERS_REVEALED,
+    //        CHARACTER_PICKED,
+    //        CHARACTER_BANNED,
+    //        AUTO_SELECTION,
+    //        DRAFT_COMPLETED,
 
     private data class MatchDraftWithDraftAction(
         val draft: MatchDraft,

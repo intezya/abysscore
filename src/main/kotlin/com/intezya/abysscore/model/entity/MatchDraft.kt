@@ -17,6 +17,10 @@ val DEFAULT_DRAFT_SCHEMA = listOf(
     DraftStep(firstPlayer = false, isPick = true),
 )
 
+
+const val TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS = 60L
+const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 45L
+
 @Entity
 @Table(name = "match_drafts")
 class MatchDraft {
@@ -132,12 +136,8 @@ class MatchDraft {
 
     fun calculateDeadline(): LocalDateTime {
         val baseTimeout = when (currentState) {
-            DraftState.CHARACTER_REVEAL -> 60
-            DraftState.DRAFTING -> {
-                val currentStep = getCurrentStep()
-                if (currentStep?.isPick == true) 45 else 30
-            }
-
+            DraftState.CHARACTER_REVEAL -> TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS
+            DraftState.DRAFTING -> TIME_FOR_PERFORM_ACTION_IN_SECONDS
             else -> 60
         }
 

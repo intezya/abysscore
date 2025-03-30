@@ -9,6 +9,7 @@ import com.intezya.abysscore.model.message.websocket.matchinvites.MatchInviteAcc
 import com.intezya.abysscore.model.message.websocket.matchinvites.MatchInviteReceivedMessage
 import com.intezya.abysscore.model.message.websocket.matchinvites.MatchInviteRejectedMessage
 import com.intezya.abysscore.model.message.websocket.matchmaking.MatchCreatedMessage
+import com.intezya.abysscore.model.message.websocket.matchprocess.MatchTimeoutMessage
 import com.intezya.abysscore.model.message.websocket.useractions.UserLoggedInMessage
 import com.intezya.abysscore.model.message.websocket.useractions.UserLoggedOutMessage
 import com.intezya.abysscore.service.interfaces.WebsocketMessageBroker
@@ -87,4 +88,36 @@ class WebsocketNotificationService(
 
         mainWebsocketMessageService.sendToUser(opponentId, message)
     }
+
+    fun sendTimeoutDefeat(playerId: Long, matchId: Long) {
+        val message = MatchTimeoutMessage(
+            matchId = matchId,
+            result = "defeat",
+            reason = "Timeout exceeded",
+        )
+
+        mainWebsocketMessageService.sendToUser(playerId, message)
+    }
+
+    fun sendTimeoutVictory(playerId: Long, matchId: Long) {
+        val message = MatchTimeoutMessage(
+            matchId = matchId,
+            result = "victory",
+            reason = "Opponent timeout",
+        )
+
+        mainWebsocketMessageService.sendToUser(playerId, message)
+    }
+
+    fun sendTimeoutDraw(player1Id: Long, player2Id: Long, matchId: Long) {
+        val message = MatchTimeoutMessage(
+            matchId = matchId,
+            result = "draw",
+            reason = "Both players timeout",
+        )
+
+        mainWebsocketMessageService.sendToUser(player1Id, message)
+        mainWebsocketMessageService.sendToUser(player2Id, message)
+    }
+
 }
