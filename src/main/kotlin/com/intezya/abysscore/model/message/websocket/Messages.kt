@@ -7,4 +7,5 @@ object Messages {
     const val MATCH_INVITE_RECEIVED = "Match invite received"
     const val MATCH_CREATED = "Match created"
     const val DRAFT_CHARACTERS_REVEAL = "Opponent revealed characters"
+    const val DRAFT_ACTION_PERFORMED = "Opponent performed draft action"
 }

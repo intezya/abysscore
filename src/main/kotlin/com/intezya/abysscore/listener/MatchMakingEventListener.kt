@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class MatchMakingEventListener(private val websocketNotificationService: WebsocketNotificationService) {
+    // TODO: test notifications
     @EventListener
     fun matchCreated(event: MatchCreatedEvent) {
         websocketNotificationService.matchCreated(

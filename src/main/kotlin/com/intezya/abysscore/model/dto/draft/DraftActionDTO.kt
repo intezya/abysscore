@@ -6,8 +6,7 @@ import com.intezya.abysscore.model.dto.user.toSimpleView
 import com.intezya.abysscore.model.entity.DraftAction
 import java.time.LocalDateTime
 
-class DraftActionDTO(
-    val id: Long = 0L,
+data class DraftActionDTO(
     val user: UserSimpleViewDTO,
     val actionType: DraftActionType,
     val characterName: String?,
@@ -15,7 +14,6 @@ class DraftActionDTO(
     val isTimeoutAction: Boolean,
 ) {
     constructor(draftAction: DraftAction) : this(
-        id = draftAction.id,
         user = draftAction.user.toSimpleView(),
         actionType = draftAction.actionType,
         characterName = draftAction.characterName,

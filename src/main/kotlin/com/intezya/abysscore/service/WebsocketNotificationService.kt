@@ -1,8 +1,10 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.model.dto.draft.DraftActionDTO
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.message.websocket.draftprocess.CharactersRevealMessage
+import com.intezya.abysscore.model.message.websocket.draftprocess.DraftActionPerformMessage
 import com.intezya.abysscore.model.message.websocket.matchinvites.MatchInviteAcceptedMessage
 import com.intezya.abysscore.model.message.websocket.matchinvites.MatchInviteReceivedMessage
 import com.intezya.abysscore.model.message.websocket.matchinvites.MatchInviteRejectedMessage
@@ -76,6 +78,12 @@ class WebsocketNotificationService(
 
     fun charactersRevealed(opponentId: Long, characters: List<DraftCharacterDTO>) {
         val message = CharactersRevealMessage(characters = characters)
+
+        mainWebsocketMessageService.sendToUser(opponentId, message)
+    }
+
+    fun draftActionPerform(opponentId: Long, draftAction: DraftActionDTO) {
+        val message = DraftActionPerformMessage(action = draftAction)
 
         mainWebsocketMessageService.sendToUser(opponentId, message)
     }

@@ -4,6 +4,7 @@ import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.event.draftprocess.CharactersRevealEvent
+import com.intezya.abysscore.event.draftprocess.DraftActionPerformEvent
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.entity.DraftAction
 import com.intezya.abysscore.model.entity.Match
@@ -33,6 +34,7 @@ class DraftProcessService(
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
 
+    // TODO: unit tests
     fun revealCharacters(user: User, characters: List<DraftCharacterDTO>): MatchDraft {
         val match = validateMatchStatus(user, MatchStatus.PENDING, "Match is not in reveal characters stage")
         val draft = match.draft
@@ -53,15 +55,16 @@ class DraftProcessService(
         logDraftAction(draft, playerInfo.player, DraftActionType.REVEAL_CHARACTERS)
 
         if (draft.isPlayer1Ready && draft.isPlayer2Ready) {
+            // TODO: rm player ready; use if player characters size != 0
             advanceToDraftingState(match, draft)
         }
 
         eventPublisher.publishEvent(CharactersRevealEvent(this, match, user, characters))
-//        notifyOpponent(draft, playerInfo.isPlayer1, DraftNotificationType.CHARACTERS_REVEALED)
 
         return matchDraftRepository.save(draft)
     }
 
+    // TODO: unit tests
     fun performDraftAction(user: User, characterName: String): MatchDraft {
         val match = validateMatchStatus(user, MatchStatus.DRAFTING, "Match is not in drafting stage")
         val draft = match.draft
@@ -77,15 +80,9 @@ class DraftProcessService(
             banCharacter(draft, playerInfo, characterName)
         }
 
-        if (isPick) {
-            DraftNotificationType.CHARACTER_PICKED
-        } else {
-            DraftNotificationType.CHARACTER_BANNED
-        }
+        eventPublisher.publishEvent(DraftActionPerformEvent(this, user, match, result.draftAction))
 
-//        notifyOpponent(draft, playerInfo.isPlayer1, notificationType, characterName)
-
-        return result
+        return result.draft
     }
 
     @Scheduled(fixedRate = 1000)
@@ -140,7 +137,11 @@ class DraftProcessService(
         advanceDraftToDraftingState(draft)
     }
 
-    private fun banCharacter(draft: MatchDraft, playerInfo: PlayerInfo, characterName: String): MatchDraft {
+    private fun banCharacter(
+        draft: MatchDraft,
+        playerInfo: PlayerInfo,
+        characterName: String,
+    ): MatchDraftWithDraftAction {
         val isPlayer1 = playerInfo.isPlayer1
 
         val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
@@ -157,7 +158,7 @@ class DraftProcessService(
         userPool.removeIf { it.name == characterName }
         draft.bannedCharacters.add(characterName)
 
-        logDraftAction(
+        val draftAction = logDraftAction(
             draft = draft,
             player = playerInfo.player,
             actionType = DraftActionType.BAN_CHARACTER,
@@ -166,10 +167,14 @@ class DraftProcessService(
 
         draft.moveToNextStep()
 
-        return matchDraftRepository.save(draft)
+        return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
     }
 
-    private fun pickCharacter(draft: MatchDraft, playerInfo: PlayerInfo, characterName: String): MatchDraft {
+    private fun pickCharacter(
+        draft: MatchDraft,
+        playerInfo: PlayerInfo,
+        characterName: String,
+    ): MatchDraftWithDraftAction {
         val isPlayer1 = playerInfo.isPlayer1
 
         val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
@@ -186,7 +191,7 @@ class DraftProcessService(
         userCharacters.add(characterName)
         userPool.removeIf { it.name == characterName }
 
-        logDraftAction(
+        val draftAction = logDraftAction(
             draft = draft,
             player = playerInfo.player,
             actionType = DraftActionType.PICK_CHARACTER,
@@ -195,7 +200,7 @@ class DraftProcessService(
 
         draft.moveToNextStep()
 
-        return matchDraftRepository.save(draft)
+        return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
     }
 
     private fun handleExpiredDraft(draft: MatchDraft) {
@@ -245,7 +250,7 @@ class DraftProcessService(
             val action = if (draft.isCurrentStepPick()) "picked" else "banned"
             logger.info("Auto-$action character ${randomCharacter.name} for timeout in draft ${draft.id}")
 
-            notifyBothPlayers(draft, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
+//       TODO:     notifyBothPlayers(draft, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
         } else {
             draft.moveToNextStep()
             matchDraftRepository.save(draft)
@@ -256,16 +261,7 @@ class DraftProcessService(
         draft.currentState = DraftState.COMPLETED
         matchDraftRepository.save(draft)
 
-        notifyBothPlayers(draft, DraftNotificationType.DRAFT_COMPLETED)
-    }
-
-    private fun notifyBothPlayers(
-        draft: MatchDraft,
-        notificationType: DraftNotificationType,
-        characterName: String? = null,
-    ) {
-//        notifyOpponent(draft, true, notificationType, characterName)
-//        notifyOpponent(draft, false, notificationType, characterName)
+//       TODO: notifyBothPlayers(draft, DraftNotificationType.DRAFT_COMPLETED)
     }
 
     private fun validateMatchStatus(user: User, expectedStatus: MatchStatus, errorMessage: String): Match {
@@ -322,20 +318,14 @@ class DraftProcessService(
 
     private data class PlayerInfo(val player: User, val isPlayer1: Boolean)
 
-    private data class DraftNotification(
-        val draftId: Long,
-        val type: DraftNotificationType,
-        val characterName: String?,
-        val currentState: DraftState,
-        val currentStepIndex: Int,
-        val deadline: LocalDateTime,
-    )
+//        CHARACTERS_REVEALED,
+//        CHARACTER_PICKED,
+//        CHARACTER_BANNED,
+//        AUTO_SELECTION,
+//        DRAFT_COMPLETED,
 
-    private enum class DraftNotificationType {
-        CHARACTERS_REVEALED,
-        CHARACTER_PICKED,
-        CHARACTER_BANNED,
-        AUTO_SELECTION,
-        DRAFT_COMPLETED,
-    }
+    private data class MatchDraftWithDraftAction(
+        val draft: MatchDraft,
+        val draftAction: DraftAction,
+    )
 }
