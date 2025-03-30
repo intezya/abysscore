@@ -57,7 +57,7 @@ typealias JwtToken = String
 abstract class BaseApiTest {
 
     @Autowired
-    private lateinit var matchMakingService: MatchMakingService
+    protected lateinit var matchMakingService: MatchMakingService
 
     @Autowired
     protected lateinit var jwtUtils: JwtUtils
@@ -89,6 +89,9 @@ abstract class BaseApiTest {
     @Autowired
     protected lateinit var eventPublisher: ApplicationEventPublisher
 
+    @Autowired
+    private lateinit var draftActionRepository: DraftActionRepository
+
     private val f: Faker = faker {}
 
     @LocalServerPort
@@ -116,9 +119,11 @@ abstract class BaseApiTest {
         val transactionTemplate = TransactionTemplate(transactionManager)
 
         transactionTemplate.execute {
+            entityManager.createNativeQuery("TRUNCATE draft_actions CASCADE").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentMatch = NULL").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentBadge = NULL").executeUpdate()
 
+            draftActionRepository.deleteAll()
             matchDraftRepository.deleteAll()
             matchRepository.deleteAll()
             userRepository.deleteAll()
@@ -141,6 +146,7 @@ abstract class BaseApiTest {
         }
         userRepository.save(user)
         val statistic = UserGlobalStatistic().apply { this.user = user }
+        user.globalStatistic = statistic
         userGlobalStatisticRepository.save(statistic)
         return Pair(user, jwtUtils.generateToken(user))
     }

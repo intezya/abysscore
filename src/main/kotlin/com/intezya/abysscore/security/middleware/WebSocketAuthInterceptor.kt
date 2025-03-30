@@ -8,11 +8,13 @@ import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
 import org.springframework.http.server.ServletServerHttpResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.HandshakeInterceptor
 
 const val USER_AUTHORIZATION = "user_authorization"
 
+@Component
 class WebSocketAuthInterceptor(
     private val jwtAuthenticationService: JwtAuthenticationService,
     private val objectMapper: ObjectMapper,

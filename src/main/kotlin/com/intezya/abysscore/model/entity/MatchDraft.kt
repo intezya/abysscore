@@ -52,7 +52,7 @@ class MatchDraft {
     @Column(columnDefinition = "TEXT")
     var draftSchemaJson: String = "[]"
 
-    @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     val draftActions: MutableList<DraftAction> = mutableListOf()
 
     @ElementCollection(fetch = FetchType.EAGER)

@@ -2,8 +2,8 @@ package com.intezya.abysscore.model.message.websocket.matchinvites
 
 import com.intezya.abysscore.model.message.websocket.Messages
 
-data class MatchInviteAcceptedEvent(
+data class MatchInviteReceivedMessage(
     val inviteId: Long,
-    val inviteeUsername: String,
-    val message: String = Messages.MATCH_INVITE_ACCEPTED,
+    val inviterUsername: String,
+    val message: String = Messages.MATCH_INVITE_RECEIVED,
 )
