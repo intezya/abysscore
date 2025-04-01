@@ -66,8 +66,8 @@ kafka:
     servers: ${KAFKA_HOST:localhost:9092}
 
 minio:
-  secret_key: ${MINIO_SECRET_KEY}
-  access_key: ${MINIO_ACCESS_KEY}
+  secret_key: ${MINIO_SECRET_KEY:CHANGEME}
+  access_key: ${MINIO_ACCESS_KEY:CHANGEME}
   url: http://${MINIO_HOST:localhost}:${MINIO_PORT:9000}
 
 abysscore:

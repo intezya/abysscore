@@ -1,6 +1,6 @@
 package com.intezya.abysscore.controller
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.service.storage.AvatarStorageService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -14,7 +14,7 @@ class UserAvatarController(private val avatarStorageService: AvatarStorageServic
     @GetMapping("/me/avatar")
     fun getMyAvatar(@AuthenticationPrincipal contextUser: User): ResponseEntity<InputStream> {
         val result = avatarStorageService.getFile(contextUser)
-        result ?: return ResponseEntity.noContent().build<InputStream>()
+        result ?: return ResponseEntity.noContent().build()
         return ResponseEntity.ok(result)
     }
 

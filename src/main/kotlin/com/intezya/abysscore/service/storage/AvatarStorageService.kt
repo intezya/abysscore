@@ -1,7 +1,7 @@
 package com.intezya.abysscore.service.storage
 
 import com.intezya.abysscore.enum.MinioBucket
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.service.UserService
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
