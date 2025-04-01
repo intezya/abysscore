@@ -35,6 +35,9 @@ class User : UserDetails {
     @Convert(converter = AccessLevelConverter::class)
     var accessLevel: AccessLevel = AccessLevel.USER
 
+    @Column(nullable = true, updatable = true)
+    var avatarUrl: String? = null
+
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf()
 

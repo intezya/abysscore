@@ -75,6 +75,11 @@ class UserService(
         return userRepository.save(user)
     }
 
+    fun setAvatarUrl(user: User, avatarUrl: String): User {
+        user.avatarUrl = avatarUrl
+        return userRepository.save(user)
+    }
+
     private fun createUserNotFoundException() = ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
 
     private fun handleUserCreationError(e: Exception): Nothing {
