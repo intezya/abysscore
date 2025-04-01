@@ -1,5 +1,6 @@
 package com.intezya.abysscore.listener
 
+import com.intezya.abysscore.event.draftprocess.AutomaticDraftActionPerformEvent
 import com.intezya.abysscore.event.draftprocess.CharactersRevealEvent
 import com.intezya.abysscore.event.draftprocess.DraftActionPerformEvent
 import com.intezya.abysscore.model.dto.draft.toDTO
@@ -27,5 +28,11 @@ class DraftProcessEventListener(private val websocketNotificationService: Websoc
             opponentId = opponent.id,
             draftAction = event.action.toDTO(),
         )
+    }
+
+    @EventListener
+    fun onAutomaticDraftActionPerform(event: AutomaticDraftActionPerformEvent) {
+        websocketNotificationService.automaticDraftActionPerform(event.match.player1.id, event.action.toDTO())
+        websocketNotificationService.automaticDraftActionPerform(event.match.player2.id, event.action.toDTO())
     }
 }

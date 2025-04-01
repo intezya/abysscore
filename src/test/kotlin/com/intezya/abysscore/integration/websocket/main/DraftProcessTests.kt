@@ -91,5 +91,4 @@ class DraftProcessTests : BaseApiTest() {
             assertTrue(foundNotification)
         }
     }
-
 }

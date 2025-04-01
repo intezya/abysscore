@@ -219,8 +219,6 @@ class MatchProcessService(
         notifyPlayerAboutTechnicalDefeat(match, timeoutPlayer, reason)
         notifyPlayerAboutTechnicalWin(match, winner)
 
-
-
         eventPublisher.publishEvent(
             MatchTimeoutEvent(
                 this,

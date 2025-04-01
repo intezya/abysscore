@@ -18,7 +18,6 @@ val DEFAULT_DRAFT_SCHEMA = listOf(
     DraftStep(firstPlayer = false, isPick = true),
 )
 
-
 const val TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS = 60L
 const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 45L
 

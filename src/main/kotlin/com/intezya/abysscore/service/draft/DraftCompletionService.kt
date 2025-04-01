@@ -9,9 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class DraftCompletionService(
-    private val matchDraftRepository: MatchDraftRepository,
-) {
+class DraftCompletionService(private val matchDraftRepository: MatchDraftRepository) {
     private val logger = LogFactory.getLog(this.javaClass)
 
     fun completeDraft(draft: MatchDraft) {

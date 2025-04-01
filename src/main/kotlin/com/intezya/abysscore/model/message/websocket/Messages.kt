@@ -8,4 +8,5 @@ object Messages {
     const val MATCH_CREATED = "Match created"
     const val DRAFT_CHARACTERS_REVEAL = "Opponent revealed characters"
     const val DRAFT_ACTION_PERFORMED = "Opponent performed draft action"
+    const val DRAFT_AUTOMATIC_ACTION_PERFORMED = "Opponent performed automatic draft action caused by timeout"
 }

@@ -89,6 +89,12 @@ class WebsocketNotificationService(
         mainWebsocketMessageService.sendToUser(opponentId, message)
     }
 
+    fun automaticDraftActionPerform(playerId: Long, draftAction: DraftActionDTO) {
+        val message = DraftActionPerformMessage(action = draftAction)
+
+        mainWebsocketMessageService.sendToUser(playerId, message)
+    }
+
     fun sendTimeoutDefeat(playerId: Long, matchId: Long) {
         val message = MatchTimeoutMessage(
             matchId = matchId,
@@ -119,5 +125,4 @@ class WebsocketNotificationService(
         mainWebsocketMessageService.sendToUser(player1Id, message)
         mainWebsocketMessageService.sendToUser(player2Id, message)
     }
-
 }

@@ -7,9 +7,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 @Component
-class MatchProcessEventListener(
-    private val websocketNotificationService: WebsocketNotificationService,
-) {
+class MatchProcessEventListener(private val websocketNotificationService: WebsocketNotificationService) {
     @EventListener
     fun onMatchTimeout(event: MatchTimeoutEvent) {
         val player1 = event.match.player1

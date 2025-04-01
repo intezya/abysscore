@@ -11,7 +11,6 @@ import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.repository.MatchRepository
-
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -69,8 +68,6 @@ class DraftCharacterRevealService(
             draft.player2AvailableCharacters.addAll(characterEntities)
             draft.isPlayer2Ready = true
         }
-
-        // TODO: add saved characters logging for statistics and analysis
     }
 
     private fun advanceToDraftingState(match: Match, draft: MatchDraft) {

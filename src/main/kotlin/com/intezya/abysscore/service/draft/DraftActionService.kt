@@ -98,9 +98,7 @@ class DraftActionService(
     private fun isCharacterAvailableForBanning(
         characterPool: Collection<DraftCharacter>,
         characterName: String,
-    ): Boolean {
-        return characterPool.any { it.name == characterName }
-    }
+    ): Boolean = characterPool.any { it.name == characterName }
 
     internal fun pickCharacter(
         draft: MatchDraft,
@@ -139,7 +137,5 @@ class DraftActionService(
         userPool: Collection<DraftCharacter>,
         opponentCharacters: Collection<String>,
         characterName: String,
-    ): Boolean {
-        return userPool.any { it.name == characterName } && !opponentCharacters.contains(characterName)
-    }
+    ): Boolean = userPool.any { it.name == characterName } && !opponentCharacters.contains(characterName)
 }
