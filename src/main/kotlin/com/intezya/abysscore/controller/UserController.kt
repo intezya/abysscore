@@ -1,4 +1,4 @@
-package com.intezya.abysscore.controller.crud
+package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.enum.AccessLevel
 import com.intezya.abysscore.model.dto.user.UpdateMatchInvitesRequest
