@@ -18,6 +18,7 @@ data class UserDTO(
     val currentMatch: MatchDTO?,
     val globalStatistic: UserGlobalStatisticDTO,
     val currentBadge: UserItemDTO?,
+    val avatarUrl: String?,
 ) {
     constructor(user: User) : this(
         id = user.id,
@@ -28,6 +29,7 @@ data class UserDTO(
         currentMatch = user.currentMatch?.toDTO(),
         globalStatistic = user.globalStatistic.toDTO(),
         currentBadge = user.currentBadge?.toDTO(),
+        avatarUrl = user.avatarUrl,
     )
 }
 
