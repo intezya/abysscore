@@ -31,6 +31,7 @@ class DraftProcessTests : BaseApiTest() {
 
         val draft = match.draft
 
+        // TODO: test completion system; test match, draft status
         while (draft.getCurrentStep() != null) {
             val currentStep = draft.getCurrentStep()
             val currentStepPlayer = if (currentStep!!.firstPlayer) player1.first else player2.first
