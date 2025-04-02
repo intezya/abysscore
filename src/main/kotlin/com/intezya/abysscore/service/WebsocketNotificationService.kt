@@ -5,6 +5,7 @@ import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.message.websocket.draft.process.CharactersRevealMessage
 import com.intezya.abysscore.model.message.websocket.draft.process.DraftActionPerformMessage
+import com.intezya.abysscore.model.message.websocket.draft.process.DraftEndMessage
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteAcceptedMessage
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteReceivedMessage
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteRejectedMessage
@@ -124,5 +125,23 @@ class WebsocketNotificationService(
 
         mainWebsocketMessageService.sendToUser(player1Id, message)
         mainWebsocketMessageService.sendToUser(player2Id, message)
+    }
+
+    fun draftEnd(
+        player1Id: Long,
+        player2Id: Long,
+        player1Characters: List<DraftCharacterDTO>,
+        player2Characters: List<DraftCharacterDTO>,
+    ) {
+        val message = DraftEndMessage(
+            player1Characters = player1Characters,
+            player2Characters = player2Characters,
+        )
+
+        draftWebsocketMessageService.sendToUser(player1Id, message)
+        draftWebsocketMessageService.sendToUser(player2Id, message)
+        mainWebsocketMessageService.sendToUser(player1Id, message)
+        mainWebsocketMessageService.sendToUser(player2Id, message)
+
     }
 }

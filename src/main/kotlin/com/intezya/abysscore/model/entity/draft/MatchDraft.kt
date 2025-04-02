@@ -71,6 +71,7 @@ class MatchDraft {
     @CollectionTable(name = "draft_player2_characters", joinColumns = [JoinColumn(name = "draft_id")])
     var player2Characters: MutableSet<String> = mutableSetOf()
 
+    // TODO: use immutable set
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "draft_player1_available_characters",
@@ -79,6 +80,7 @@ class MatchDraft {
     )
     val player1AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
 
+    // TODO: use immutable set
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "draft_player2_available_characters",

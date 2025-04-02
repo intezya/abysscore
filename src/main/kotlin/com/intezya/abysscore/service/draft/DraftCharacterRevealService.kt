@@ -61,6 +61,7 @@ class DraftCharacterRevealService(
     ) {
         val characterEntities = characters.map { it.toEntity() }
 
+        // TODO: work with ready
         if (playerInfo.isPlayer1) {
             draft.player1AvailableCharacters.addAll(characterEntities)
             draft.isPlayer1Ready = true
