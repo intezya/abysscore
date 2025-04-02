@@ -1,4 +1,4 @@
-package com.intezya.abysscore.integration.controller
+package com.intezya.abysscore.integration
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.intezya.abysscore.constants.BEARER_PREFIX
@@ -20,6 +20,7 @@ import com.intezya.abysscore.service.MatchMakingService
 import com.intezya.abysscore.service.UserService
 import com.intezya.abysscore.service.draft.DraftActionService
 import com.intezya.abysscore.service.draft.DraftCharacterRevealService
+import com.intezya.abysscore.utils.containers.TestMinioConfiguration
 import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
 import com.intezya.abysscore.utils.fixtures.UserFixtures
 import com.intezya.abysscore.utils.providers.RandomProvider
@@ -54,7 +55,7 @@ typealias JwtToken = String
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Import(TestPostgresConfiguration::class)
+@Import(TestPostgresConfiguration::class, TestMinioConfiguration::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseApiTest {
     @Autowired

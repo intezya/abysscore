@@ -1,6 +1,7 @@
 package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.http.ContentType
@@ -39,7 +40,7 @@ class UserControllerIntegrationTest : BaseApiTest() {
         @Test
         fun `shouldn't get user info with invalid token`() {
             val token = jwtUtils.generateToken(user = User())
-            val username = jwtUtils.extractUsername(token)
+            jwtUtils.extractUsername(token)
 
             authenticatedRequest(token)
                 .When {

@@ -1,7 +1,7 @@
 package com.intezya.abysscore.integration.websocket.main
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.integration.controller.BaseApiTest
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.message.websocket.Messages
 import com.intezya.abysscore.model.message.websocket.draft.process.CharactersRevealMessage

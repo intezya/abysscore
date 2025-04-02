@@ -1,7 +1,7 @@
 package com.intezya.abysscore.integration.websocket.main
 
 import com.intezya.abysscore.event.matchinvite.InviteReceivedEvent
-import com.intezya.abysscore.integration.controller.BaseApiTest
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.model.message.websocket.Messages
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture

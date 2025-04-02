@@ -1,5 +1,6 @@
 package com.intezya.abysscore.integration.controller
 
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.module.kotlin.extensions.Extract

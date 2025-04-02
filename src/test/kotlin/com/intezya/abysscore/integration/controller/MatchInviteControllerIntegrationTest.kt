@@ -1,6 +1,7 @@
 package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.constants.MATCH_INVITES_ENDPOINT
+import com.intezya.abysscore.integration.BaseApiTest
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers
