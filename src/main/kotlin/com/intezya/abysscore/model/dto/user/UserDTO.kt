@@ -6,7 +6,7 @@ import com.intezya.abysscore.model.dto.statistic.UserGlobalStatisticDTO
 import com.intezya.abysscore.model.dto.statistic.toDTO
 import com.intezya.abysscore.model.dto.useritem.UserItemDTO
 import com.intezya.abysscore.model.dto.useritem.toDTO
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import java.time.LocalDateTime
 
 data class UserDTO(
@@ -18,6 +18,7 @@ data class UserDTO(
     val currentMatch: MatchDTO?,
     val globalStatistic: UserGlobalStatisticDTO,
     val currentBadge: UserItemDTO?,
+    val avatarUrl: String?,
 ) {
     constructor(user: User) : this(
         id = user.id,
@@ -28,6 +29,7 @@ data class UserDTO(
         currentMatch = user.currentMatch?.toDTO(),
         globalStatistic = user.globalStatistic.toDTO(),
         currentBadge = user.currentBadge?.toDTO(),
+        avatarUrl = user.avatarUrl,
     )
 }
 

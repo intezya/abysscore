@@ -1,7 +1,7 @@
 package com.intezya.abysscore.unit.aspect.security.interceptor
 
 import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.annotations.RequiresAccessLevel
 import com.intezya.abysscore.security.interceptor.AccessLevelInterceptor
 import io.mockk.every

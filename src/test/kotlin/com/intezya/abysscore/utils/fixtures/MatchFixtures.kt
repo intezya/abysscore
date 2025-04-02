@@ -1,7 +1,7 @@
 package com.intezya.abysscore.utils.fixtures
 
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.user.User
 
 object MatchFixtures {
     fun createDefaultMatch(

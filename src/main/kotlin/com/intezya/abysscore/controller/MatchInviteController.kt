@@ -6,7 +6,7 @@ import com.intezya.abysscore.model.dto.match.toDTO
 import com.intezya.abysscore.model.dto.matchinvite.CreateMatchInviteRequest
 import com.intezya.abysscore.model.dto.matchinvite.MatchInviteDTO
 import com.intezya.abysscore.model.dto.matchinvite.toDTO
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.service.MatchInviteService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus

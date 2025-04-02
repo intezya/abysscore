@@ -1,6 +1,6 @@
 package com.intezya.abysscore.unit.aspect.security.service
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.UserRepository
 import com.intezya.abysscore.security.service.CustomUserDetailsService
 import com.intezya.abysscore.security.utils.PasswordUtils

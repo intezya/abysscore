@@ -1,6 +1,6 @@
 package com.intezya.abysscore.utils.fixtures
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import java.util.*
 
 object UserFixtures {

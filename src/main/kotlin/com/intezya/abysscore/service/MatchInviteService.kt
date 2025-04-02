@@ -3,9 +3,9 @@ package com.intezya.abysscore.service
 import com.intezya.abysscore.event.matchinvite.InviteAcceptedEvent
 import com.intezya.abysscore.event.matchinvite.InviteReceivedEvent
 import com.intezya.abysscore.event.matchinvite.InviteRejectedEvent
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.MatchInvite
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.match.matchmaking.MatchInvite
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchInviteRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher

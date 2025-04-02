@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intezya.abysscore.event.useraction.UserConnectedEvent
 import com.intezya.abysscore.event.useraction.UserDisconnectedEvent
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.model.message.websocket.WebsocketDisconnectMessageBase
 import com.intezya.abysscore.security.middleware.USER_AUTHORIZATION
 import com.intezya.abysscore.service.interfaces.WebsocketMessageBroker

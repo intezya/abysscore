@@ -1,9 +1,9 @@
 package com.intezya.abysscore.repository
 
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.MatchRoomResult
-import com.intezya.abysscore.model.entity.MatchRoomRetry
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.match.MatchRoomResult
+import com.intezya.abysscore.model.entity.match.MatchRoomRetry
+import com.intezya.abysscore.model.entity.user.User
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface RoomResultRepository : JpaRepository<MatchRoomResult, Long> {

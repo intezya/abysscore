@@ -1,6 +1,7 @@
 package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.AccessLevel
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Extract

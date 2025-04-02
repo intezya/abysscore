@@ -1,9 +1,9 @@
 package com.intezya.abysscore.utils.fixtures
 
 import com.intezya.abysscore.model.dto.draft.DraftStep
-import com.intezya.abysscore.model.entity.Match
-import com.intezya.abysscore.model.entity.MatchDraft
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.draft.MatchDraft
+import com.intezya.abysscore.model.entity.match.Match
+import com.intezya.abysscore.model.entity.user.User
 import kotlin.random.Random
 
 object MatchDraftFixtures {

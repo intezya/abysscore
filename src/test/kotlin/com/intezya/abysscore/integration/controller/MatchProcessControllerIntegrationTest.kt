@@ -1,6 +1,7 @@
 package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.utils.fixtures.MatchFixtures
 import io.restassured.module.kotlin.extensions.Then

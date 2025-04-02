@@ -2,9 +2,10 @@ package com.intezya.abysscore.integration.controller
 
 import com.intezya.abysscore.constants.ACCOUNT_INVENTORY_ENDPOINT
 import com.intezya.abysscore.enum.AccessLevel
-import com.intezya.abysscore.model.entity.GameItem
-import com.intezya.abysscore.model.entity.User
-import com.intezya.abysscore.model.entity.UserItem
+import com.intezya.abysscore.integration.BaseApiTest
+import com.intezya.abysscore.model.entity.item.GameItem
+import com.intezya.abysscore.model.entity.item.UserItem
+import com.intezya.abysscore.model.entity.user.User
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.CoreMatchers
@@ -67,7 +68,7 @@ class UserItemControllerIntegratonTest : BaseApiTest() {
     inner class GetUserInventory {
         @Test
         fun `should return other user's inventory when caller has VIEW_INVENTORY access`() {
-            val (admin, adminToken) = generateUserWithToken(AccessLevel.VIEW_INVENTORY)
+            val (_, adminToken) = generateUserWithToken(AccessLevel.VIEW_INVENTORY)
             val (user, _) = generateUserWithToken()
             val gameItem = createGameItem()
             createUserItem(user, gameItem)
@@ -100,7 +101,7 @@ class UserItemControllerIntegratonTest : BaseApiTest() {
     inner class CreateUserItem {
         @Test
         fun `should create item for user when caller has GIVE_ITEM access`() {
-            val (admin, adminToken) = generateUserWithToken(AccessLevel.GIVE_ITEM)
+            val (_, adminToken) = generateUserWithToken(AccessLevel.GIVE_ITEM)
             val (user, _) = generateUserWithToken()
             val gameItem = createGameItem()
 
@@ -131,7 +132,7 @@ class UserItemControllerIntegratonTest : BaseApiTest() {
 
         @Test
         fun `should return NOT_FOUND when trying to create item with non-existent game item id`() {
-            val (admin, adminToken) = generateUserWithToken(AccessLevel.GIVE_ITEM)
+            val (_, adminToken) = generateUserWithToken(AccessLevel.GIVE_ITEM)
             val (user, _) = generateUserWithToken()
             val nonExistentItemId = 9999L
 
@@ -146,7 +147,7 @@ class UserItemControllerIntegratonTest : BaseApiTest() {
 
         @Test
         fun `should return NOT_FOUND when trying to create item for non-existent user`() {
-            val (admin, adminToken) = generateUserWithToken(AccessLevel.GIVE_ITEM)
+            val (_, adminToken) = generateUserWithToken(AccessLevel.GIVE_ITEM)
             val gameItem = createGameItem()
             val nonExistentUserId = 9999L
 

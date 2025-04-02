@@ -1,6 +1,6 @@
 package com.intezya.abysscore.integration.websocket.main
 
-import com.intezya.abysscore.integration.controller.BaseApiTest
+import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.utils.fixtures.UserFixtures
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import org.junit.jupiter.api.assertThrows

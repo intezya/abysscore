@@ -4,7 +4,7 @@ import com.intezya.abysscore.controller.annotations.RequireUserInMatch
 import com.intezya.abysscore.model.dto.match.MatchDTO
 import com.intezya.abysscore.model.dto.match.toDTO
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.service.MatchProcessService
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal

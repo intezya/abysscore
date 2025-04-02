@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.implementation
-
 plugins {
     val kotlinVersion = "2.1.10"
 
@@ -129,6 +127,9 @@ dependencies {
 
     // Development tools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    // minio
+    implementation("io.minio:minio:8.5.17")
 }
 
 ktlint {

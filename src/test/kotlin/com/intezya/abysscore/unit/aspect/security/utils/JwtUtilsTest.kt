@@ -1,6 +1,6 @@
 package com.intezya.abysscore.unit.aspect.security.utils
 
-import com.intezya.abysscore.model.entity.User
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.utils.JwtUtils
 import io.mockk.every
 import io.mockk.mockk
