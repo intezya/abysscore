@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
-class DraftCharacterRevealServiceTest {
+class DraftCharacterRevealServiceTests {
     private val matchDraftRepository = mockk<MatchDraftRepository>(relaxed = true)
     private val draftValidationService = mockk<DraftValidationService>()
     private val matchRepository = mockk<MatchRepository>(relaxed = true)

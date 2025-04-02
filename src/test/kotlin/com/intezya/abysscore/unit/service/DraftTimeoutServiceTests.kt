@@ -14,7 +14,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.context.ApplicationEventPublisher
 
-class DraftTimeoutServiceTest {
+class DraftTimeoutServiceTests {
     private val matchDraftRepository = mockk<MatchDraftRepository>(relaxed = true)
     private val draftActionService = mockk<DraftActionService>()
     private val matchProcessService = mockk<MatchProcessService>()
