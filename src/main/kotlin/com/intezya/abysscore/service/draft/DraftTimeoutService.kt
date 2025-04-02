@@ -97,7 +97,9 @@ class DraftTimeoutService(
             draftActionService.banCharacter(draft, playerInfo, randomCharacter.name)
         }
 
-        logger.info("Auto-${action.draftAction.actionType} character ${randomCharacter.name} for timeout in draft ${draft.id}")
+        logger.info(
+            "Auto-${action.draftAction.actionType} character ${randomCharacter.name} for timeout in draft ${draft.id}",
+        )
 
         applicationEventPublisher.publishEvent(
             AutomaticDraftActionPerformEvent(

@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.context.ApplicationEventPublisher
-import kotlin.test.Test
 
 class DraftTimeoutServiceTest {
     private val matchDraftRepository = mockk<MatchDraftRepository>(relaxed = true)
@@ -49,10 +48,9 @@ class DraftTimeoutServiceTest {
     }
 
     // TODO: add check statistic call when added
-    @Test
-    fun `must cancel match if timeout`() {
-        every { draft.timeout } returns 1L
-        every { draftActionService.logDraftAction(any(), any(), any(), any()) } returns mockk()
-    }
-
+//    @Test
+//    fun `must cancel match if timeout`() {
+//        every { draft.timeout } returns 1L
+//        every { draftActionService.logDraftAction(any(), any(), any(), any()) } returns mockk()
+//    }
 }
