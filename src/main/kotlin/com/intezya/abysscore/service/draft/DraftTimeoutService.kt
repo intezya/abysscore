@@ -47,12 +47,10 @@ class DraftTimeoutService(
             else -> {}
         }
 
-        if (isDraftCompleted(draft)) {
+        if (draft.isCompleted()) {
             draftCompletionService.completeDraft(draft)
         }
     }
-
-    private fun isDraftCompleted(draft: MatchDraft): Boolean = draft.currentStepIndex >= draft.draftActions.size
 
     private fun handleExpiredCharacterReveal(draft: MatchDraft) {
         // TODO: don't update players statistics

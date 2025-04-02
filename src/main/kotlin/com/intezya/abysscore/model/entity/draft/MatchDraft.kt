@@ -109,6 +109,7 @@ class MatchDraft {
         currentStateDeadline = calculateDeadline()
     }
 
+    // TODO: think about often deserialization
     fun getDraftSteps(): List<DraftStep> = try {
         objectMapper.readValue(draftSchemaJson, object : TypeReference<List<DraftStep>>() {})
     } catch (e: Exception) {
@@ -159,6 +160,8 @@ class MatchDraft {
     fun isCurrentStepPick(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.isPick == true
 
     fun bothPlayersReady() = this.isPlayer1Ready && this.isPlayer2Ready
+
+    fun isCompleted() = this.currentStepIndex >= this.getDraftSteps().size
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

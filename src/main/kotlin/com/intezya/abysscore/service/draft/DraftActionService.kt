@@ -25,6 +25,7 @@ class DraftActionService(
     private val draftActionRepository: DraftActionRepository,
     private val draftValidationService: DraftValidationService,
     private val eventPublisher: ApplicationEventPublisher,
+    private val draftCompletionService: DraftCompletionService,
 ) {
     fun performDraftAction(user: User, characterName: String): MatchDraft {
         val match =
@@ -42,6 +43,10 @@ class DraftActionService(
         }
 
         eventPublisher.publishEvent(DraftActionPerformEvent(this, user, match, result.draftAction))
+
+        if (draft.isCompleted()) {
+            draftCompletionService.completeDraft(draft)
+        }
 
         return result.draft
     }
