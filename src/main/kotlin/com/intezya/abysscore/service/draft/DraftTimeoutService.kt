@@ -1,6 +1,7 @@
 package com.intezya.abysscore.service.draft
 
 import com.intezya.abysscore.enum.DraftState
+import com.intezya.abysscore.event.draftprocess.AutomaticDraftActionPerformEvent
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.DraftCharacter
 import com.intezya.abysscore.model.entity.draft.MatchDraft
@@ -8,6 +9,7 @@ import com.intezya.abysscore.model.entity.draft.TIME_FOR_CHARACTERS_REVEAL_IN_SE
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.service.MatchProcessService
 import org.apache.commons.logging.LogFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +23,7 @@ class DraftTimeoutService(
     private val draftActionService: DraftActionService,
     private val matchProcessService: MatchProcessService,
     private val draftCompletionService: DraftCompletionService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
 
@@ -88,15 +91,21 @@ class DraftTimeoutService(
         val player = if (isPlayer1Turn) draft.match.player1 else draft.match.player2
         val playerInfo = PlayerInfo(player, isPlayer1Turn)
 
-        if (draft.isCurrentStepPick()) {
+        val action = if (draft.isCurrentStepPick()) {
             draftActionService.pickCharacter(draft, playerInfo, randomCharacter.name)
         } else {
             draftActionService.banCharacter(draft, playerInfo, randomCharacter.name)
         }
 
-        val action = if (draft.isCurrentStepPick()) "picked" else "banned"
-        logger.info("Auto-$action character ${randomCharacter.name} for timeout in draft ${draft.id}")
+        logger.info("Auto-${action.draftAction.actionType} character ${randomCharacter.name} for timeout in draft ${draft.id}")
 
-        // TODO: notifyBothPlayers(draft, DraftNotificationType.AUTO_SELECTION, randomCharacter.name)
+        applicationEventPublisher.publishEvent(
+            AutomaticDraftActionPerformEvent(
+                this,
+                player = player,
+                match = draft.match,
+                action = action.draftAction,
+            ),
+        )
     }
 }

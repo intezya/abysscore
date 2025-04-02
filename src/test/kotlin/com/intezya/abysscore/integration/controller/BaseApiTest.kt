@@ -111,6 +111,7 @@ abstract class BaseApiTest {
     private lateinit var transactionManager: PlatformTransactionManager
 
     protected var mainWebsocketUrl = ""
+    protected var draftWebsocketUrl = ""
 
     @BeforeEach
     fun setUp() {
@@ -122,6 +123,7 @@ abstract class BaseApiTest {
         )
 
         mainWebsocketUrl = "ws://localhost:$port/hubs/main"
+        draftWebsocketUrl = "ws://localhost:$port/hubs/draft"
 
         val transactionTemplate = TransactionTemplate(transactionManager)
 

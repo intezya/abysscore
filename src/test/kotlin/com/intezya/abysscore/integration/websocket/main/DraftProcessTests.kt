@@ -16,8 +16,8 @@ class DraftProcessTests : BaseApiTest() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()
 
-        val player1Session = WebSocketFixture.getSession(player1.second, mainWebsocketUrl)
-        val player2Session = WebSocketFixture.getSession(player2.second, mainWebsocketUrl)
+        val player1Session = WebSocketFixture.getSession(player1.second, draftWebsocketUrl)
+        val player2Session = WebSocketFixture.getSession(player2.second, draftWebsocketUrl)
 
         val match = matchMakingService.createMatch(player1.first, player2.first)
 

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 class WebsocketNotificationService(
     @Qualifier("mainWebSocketMessageService") private val mainWebsocketMessageService: WebsocketMessageBroker<Long>,
 //    private val matchWebsocketMessageService: WebsocketMessageBroker<Long>,
-//    private val draftWebsocketMessageService: WebsocketMessageBroker<Long>,
+    @Qualifier("draftWebSocketMessageService") private val draftWebsocketMessageService: WebsocketMessageBroker<Long>,
 ) {
 
     fun userLoggedIn(userId: Long, username: String) {
@@ -86,13 +86,13 @@ class WebsocketNotificationService(
     fun draftActionPerform(opponentId: Long, draftAction: DraftActionDTO) {
         val message = DraftActionPerformMessage(action = draftAction)
 
-        mainWebsocketMessageService.sendToUser(opponentId, message)
+        draftWebsocketMessageService.sendToUser(opponentId, message)
     }
 
     fun automaticDraftActionPerform(playerId: Long, draftAction: DraftActionDTO) {
         val message = DraftActionPerformMessage(action = draftAction)
 
-        mainWebsocketMessageService.sendToUser(playerId, message)
+        draftWebsocketMessageService.sendToUser(playerId, message)
     }
 
     fun sendTimeoutDefeat(playerId: Long, matchId: Long) {
