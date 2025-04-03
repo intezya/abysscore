@@ -5,26 +5,26 @@ import java.util.*
 
 @Entity
 @Table(name = "draft_characters")
-class DraftCharacter {
+class DraftCharacter(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long
+    var id: Long = 0L,
 
     @Column(nullable = false)
-    val name: String
+    val name: String,
 
     @Column(nullable = false)
-    val element: String
+    val element: String,
 
     @Column(nullable = false)
-    val level: Int
+    val level: Int,
 
     @Column(nullable = false)
-    val rarity: Int
+    val rarity: Int,
 
     @Column(nullable = false)
-    val constellations: Int
-
+    val constellations: Int,
+) {
     constructor() : this(
         id = 0L,
         name = "",
@@ -33,22 +33,6 @@ class DraftCharacter {
         rarity = 0,
         constellations = 0,
     )
-
-    constructor(
-        id: Long = 0L,
-        name: String,
-        element: String,
-        level: Int,
-        rarity: Int,
-        constellations: Int,
-    ) {
-        this.id = id
-        this.name = name
-        this.element = element
-        this.level = level
-        this.rarity = rarity
-        this.constellations = constellations
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

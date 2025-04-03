@@ -14,19 +14,19 @@ import java.util.*
 
 @Entity
 @Table(name = "users")
-class User : UserDetails {
+class User(
+    @Column(unique = true)
+    private val username: String = "",
+
+    @Column(nullable = false)
+    private val password: String = "",
+
+    @Column(unique = true)
+    var hwid: String? = null,
+) : UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
-
-    @Column(unique = true)
-    private val username: String
-
-    @Column(nullable = false)
-    private val password: String
-
-    @Column(unique = true)
-    var hwid: String?
 
     @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
@@ -41,10 +41,10 @@ class User : UserDetails {
     @Column(nullable = true, updatable = true)
     var avatarUrl: String? = null
 
+    var receiveMatchInvites: Boolean = false
+
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf()
-
-    var receiveMatchInvites: Boolean = false
 
     @OneToMany(mappedBy = "inviter", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     val sentInvites: MutableSet<MatchInvite> = mutableSetOf()
@@ -62,22 +62,6 @@ class User : UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     lateinit var globalStatistic: UserGlobalStatistic
-
-    constructor() : this(
-        username = "",
-        password = "",
-        hwid = "",
-    )
-
-    constructor(
-        username: String,
-        password: String,
-        hwid: String?,
-    ) {
-        this.username = username
-        this.password = password
-        this.hwid = hwid
-    }
 
     @PreUpdate
     fun onUpdate() {
@@ -97,10 +81,16 @@ class User : UserDetails {
 
     override fun hashCode(): Int = Objects.hash(id, username)
 
-    override fun toString(): String = this::class.simpleName +
-        "(id = $id , username = $username , password = $password , hwid = $hwid , createdAt = $createdAt , updatedAt = $updatedAt , accessLevel = $accessLevel , receiveMatchInvites = $receiveMatchInvites )"
+    override fun toString(): String = buildString {
+        append(this@User::class.simpleName)
+        append("(id=$id, username=$username, hwid=$hwid, ")
+        append("createdAt=$createdAt, updatedAt=$updatedAt, ")
+        append("accessLevel=$accessLevel, receiveMatchInvites=$receiveMatchInvites)")
+    }
 
-    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_USER"))
+    // UserDetails implementation
+    override fun getAuthorities(): Collection<GrantedAuthority> =
+        listOf(SimpleGrantedAuthority("ROLE_${accessLevel.name}"))
 
     override fun getPassword(): String = password
 

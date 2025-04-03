@@ -5,7 +5,6 @@ import com.intezya.abysscore.event.draftprocess.AutomaticDraftActionPerformEvent
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.DraftCharacter
 import com.intezya.abysscore.model.entity.draft.MatchDraft
-import com.intezya.abysscore.model.entity.draft.TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.service.MatchProcessService
 import org.apache.commons.logging.LogFactory
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.LocalDateTime
+
+private const val DRAFT_CHECK_TIMEOUT_RATE_MS = 1000L
 
 @Service
 @Transactional
@@ -27,7 +28,7 @@ class DraftTimeoutService(
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = DRAFT_CHECK_TIMEOUT_RATE_MS)
     fun checkTimeouts() {
         val now = LocalDateTime.now()
         val expiredDrafts = matchDraftRepository.findByCurrentStateNotAndCurrentStateDeadlineBefore(
@@ -56,7 +57,7 @@ class DraftTimeoutService(
         // TODO: don't update players statistics
         matchProcessService.checkPlayerTimeouts(
             draft.match,
-            timeoutThreshold = Duration.ofSeconds(TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS),
+            timeoutThreshold = Duration.ofSeconds(DRAFT_CHECK_TIMEOUT_RATE_MS),
             playerResults = mapOf(
                 draft.match.player1 to draft.currentStateStartTime,
                 draft.match.player2 to draft.currentStateStartTime,

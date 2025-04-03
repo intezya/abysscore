@@ -8,9 +8,10 @@ import com.intezya.abysscore.model.dto.draft.DraftStep
 import com.intezya.abysscore.model.entity.match.Match
 import jakarta.persistence.*
 import java.time.LocalDateTime
-import kotlin.jvm.Transient
 
-// TODO
+const val TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS = 60L
+const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 45L
+
 val DEFAULT_DRAFT_SCHEMA = listOf(
     DraftStep(firstPlayer = true, isPick = false),
     DraftStep(firstPlayer = false, isPick = false),
@@ -18,12 +19,15 @@ val DEFAULT_DRAFT_SCHEMA = listOf(
     DraftStep(firstPlayer = false, isPick = true),
 )
 
-const val TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS = 60L
-const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 45L
-
 @Entity
 @Table(name = "match_drafts")
 class MatchDraft {
+    companion object {
+        private val OBJECT_MAPPER = ObjectMapper().apply {
+            registerModule(KotlinModule.Builder().build())
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
@@ -71,7 +75,6 @@ class MatchDraft {
     @CollectionTable(name = "draft_player2_characters", joinColumns = [JoinColumn(name = "draft_id")])
     var player2Characters: MutableSet<String> = mutableSetOf()
 
-    // TODO: use immutable set
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "draft_player1_available_characters",
@@ -80,7 +83,6 @@ class MatchDraft {
     )
     val player1AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
 
-    // TODO: use immutable set
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JoinTable(
         name = "draft_player2_available_characters",
@@ -96,11 +98,6 @@ class MatchDraft {
     @JoinColumn(name = "match_id", nullable = false)
     lateinit var match: Match
 
-    @Transient
-    private val objectMapper = ObjectMapper().apply {
-        registerModule(KotlinModule.Builder().build())
-    }
-
     constructor()
 
     @PrePersist
@@ -109,16 +106,21 @@ class MatchDraft {
         currentStateDeadline = calculateDeadline()
     }
 
-    // TODO: think about often deserialization
-    fun getDraftSteps(): List<DraftStep> = try {
-        objectMapper.readValue(draftSchemaJson, object : TypeReference<List<DraftStep>>() {})
+    @Transient
+    private var draftStepsCache: List<DraftStep>? = null
+
+    fun getDraftSteps(): List<DraftStep> = draftStepsCache ?: try {
+        val steps = OBJECT_MAPPER.readValue(draftSchemaJson, object : TypeReference<List<DraftStep>>() {})
+        draftStepsCache = steps
+        steps
     } catch (e: Exception) {
         e.printStackTrace()
-        DEFAULT_DRAFT_SCHEMA
+        DEFAULT_DRAFT_SCHEMA.also { draftStepsCache = it }
     }
 
     fun setDraftSteps(steps: List<DraftStep>) {
-        draftSchemaJson = objectMapper.writeValueAsString(steps)
+        draftSchemaJson = OBJECT_MAPPER.writeValueAsString(steps)
+        draftStepsCache = steps
     }
 
     fun getCurrentStep(): DraftStep? {
@@ -141,7 +143,7 @@ class MatchDraft {
         val baseTimeout = when (currentState) {
             DraftState.CHARACTER_REVEAL -> TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS
             DraftState.DRAFTING -> TIME_FOR_PERFORM_ACTION_IN_SECONDS
-            else -> 60
+            else -> 60L
         }
 
         val additionalTime = when {
@@ -150,7 +152,7 @@ class MatchDraft {
             else -> 0
         }
 
-        return LocalDateTime.now().plusSeconds((baseTimeout + additionalTime).toLong())
+        return LocalDateTime.now().plusSeconds(baseTimeout + additionalTime)
     }
 
     fun isCurrentTurnPlayer1(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.firstPlayer == true
@@ -159,9 +161,9 @@ class MatchDraft {
 
     fun isCurrentStepPick(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.isPick == true
 
-    fun bothPlayersReady() = this.isPlayer1Ready && this.isPlayer2Ready
+    fun bothPlayersReady(): Boolean = isPlayer1Ready && isPlayer2Ready
 
-    fun isCompleted() = this.currentStepIndex >= this.getDraftSteps().size
+    fun isCompleted(): Boolean = currentStepIndex >= getDraftSteps().size
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

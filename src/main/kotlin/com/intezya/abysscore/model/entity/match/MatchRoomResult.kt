@@ -10,30 +10,23 @@ import java.time.LocalDateTime
     uniqueConstraints = [
         UniqueConstraint(
             name = "uk_room_player_match_no_retry",
-            // You must check that migration index contains room_number
             columnNames = ["match_id", "player_id", "room_number"],
         ),
     ],
 )
-data class MatchRoomResult(
+class MatchRoomResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L,
+    val id: Long = 0L
 
     @Column(nullable = false)
-    val roomNumber: Int,
+    val roomNumber: Int
 
     @Column(nullable = false)
-    val time: Int,
+    val time: Int
 
     @Column(nullable = false)
-    val completedAt: LocalDateTime = LocalDateTime.now(),
-) {
-    constructor() : this(
-        id = 0L,
-        roomNumber = 0,
-        time = 0,
-    )
+    val completedAt: LocalDateTime = LocalDateTime.now()
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", nullable = false)
@@ -42,4 +35,24 @@ data class MatchRoomResult(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)
     lateinit var match: Match
+
+    constructor() : this(0, 0)
+
+    constructor(
+        roomNumber: Int,
+        time: Int,
+    ) {
+        this.roomNumber = roomNumber
+        this.time = time
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MatchRoomResult) return false
+        return id != 0L && id == other.id
+    }
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun toString(): String = "MatchRoomResult(id=$id, roomNumber=$roomNumber)"
 }

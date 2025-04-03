@@ -9,9 +9,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 
 class DraftCompletionServiceTests : BaseApiTest() {
-    @Test
     // TODO: need detailed test
     // TODO: simplify test flow
+    @Test
     fun `should notify draft websocket about draft end after all actions`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()
@@ -117,8 +117,8 @@ class DraftCompletionServiceTests : BaseApiTest() {
         assertTrue(foundEndNotificationPlayer2)
     }
 
-    @Test
     // TODO: simplify test flow
+    @Test
     fun `should notify main websocket about draft end after all actions`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()

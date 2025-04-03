@@ -39,8 +39,6 @@ class UserGlobalStatistic {
     @JoinColumn(name = "user_id")
     lateinit var user: User
 
-    constructor()
-
     @PreUpdate
     fun onUpdate() {
         updatedAt = LocalDateTime.now()
@@ -71,6 +69,13 @@ class UserGlobalStatistic {
         }
     }
 
-    override fun toString(): String = this::class.simpleName +
-        "(id = $id , matchesWon = $matchesWon , matchesLost = $matchesLost , matchesDraws = $matchesDraws , summaryTimeClear = $summaryTimeClear , xp = $xp , skill = $skill , createdAt = $createdAt , updatedAt = $updatedAt )"
+    override fun toString(): String = buildString {
+        append("UserGlobalStatistic(")
+        append("id=$id, ")
+        append("matches: won=$matchesWon, lost=$matchesLost, draws=$matchesDraws, ")
+        append("summaryTimeClear=$summaryTimeClear, ")
+        append("xp=$xp, skill=$skill, ")
+        append("createdAt=$createdAt, updatedAt=$updatedAt")
+        append(")")
+    }
 }

@@ -142,6 +142,5 @@ class WebsocketNotificationService(
         draftWebsocketMessageService.sendToUser(player2Id, message)
         mainWebsocketMessageService.sendToUser(player1Id, message)
         mainWebsocketMessageService.sendToUser(player2Id, message)
-
     }
 }
