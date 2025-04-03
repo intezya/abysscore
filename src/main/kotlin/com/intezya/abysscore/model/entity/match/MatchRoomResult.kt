@@ -11,7 +11,7 @@ import java.time.LocalDateTime
         UniqueConstraint(
             name = "uk_room_player_match_no_retry",
             // You must check that migration index contains room_number
-            columnNames = ["room_number", "player_id", "match_id"],
+            columnNames = ["match_id", "player_id", "room_number"],
         ),
     ],
 )
