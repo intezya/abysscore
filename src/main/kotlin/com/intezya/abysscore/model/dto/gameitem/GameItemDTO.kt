@@ -2,7 +2,13 @@ package com.intezya.abysscore.model.dto.gameitem
 
 import com.intezya.abysscore.model.entity.item.GameItem
 
-data class GameItemDTO(var id: Long, val name: String, val collection: String, val type: Int, val rarity: Int) {
+data class GameItemDTO(
+    val id: Long,
+    val name: String,
+    val collection: String,
+    val type: Int,
+    val rarity: Int,
+) {
     constructor(gameItem: GameItem) : this(
         id = gameItem.id,
         name = gameItem.name,
@@ -11,3 +17,5 @@ data class GameItemDTO(var id: Long, val name: String, val collection: String, v
         rarity = gameItem.rarity,
     )
 }
+
+fun GameItem.toDTO() = GameItemDTO(this)

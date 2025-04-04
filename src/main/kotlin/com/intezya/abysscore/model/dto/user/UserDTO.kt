@@ -4,8 +4,8 @@ import com.intezya.abysscore.model.dto.match.MatchDTO
 import com.intezya.abysscore.model.dto.match.toDTO
 import com.intezya.abysscore.model.dto.statistic.UserGlobalStatisticDTO
 import com.intezya.abysscore.model.dto.statistic.toDTO
-import com.intezya.abysscore.model.dto.useritem.UserItemDTO
-import com.intezya.abysscore.model.dto.useritem.toDTO
+import com.intezya.abysscore.model.dto.useritem.UserItemViewDTO
+import com.intezya.abysscore.model.dto.useritem.toViewDTO
 import com.intezya.abysscore.model.entity.user.User
 import java.time.LocalDateTime
 
@@ -13,22 +13,22 @@ data class UserDTO(
     val id: Long,
     val username: String,
     val createdAt: LocalDateTime,
-    val inventory: Set<UserItemDTO>,
+    val inventory: List<UserItemViewDTO>,
     val receiveMatchInvites: Boolean,
     val currentMatch: MatchDTO?,
     val globalStatistic: UserGlobalStatisticDTO,
-    val currentBadge: UserItemDTO?,
+    val currentBadge: UserItemViewDTO?,
     val avatarUrl: String?,
 ) {
     constructor(user: User) : this(
         id = user.id,
         username = user.username,
         createdAt = user.createdAt,
-        inventory = user.items.map { it.toDTO() }.toSet(),
+        inventory = user.items.map { it.toViewDTO() },
         receiveMatchInvites = user.receiveMatchInvites,
         currentMatch = user.currentMatch?.toDTO(),
         globalStatistic = user.globalStatistic.toDTO(),
-        currentBadge = user.currentBadge?.toDTO(),
+        currentBadge = user.currentBadge?.toViewDTO(),
         avatarUrl = user.avatarUrl,
     )
 }
