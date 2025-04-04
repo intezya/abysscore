@@ -1,11 +1,12 @@
 package com.intezya.abysscore.model.message.websocket
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.intezya.abysscore.utils.annotation.meta.InheritableMessageSubtype
+import com.intezya.abysscore.utils.annotation.meta.InheritableMessageType
 
 abstract class BaseWebsocketMessage {
-    @field:JsonProperty("message_type")
-    protected open val messageType = "match"
+    @field:InheritableMessageType
+    protected open val messageType = "type"
 
-    @field:JsonProperty("message_subtype")
-    protected open val messageSubtype = "invite"
+    @field:InheritableMessageSubtype
+    protected open val messageSubtype = "subtype"
 }
