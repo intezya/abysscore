@@ -17,11 +17,9 @@ object MatchFixtures {
         this.id = id
     }
 
-    fun createSubmitResult(
-        roomNumber: Int = Random.nextInt(1, 3),
-        time: Int = Random.nextInt(10, 100),
-    ) = SubmitRoomResultRequest(
-        roomNumber = roomNumber,
-        time = time,
-    )
+    fun createSubmitResult(roomNumber: Int = Random.nextInt(1, 3), time: Int = Random.nextInt(10, 100)) =
+        SubmitRoomResultRequest(
+            roomNumber = roomNumber,
+            time = time,
+        )
 }

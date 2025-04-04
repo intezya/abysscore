@@ -15,8 +15,8 @@ class MatchProcessTests : BaseApiTest() {
     @Autowired
     private lateinit var matchProcessService: MatchProcessService
 
-    @Test
     // TODO: test (not here) that match moved to next stage
+    @Test
     fun `should notify that opponent submitted his result`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()

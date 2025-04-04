@@ -2,8 +2,8 @@ package com.intezya.abysscore.service
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.intezya.abysscore.event.useraction.UserConnectedEvent
-import com.intezya.abysscore.event.useraction.UserDisconnectedEvent
+import com.intezya.abysscore.event.user.action.UserConnectedEvent
+import com.intezya.abysscore.event.user.action.UserDisconnectedEvent
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.model.message.websocket.WebsocketDisconnectMessageBase
 import com.intezya.abysscore.security.middleware.USER_AUTHORIZATION

@@ -1,6 +1,6 @@
 package com.intezya.abysscore.integration.websocket.main
 
-import com.intezya.abysscore.event.matchinvite.InviteAcceptedEvent
+import com.intezya.abysscore.event.match.invite.InviteAcceptedEvent
 import com.intezya.abysscore.integration.BaseApiTest
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.model.message.websocket.Messages

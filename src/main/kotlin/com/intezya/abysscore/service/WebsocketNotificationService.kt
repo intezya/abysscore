@@ -145,11 +145,7 @@ class WebsocketNotificationService(
         mainWebsocketMessageService.sendToUser(player2Id, message)
     }
 
-    fun sendSubmitResult(
-        opponentId: Long,
-        roomNumber: Int,
-        result: Int,
-    ) {
+    fun sendSubmitResult(opponentId: Long, roomNumber: Int, result: Int) {
         val message = SubmitRoomResultMessage(
             roomNumber = roomNumber,
             result = result,

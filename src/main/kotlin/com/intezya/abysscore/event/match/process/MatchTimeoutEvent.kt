@@ -1,4 +1,4 @@
-package com.intezya.abysscore.event.matchprocess
+package com.intezya.abysscore.event.match.process
 
 import com.intezya.abysscore.enum.TimeoutResult
 import com.intezya.abysscore.model.entity.match.Match

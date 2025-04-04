@@ -1,8 +1,8 @@
 package com.intezya.abysscore.listener
 
 import com.intezya.abysscore.enum.TimeoutResult
-import com.intezya.abysscore.event.matchprocess.MatchSubmitResultEvent
-import com.intezya.abysscore.event.matchprocess.MatchTimeoutEvent
+import com.intezya.abysscore.event.match.process.MatchSubmitResultEvent
+import com.intezya.abysscore.event.match.process.MatchTimeoutEvent
 import com.intezya.abysscore.service.WebsocketNotificationService
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component

@@ -2,8 +2,8 @@ package com.intezya.abysscore.service
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.enum.TimeoutResult
-import com.intezya.abysscore.event.matchprocess.MatchSubmitResultEvent
-import com.intezya.abysscore.event.matchprocess.MatchTimeoutEvent
+import com.intezya.abysscore.event.match.process.MatchSubmitResultEvent
+import com.intezya.abysscore.event.match.process.MatchTimeoutEvent
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.match.MatchRoomResult

@@ -2,13 +2,7 @@ package com.intezya.abysscore.model.dto.useritem
 
 import com.intezya.abysscore.model.entity.item.UserItem
 
-data class UserItemViewDTO(
-    var id: Long,
-    val name: String,
-    val collection: String,
-    val type: Int,
-    val rarity: Int,
-) {
+data class UserItemViewDTO(var id: Long, val name: String, val collection: String, val type: Int, val rarity: Int) {
     constructor(userItem: UserItemDTO) : this(
         id = userItem.id,
         name = userItem.gameItem.name,

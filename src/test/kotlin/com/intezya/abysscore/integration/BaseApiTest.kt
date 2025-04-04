@@ -268,10 +268,8 @@ abstract class BaseApiTest {
         return false
     }
 
-    protected fun checkNotification(
-        session: WebSocketFixture.ProvidedSession,
-        vararg contains: String,
-    ) = checkNotification(session, waitTimeoutSeconds = 1L, contains = contains)
+    protected fun checkNotification(session: WebSocketFixture.ProvidedSession, vararg contains: String) =
+        checkNotification(session, waitTimeoutSeconds = 1L, contains = contains)
 
     data class CreateMatchResult(val player1: User, val player2: User, val match: Match)
 }
