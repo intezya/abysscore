@@ -1,8 +1,8 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
-import com.intezya.abysscore.model.dto.match.MatchDTO
-import com.intezya.abysscore.model.dto.match.toDTO
+import com.intezya.abysscore.model.dto.match.CurrentMatchDTO
+import com.intezya.abysscore.model.dto.match.toCurrentMatchDTO
 import com.intezya.abysscore.model.dto.matchinvite.CreateMatchInviteRequest
 import com.intezya.abysscore.model.dto.matchinvite.MatchInviteDTO
 import com.intezya.abysscore.model.dto.matchinvite.toDTO
@@ -30,8 +30,8 @@ class MatchInviteController(private val matchInviteService: MatchInviteService) 
     @PostMapping("{inviteId}/accept")
     @RequireUserInMatch(expectedThat = false)
     @ResponseStatus(HttpStatus.OK)
-    fun acceptInvite(@PathVariable inviteId: Long, @AuthenticationPrincipal contextUser: User): MatchDTO =
-        matchInviteService.acceptInvite(contextUser.id, inviteId).toDTO()
+    fun acceptInvite(@PathVariable inviteId: Long, @AuthenticationPrincipal contextUser: User): CurrentMatchDTO =
+        matchInviteService.acceptInvite(contextUser.id, inviteId).toCurrentMatchDTO()
 
     @PostMapping("{inviteId}/decline")
     @ResponseStatus(HttpStatus.NO_CONTENT)

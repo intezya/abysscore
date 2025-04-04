@@ -1,8 +1,8 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
-import com.intezya.abysscore.model.dto.match.MatchDTO
-import com.intezya.abysscore.model.dto.match.toDTO
+import com.intezya.abysscore.model.dto.match.CurrentMatchDTO
+import com.intezya.abysscore.model.dto.match.toCurrentMatchDTO
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.service.MatchProcessService
@@ -21,12 +21,12 @@ class MatchProcessController(private val matchProcessService: MatchProcessServic
     fun submitRetry(
         @RequestBody @Valid request: SubmitRoomResultRequest,
         @AuthenticationPrincipal contextUser: User,
-    ): MatchDTO = matchProcessService.submitRetry(contextUser, request).toDTO()
+    ): CurrentMatchDTO = matchProcessService.submitRetry(contextUser, request).toCurrentMatchDTO()
 
     @PostMapping("/submit-result")
     @RequireUserInMatch(expectedThat = true)
     fun submitResult(
         @RequestBody @Valid request: SubmitRoomResultRequest,
         @AuthenticationPrincipal contextUser: User,
-    ): MatchDTO = matchProcessService.submitResult(contextUser, request).toDTO()
+    ): CurrentMatchDTO = matchProcessService.submitResult(contextUser, request).toCurrentMatchDTO()
 }

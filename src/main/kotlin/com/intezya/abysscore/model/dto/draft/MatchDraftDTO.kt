@@ -1,5 +1,6 @@
 package com.intezya.abysscore.model.dto.draft
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import java.time.LocalDateTime
@@ -13,6 +14,7 @@ data class MatchDraftDTO(
     val currentStateDeadline: LocalDateTime,
     val isPlayer1Ready: Boolean,
     val isPlayer2Ready: Boolean,
+    @field:JsonProperty("draft_schema")
     val draftSchemaJson: List<DraftStep>,
     val draftActions: List<DraftActionDTO>,
     val bannedCharacters: Set<String>,
