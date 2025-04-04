@@ -2,6 +2,7 @@ package com.intezya.abysscore.service
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.enum.TimeoutResult
+import com.intezya.abysscore.event.matchprocess.MatchSubmitResultEvent
 import com.intezya.abysscore.event.matchprocess.MatchTimeoutEvent
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.match.Match
@@ -27,6 +28,7 @@ private const val MAX_RETRIES_COUNT = 5
 private const val RETRY_PENALTY = 5
 private const val MATCH_TIMEOUT_CHECK_INTERVAL_MS = 30 * 1000L // 30 seconds
 
+// TODO: split to services
 @Service
 @Transactional
 class MatchProcessService(
@@ -61,6 +63,7 @@ class MatchProcessService(
         try {
             val savedResult = roomResultRepository.save(roomResult)
             currentMatch.roomResults.add(savedResult)
+            eventPublisher.publishEvent(MatchSubmitResultEvent(this, currentMatch, savedResult))
             handleMatchCompletion(currentMatch)
             return currentMatch
         } catch (e: DataIntegrityViolationException) {

@@ -10,6 +10,7 @@ import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteAcc
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteReceivedMessage
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteRejectedMessage
 import com.intezya.abysscore.model.message.websocket.match.process.MatchTimeoutMessage
+import com.intezya.abysscore.model.message.websocket.match.process.SubmitRoomResultMessage
 import com.intezya.abysscore.model.message.websocket.matchmaking.MatchCreatedMessage
 import com.intezya.abysscore.model.message.websocket.user.action.UserLoggedInMessage
 import com.intezya.abysscore.model.message.websocket.user.action.UserLoggedOutMessage
@@ -127,7 +128,7 @@ class WebsocketNotificationService(
         mainWebsocketMessageService.sendToUser(player2Id, message)
     }
 
-    fun draftEnd(
+    fun sendDraftEnd(
         player1Id: Long,
         player2Id: Long,
         player1Characters: List<DraftCharacterDTO>,
@@ -142,5 +143,18 @@ class WebsocketNotificationService(
         draftWebsocketMessageService.sendToUser(player2Id, message)
         mainWebsocketMessageService.sendToUser(player1Id, message)
         mainWebsocketMessageService.sendToUser(player2Id, message)
+    }
+
+    fun sendSubmitResult(
+        opponentId: Long,
+        roomNumber: Int,
+        result: Int,
+    ) {
+        val message = SubmitRoomResultMessage(
+            roomNumber = roomNumber,
+            result = result,
+        )
+
+        mainWebsocketMessageService.sendToUser(opponentId, message)
     }
 }

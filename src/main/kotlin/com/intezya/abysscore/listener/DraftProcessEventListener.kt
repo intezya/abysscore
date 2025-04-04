@@ -46,7 +46,7 @@ class DraftProcessEventListener(private val websocketNotificationService: Websoc
             }
             .map { it.toDTO() }
 
-        websocketNotificationService.draftEnd(
+        websocketNotificationService.sendDraftEnd(
             player1Id = event.match.player1.id,
             player2Id = event.match.player2.id,
             player1Characters = player1CharactersDTO,

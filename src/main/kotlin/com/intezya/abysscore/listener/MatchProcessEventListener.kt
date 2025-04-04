@@ -1,6 +1,7 @@
 package com.intezya.abysscore.listener
 
 import com.intezya.abysscore.enum.TimeoutResult
+import com.intezya.abysscore.event.matchprocess.MatchSubmitResultEvent
 import com.intezya.abysscore.event.matchprocess.MatchTimeoutEvent
 import com.intezya.abysscore.service.WebsocketNotificationService
 import org.springframework.context.event.EventListener
@@ -28,5 +29,17 @@ class MatchProcessEventListener(private val websocketNotificationService: Websoc
                 websocketNotificationService.sendTimeoutDefeat(player2.id, event.match.id)
             }
         }
+    }
+
+    @EventListener
+    fun onMatchSubmitResult(event: MatchSubmitResultEvent) {
+        val player = event.result.player
+        val opponent = event.match.getOpponent(player)
+
+        websocketNotificationService.sendSubmitResult(
+            opponentId = opponent.id,
+            roomNumber = event.result.roomNumber,
+            result = event.result.time,
+        )
     }
 }
