@@ -23,6 +23,7 @@ import com.intezya.abysscore.service.draft.DraftCharacterRevealService
 import com.intezya.abysscore.utils.containers.TestMinioConfiguration
 import com.intezya.abysscore.utils.containers.TestPostgresConfiguration
 import com.intezya.abysscore.utils.fixtures.UserFixtures
+import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import com.intezya.abysscore.utils.providers.RandomProvider
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.faker
@@ -50,6 +51,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import java.util.concurrent.TimeUnit
 
 typealias JwtToken = String
 
@@ -249,6 +251,27 @@ abstract class BaseApiTest {
 
         return CreateMatchResult(user1, user2, match)
     }
+
+    protected fun checkNotification(
+        session: WebSocketFixture.ProvidedSession,
+        waitTimeoutSeconds: Long,
+        vararg contains: String,
+    ): Boolean {
+        val startTime = System.nanoTime()
+        val endTime = startTime + TimeUnit.SECONDS.toNanos(waitTimeoutSeconds)
+        while (System.nanoTime() < endTime) {
+            val message = session.messageQueue.poll(250, TimeUnit.MILLISECONDS)
+            if (message != null && contains.all { message.contains(it) }) {
+                return true
+            }
+        }
+        return false
+    }
+
+    protected fun checkNotification(
+        session: WebSocketFixture.ProvidedSession,
+        vararg contains: String,
+    ) = checkNotification(session, waitTimeoutSeconds = 1L, contains = contains)
 
     data class CreateMatchResult(val player1: User, val player2: User, val match: Match)
 }

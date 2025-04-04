@@ -51,9 +51,6 @@ class MatchProcessService(
     }
 
     fun submitResult(user: User, request: SubmitRoomResultRequest): Match {
-        println("PRINTING SUBMIT RESULT")
-        println(user)
-        println(user.currentMatch)
         val currentMatch = user.currentMatchOrThrow()
         validateMatchIsActive(currentMatch)
 

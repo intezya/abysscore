@@ -1,7 +1,9 @@
 package com.intezya.abysscore.utils.fixtures
 
+import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.user.User
+import kotlin.random.Random
 
 object MatchFixtures {
     fun createDefaultMatch(
@@ -14,4 +16,12 @@ object MatchFixtures {
     ).apply {
         this.id = id
     }
+
+    fun createSubmitResult(
+        roomNumber: Int = Random.nextInt(1, 3),
+        time: Int = Random.nextInt(10, 100),
+    ) = SubmitRoomResultRequest(
+        roomNumber = roomNumber,
+        time = time,
+    )
 }
