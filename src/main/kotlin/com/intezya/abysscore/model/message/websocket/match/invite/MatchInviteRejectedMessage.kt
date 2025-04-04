@@ -7,4 +7,4 @@ data class MatchInviteRejectedMessage(
     val inviteId: Long,
     val inviteeUsername: String,
     val message: String = Messages.MATCH_INVITE_DECLINED,
-)
+) : BaseMatchInviteWebsocketMessage()
