@@ -1,6 +1,7 @@
 package com.intezya.abysscore.security.middleware
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.security.public.PUBLIC_PATHS
 import com.intezya.abysscore.security.service.JwtAuthenticationService
 import jakarta.servlet.FilterChain
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import java.time.LocalDateTime
 
 private const val AUTHORIZATION_HEADER = "Authorization"
 private const val CONTENT_TYPE_JSON = "application/json"
@@ -74,6 +76,18 @@ class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthentic
                 return
             }
 
+            if (!userDetails.isAccountNonLocked) {
+                sendErrorResponse(
+                    request,
+                    response,
+                    HttpServletResponse.SC_FORBIDDEN,
+                    "Account is locked",
+                    "ACCOUNT_LOCKED",
+                    banUntil = (userDetails as User).blockedUntil,
+                )
+                return
+            }
+
             if (SecurityContextHolder.getContext().authentication == null) {
                 val authToken = jwtAuthenticationService.createAuthenticationToken(userDetails, request)
                 SecurityContextHolder.getContext().authentication = authToken
@@ -99,6 +113,7 @@ class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthentic
         status: Int,
         message: String,
         errorCode: String? = null,
+        banUntil: LocalDateTime? = null,
     ) {
         val errorResponse = mapOf(
             "status" to status,
@@ -107,6 +122,7 @@ class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthentic
             "path" to httpRequest.requestURI,
         ).let {
             if (errorCode != null) it.plus("error_code" to errorCode) else it
+            if (banUntil != null) it.plus("ban_until" to banUntil)
         }
 
         val jsonResponse = ObjectMapper().writeValueAsString(errorResponse)
