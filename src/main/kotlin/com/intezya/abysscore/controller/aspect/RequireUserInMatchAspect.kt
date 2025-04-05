@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException
 @Aspect
 @Component
 class RequireUserInMatchAspect {
-    @Around("@annotation(com.intezya.abysscore.controller.annotations.RequireUserInMatch)")
+    @Around("@annotation(requireUserInMatch)")
     fun checkUserInMatch(joinPoint: ProceedingJoinPoint, requireUserInMatch: RequireUserInMatch): Any {
         val args = joinPoint.args
 
@@ -30,6 +30,7 @@ class RequireUserInMatchAspect {
         }
 
         if (
+            requireUserInMatch.expected == true &&
             requireUserInMatch.matchStatus != MatchStatus.UNSET &&
             user.currentMatch?.status != requireUserInMatch.matchStatus
         ) {
@@ -37,6 +38,7 @@ class RequireUserInMatchAspect {
         }
 
         if (
+            requireUserInMatch.expected == true &&
             requireUserInMatch.draftState != DraftState.UNSET &&
             user.currentMatch?.draft?.currentState != requireUserInMatch.draftState
         ) {
