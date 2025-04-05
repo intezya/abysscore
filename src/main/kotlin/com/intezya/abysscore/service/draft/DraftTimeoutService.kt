@@ -6,7 +6,7 @@ import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.DraftCharacter
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.repository.MatchDraftRepository
-import com.intezya.abysscore.service.MatchProcessService
+import com.intezya.abysscore.service.match.MatchTimeoutService
 import org.apache.commons.logging.LogFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
@@ -22,7 +22,7 @@ private const val DRAFT_CHECK_TIMEOUT_RATE_MS = 1000L
 class DraftTimeoutService(
     private val matchDraftRepository: MatchDraftRepository,
     private val draftActionService: DraftActionService,
-    private val matchProcessService: MatchProcessService,
+    private val matchTimeoutService: MatchTimeoutService,
     private val draftCompletionService: DraftCompletionService,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
@@ -55,7 +55,7 @@ class DraftTimeoutService(
 
     private fun handleExpiredCharacterReveal(draft: MatchDraft) {
         // TODO: don't update players statistics
-        matchProcessService.checkPlayerTimeouts(
+        matchTimeoutService.checkPlayerTimeouts(
             draft.match,
             timeoutThreshold = Duration.ofSeconds(DRAFT_CHECK_TIMEOUT_RATE_MS),
             playerResults = mapOf(

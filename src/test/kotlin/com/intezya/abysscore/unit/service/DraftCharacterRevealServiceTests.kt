@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
 class DraftCharacterRevealServiceTests {
@@ -45,9 +44,7 @@ class DraftCharacterRevealServiceTests {
 
         every { match.hasPlayerAlreadyRevealedCharacters(any()) } returns false
         every { match.draft } returns mockk()
-        every { draftValidationService.validateMatchStatus(any(), any(), any()) } returns match
         every { draftValidationService.getPlayerInfo(any(), any()) } returns mockk(relaxed = true)
-        every { draftValidationService.validateDraftState(any(), any()) } returns Unit
         every { user.id } returns 0L
         every { draftActionService.logDraftAction(any(), any(), any(), any()) } returns mockk()
     }
@@ -56,10 +53,9 @@ class DraftCharacterRevealServiceTests {
     fun `should throw exception if user not in match`() {
         val characters = listOf<DraftCharacterDTO>()
 
-        every { draftValidationService.validateMatchStatus(any(), any(), any()) } throws
-            ResponseStatusException(HttpStatus.BAD_REQUEST)
+        every { user.currentMatch } returns null
 
-        assertThrows<ResponseStatusException> {
+        assertThrows<IllegalStateException> {
             draftCharacterRevealService.revealCharacters(user, characters)
         }
     }
@@ -68,20 +64,8 @@ class DraftCharacterRevealServiceTests {
     fun `should throw exception if user already revealed characters`() {
         val characters = listOf<DraftCharacterDTO>()
 
+        every { user.currentMatch } returns match
         every { match.hasPlayerAlreadyRevealedCharacters(any()) } returns true
-
-        assertThrows<ResponseStatusException> {
-            draftCharacterRevealService.revealCharacters(user, characters)
-        }
-    }
-
-    @Test
-    fun `should throw exception if draft not in character reveal state`() {
-        val characters = listOf<DraftCharacterDTO>()
-
-        every { match.hasPlayerAlreadyRevealedCharacters(any()) } returns false
-        every { draftValidationService.validateDraftState(any(), any()) } throws
-            ResponseStatusException(HttpStatus.BAD_REQUEST)
 
         assertThrows<ResponseStatusException> {
             draftCharacterRevealService.revealCharacters(user, characters)
@@ -98,6 +82,7 @@ class DraftCharacterRevealServiceTests {
         every { playerInfo.player } returns user
         every { playerInfo.isPlayer1 } returns true
         every { matchDraftRepository.save(any()) } returns mockk()
+        every { user.currentMatch } returns match
 
         draftCharacterRevealService.revealCharacters(user, characters)
 

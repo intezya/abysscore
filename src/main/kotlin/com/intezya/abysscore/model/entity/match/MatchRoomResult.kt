@@ -54,5 +54,5 @@ class MatchRoomResult {
 
     override fun hashCode(): Int = id.hashCode()
 
-    override fun toString(): String = "MatchRoomResult(id=$id, roomNumber=$roomNumber)"
+    override fun toString(): String = "MatchRoomResult(id=$id, time=$time, roomNumber=$roomNumber)"
 }

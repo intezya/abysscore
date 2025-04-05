@@ -27,9 +27,7 @@ class MatchProcessService(
 
     fun submitResult(user: User, request: SubmitRoomResultRequest): Match {
         val currentMatch = user.currentMatchOrThrow()
-
         matchResultService.processResult(user, currentMatch, request)
-
         eventPublisher.publishEvent(MatchCompletionCheckEvent(this, currentMatch))
         return currentMatch
     }
@@ -38,21 +36,27 @@ class MatchProcessService(
     fun handleMatchCompletion(event: MatchCompletionCheckEvent) {
         val match = event.match
 
-        if (!match.isEnded() && match.status == MatchStatus.ACTIVE && match.roomResultsFilled()) {
-            processMatchEnd(match)
+        if (match.isRoomResultsFilled() && match.status == MatchStatus.ACTIVE) {
+            match.endedAt = LocalDateTime.now()
+            match.status = MatchStatus.COMPLETED
+            val player1Score = match.getPlayerScore(match.player1)
+            val player2Score = match.getPlayerScore(match.player2)
+
+            when {
+                player1Score < player2Score -> match.winner = match.player1
+                player1Score > player2Score -> match.winner = match.player2
+                else -> match.status = MatchStatus.DRAW
+            }
+
+            matchResultService.saveMatch(match)
+
+            eventPublisher.publishEvent(MatchEndEvent(this, match, player1Score, player2Score))
+
+            // TODO: update statistics
         }
     }
 
-    private fun processMatchEnd(match: Match) {
-        match.endedAt = LocalDateTime.now()
-        matchResultService.saveMatch(match)
-
-        val player1Score = match.getPlayerScore(match.player1)
-        val player2Score = match.getPlayerScore(match.player2)
-
-        eventPublisher.publishEvent(MatchEndEvent(this, match, player1Score, player2Score))
-    }
-
+    // TODO in draft services
     private fun User.currentMatchOrThrow(): Match =
         currentMatch ?: throw IllegalStateException("User is not in a match")
 }

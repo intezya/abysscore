@@ -48,8 +48,8 @@ class MatchProcessTests : BaseApiTest() {
         val player1Result = match.determineResultForPlayer(player1.first).toString()
         val player2Result = match.determineResultForPlayer(player2.first).toString()
 
-        assertTrue(checkNotification(player1Session, Messages.MATCH_END, player1Result, player2Result))
-        assertTrue(checkNotification(player2Session, Messages.MATCH_END, player1Result, player2Result))
+        assertTrue(checkNotification(player1Session, Messages.MATCH_END, player1Result))
+        assertTrue(checkNotification(player2Session, Messages.MATCH_END, player2Result))
     }
 
     private fun submitRandomResults(match: Match) { // TODO: maybe move to test extension function

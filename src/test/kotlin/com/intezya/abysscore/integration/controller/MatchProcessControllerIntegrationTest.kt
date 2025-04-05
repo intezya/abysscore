@@ -172,13 +172,7 @@ class MatchProcessControllerIntegrationTest : BaseApiTest() {
 
         @Test
         fun `shouldn't work if user not in match`() {
-            val (user, token) = generateUserWithToken()
-
-            val match = MatchFixtures.createDefaultMatch(user1 = user)
-            userRepository.save(match.player2)
-            matchRepository.save(match)
-            user.currentMatch = match
-            userRepository.save(user)
+            val (_, token) = generateUserWithToken()
 
             val request = SubmitRoomResultRequest(
                 roomNumber = 1,

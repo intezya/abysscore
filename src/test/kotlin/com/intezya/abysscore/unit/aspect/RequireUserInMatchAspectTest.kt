@@ -2,6 +2,8 @@ package com.intezya.abysscore.unit.aspect
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
 import com.intezya.abysscore.controller.aspect.RequireUserInMatchAspect
+import com.intezya.abysscore.enum.DraftState
+import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.user.User
 import io.mockk.clearMocks
@@ -59,9 +61,13 @@ class RequireUserInMatchAspectTest {
 
     @Test
     fun `should proceed when user is in match and expected`() {
-        val user = User().apply { currentMatch = Match() }
+        val match = Match()
+        val user = User().apply { currentMatch = match }
         every { joinPoint.args } returns arrayOf(user)
         every { annotation.expected } returns true
+        every { annotation.matchStatus } returns MatchStatus.UNSET
+        every { annotation.draftState } returns DraftState.UNSET
+
         every { joinPoint.proceed(any()) } returns "success"
 
         val result = aspect.checkUserInMatch(joinPoint, annotation)

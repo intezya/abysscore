@@ -142,22 +142,22 @@ class MatchInviteControllerIntegrationTest : BaseApiTest() {
                 .When {
                     post("$MATCH_INVITES_ENDPOINT/$inviteId/accept")
                 }.Then {
-                    statusCode(HttpStatus.NOT_FOUND.value())
+                    statusCode(HttpStatus.BAD_REQUEST.value())
                 }
         }
+    }
 
-        @Test
-        fun `should not accept user invite if invite does not exist`() {
-            val (_, inviteeToken) = generateUserWithToken()
-            val nonExistentInviteId = 1L
+    @Test
+    fun `should not accept user invite if invite does not exist`() {
+        val (_, inviteeToken) = generateUserWithToken()
+        val nonExistentInviteId = 1L
 
-            authenticatedRequest(inviteeToken)
-                .When {
-                    post("$MATCH_INVITES_ENDPOINT/$nonExistentInviteId/accept")
-                }.Then {
-                    statusCode(HttpStatus.NOT_FOUND.value())
-                }
-        }
+        authenticatedRequest(inviteeToken)
+            .When {
+                post("$MATCH_INVITES_ENDPOINT/$nonExistentInviteId/accept")
+            }.Then {
+                statusCode(HttpStatus.NOT_FOUND.value())
+            }
     }
 
     @Nested

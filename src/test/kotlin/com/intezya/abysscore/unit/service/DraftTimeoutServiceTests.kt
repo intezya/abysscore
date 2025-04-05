@@ -4,10 +4,10 @@ import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchDraftRepository
-import com.intezya.abysscore.service.MatchProcessService
 import com.intezya.abysscore.service.draft.DraftActionService
 import com.intezya.abysscore.service.draft.DraftCompletionService
 import com.intezya.abysscore.service.draft.DraftTimeoutService
+import com.intezya.abysscore.service.match.MatchTimeoutService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -17,14 +17,14 @@ import org.springframework.context.ApplicationEventPublisher
 class DraftTimeoutServiceTests {
     private val matchDraftRepository = mockk<MatchDraftRepository>(relaxed = true)
     private val draftActionService = mockk<DraftActionService>()
-    private val matchProcessService = mockk<MatchProcessService>()
+    private val matchTimeoutService = mockk<MatchTimeoutService>()
     private val draftCompletionService = mockk<DraftCompletionService>()
     private val applicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
     private val draftTimeoutService = DraftTimeoutService(
         matchDraftRepository = matchDraftRepository,
         draftActionService = draftActionService,
-        matchProcessService = matchProcessService,
+        matchTimeoutService = matchTimeoutService,
         draftCompletionService = draftCompletionService,
         applicationEventPublisher = applicationEventPublisher,
     )

@@ -8,6 +8,8 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
 
+const val MATCH_MAX_ROOM_RESULTS_COUNT = 6
+
 @Entity
 @Table(name = "matches")
 class Match {
@@ -62,7 +64,8 @@ class Match {
         this.player2 = player2
     }
 
-    fun isEnded(): Boolean = roomResults.count { it.roomNumber == 3 } == 2
+    fun isRoomResultsFilled(): Boolean = roomResults.size == MATCH_MAX_ROOM_RESULTS_COUNT &&
+        roomResults.count { it.roomNumber == 3 } == 2
 
     fun getOpponent(user: User): User = when (user.id) {
         player1.id -> player2
