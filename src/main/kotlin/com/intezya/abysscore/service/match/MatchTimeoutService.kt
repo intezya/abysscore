@@ -1,76 +1,29 @@
-package com.intezya.abysscore.service
+package com.intezya.abysscore.service.match
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.enum.TimeoutResult
-import com.intezya.abysscore.event.match.process.MatchEndEvent
-import com.intezya.abysscore.event.match.process.MatchSubmitResultEvent
 import com.intezya.abysscore.event.match.process.MatchTimeoutEvent
-import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
 import com.intezya.abysscore.model.entity.match.Match
-import com.intezya.abysscore.model.entity.match.MatchRoomResult
-import com.intezya.abysscore.model.entity.match.MatchRoomRetry
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchRepository
-import com.intezya.abysscore.repository.RoomResultRepository
-import com.intezya.abysscore.repository.RoomRetryRepository
 import org.apache.commons.logging.LogFactory
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 import java.time.LocalDateTime
 
-private const val MAX_RETRIES_COUNT = 5
-private const val RETRY_PENALTY = 5
 private const val MATCH_TIMEOUT_CHECK_INTERVAL_MS = 30 * 1000L // 30 seconds
 
-// TODO: split to services
 @Service
 @Transactional
-class MatchProcessService(
-    private val roomResultRepository: RoomResultRepository,
-    private val roomRetryRepository: RoomRetryRepository,
+class MatchTimeoutService(
     private val matchRepository: MatchRepository,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = LogFactory.getLog(this.javaClass)
-
-    fun submitRetry(user: User, request: SubmitRoomResultRequest): Match {
-        val currentMatch = user.currentMatchOrThrow()
-        validateMatchIsActive(currentMatch)
-        validateRetryLimits(user, currentMatch)
-
-        val roomRetry = createRoomRetry(user, currentMatch, request)
-        saveAndAddRetry(currentMatch, roomRetry)
-
-        return currentMatch
-    }
-
-    fun submitResult(user: User, request: SubmitRoomResultRequest): Match {
-        val currentMatch = user.currentMatchOrThrow()
-        validateMatchIsActive(currentMatch)
-
-        val penalty = calculatePenalty(user, currentMatch, request.roomNumber)
-        val roomResult = createRoomResult(user, currentMatch, request, penalty)
-
-        try {
-            val savedResult = roomResultRepository.save(roomResult)
-            currentMatch.roomResults.add(savedResult)
-            eventPublisher.publishEvent(MatchSubmitResultEvent(this, currentMatch, savedResult))
-            handleMatchCompletion(currentMatch)
-            return currentMatch
-        } catch (e: DataIntegrityViolationException) {
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "You already submitted result to this room",
-            )
-        }
-    }
 
     @Scheduled(fixedRate = MATCH_TIMEOUT_CHECK_INTERVAL_MS)
     fun checkMatchTimeouts() {
@@ -197,7 +150,8 @@ class MatchProcessService(
             reason = "Both players timed out with equal inactivity",
         )
         logger.info("Match ${match.id} ended in draw due to both players timing out equally")
-        notifyPlayersAboutDraw(match)
+        // TODO
+//        notificationService.notifyPlayersAboutDraw(match)
     }
 
     private fun assignTechnicalDefeat(
@@ -217,8 +171,9 @@ class MatchProcessService(
         )
 
         logger.info("Technical defeat assigned to player ${timeoutPlayer.id} in match ${match.id} due to $reason")
-        notifyPlayerAboutTechnicalDefeat(match, timeoutPlayer, reason)
-        notifyPlayerAboutTechnicalWin(match, winner)
+        // TODO
+//        notificationService.notifyPlayerAboutTechnicalDefeat(match, timeoutPlayer, reason)
+//        notificationService.notifyPlayerAboutTechnicalWin(match, winner)
 
         eventPublisher.publishEvent(
             MatchTimeoutEvent(
@@ -242,97 +197,5 @@ class MatchProcessService(
             player2.currentMatch = null
         }
         matchRepository.save(match)
-    }
-
-    private fun notifyPlayersAboutDraw(match: Match) {
-        logger.debug("Notifying players about draw in match ${match.id}")
-        // TODO: implement notification sending
-    }
-
-    private fun notifyPlayerAboutTechnicalDefeat(match: Match, player: User, reason: String) {
-        logger.debug("Notifying player ${player.id} about technical defeat in match ${match.id}")
-        // TODO: implement notification sending
-    }
-
-    private fun notifyPlayerAboutTechnicalWin(match: Match, player: User) {
-        logger.debug("Notifying player ${player.id} about technical win in match ${match.id}")
-        // TODO: implement notification sending
-    }
-
-    private fun validateRetryLimits(user: User, match: Match) {
-        val retries = match.roomRetries.count { it.player == user }
-        if (retries >= MAX_RETRIES_COUNT) {
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "You already submitted too many retries",
-            )
-        }
-    }
-
-    private fun createRoomRetry(user: User, match: Match, request: SubmitRoomResultRequest): MatchRoomRetry =
-        MatchRoomRetry(
-            roomNumber = request.roomNumber,
-            time = request.time,
-        ).apply {
-            this.player = user
-            this.match = match
-        }
-
-    private fun saveAndAddRetry(match: Match, matchRoomRetry: MatchRoomRetry) {
-        val savedRetry = roomRetryRepository.save(matchRoomRetry)
-        match.roomRetries.add(savedRetry)
-    }
-
-    private fun calculatePenalty(user: User, match: Match, roomNumber: Int): Int {
-        val usedRetries = roomRetryRepository.countByPlayerAndMatchAndRoomNumber(
-            user,
-            match,
-            roomNumber,
-        )
-        return processPenaltyTime(usedRetries)
-    }
-
-    private fun createRoomResult(
-        user: User,
-        match: Match,
-        request: SubmitRoomResultRequest,
-        penalty: Int,
-    ): MatchRoomResult = MatchRoomResult(
-        roomNumber = request.roomNumber,
-        time = request.time + penalty,
-    ).apply {
-        this.player = user
-        this.match = match
-    }
-
-    private fun handleMatchCompletion(match: Match) {
-        if (!match.isEnded()) {
-            processMatchEnd(match)
-        }
-    }
-
-    private fun processMatchEnd(match: Match) {
-        match.endedAt = LocalDateTime.now()
-        matchRepository.save(match)
-        val player1Score = match.getPlayerScore(match.player1)
-        val player2Score = match.getPlayerScore(match.player2)
-
-        eventPublisher.publishEvent(MatchEndEvent(this, match, player1Score, player2Score))
-
-        // TODO: calculations, statistics update, notifications
-    }
-
-    private fun processPenaltyTime(retriesCount: Long): Int = when (retriesCount) {
-        in 4L..5L -> RETRY_PENALTY
-        else -> 0
-    }
-
-    private fun User.currentMatchOrThrow(): Match =
-        currentMatch ?: throw IllegalStateException("User is not in a match")
-
-    private fun validateMatchIsActive(match: Match) {
-        if (match.status != MatchStatus.ACTIVE) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Match is not in active stage")
-        }
     }
 }
