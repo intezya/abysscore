@@ -44,7 +44,10 @@ class User(
     var receiveMatchInvites: Boolean = false
 
     @Column(nullable = true)
-    var blockedUntil: LocalDateTime? = null
+    var bannedUntil: LocalDateTime? = null
+
+    @Column(nullable = true)
+    var banReason: String? = null
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val items: MutableSet<UserItem> = mutableSetOf()
@@ -101,7 +104,7 @@ class User(
 
     override fun isAccountNonExpired(): Boolean = true
 
-    override fun isAccountNonLocked(): Boolean = blockedUntil?.isBefore(LocalDateTime.now()) ?: true
+    override fun isAccountNonLocked(): Boolean = bannedUntil?.isBefore(LocalDateTime.now()) ?: true
 
     override fun isCredentialsNonExpired(): Boolean = true
 

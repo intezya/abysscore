@@ -83,7 +83,8 @@ class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthentic
                     HttpServletResponse.SC_FORBIDDEN,
                     "Account is locked",
                     "ACCOUNT_LOCKED",
-                    banUntil = (userDetails as User).blockedUntil,
+                    banUntil = (userDetails as User).bannedUntil,
+                    banReason = userDetails.banReason,
                 )
                 return
             }
@@ -114,6 +115,7 @@ class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthentic
         message: String,
         errorCode: String? = null,
         banUntil: LocalDateTime? = null,
+        banReason: String? = null,
     ) {
         val errorResponse = mapOf(
             "status" to status,
@@ -121,8 +123,10 @@ class JwtAuthenticationFilter(private val jwtAuthenticationService: JwtAuthentic
             "timestamp" to System.currentTimeMillis(),
             "path" to httpRequest.requestURI,
         ).let {
-            if (errorCode != null) it.plus("error_code" to errorCode) else it
-            if (banUntil != null) it.plus("ban_until" to banUntil)
+            var result = it
+            if (errorCode != null) result = result.plus("error_code" to errorCode)
+            if (banUntil != null) result = result.plus("ban_until" to banUntil)
+            result.plus("ban_reason" to (banReason ?: ""))
         }
 
         val jsonResponse = ObjectMapper().writeValueAsString(errorResponse)
