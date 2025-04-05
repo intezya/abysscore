@@ -1,36 +1,14 @@
 package com.intezya.abysscore.service.draft
 
-import com.intezya.abysscore.enum.DraftState
-import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.match.Match
-import com.intezya.abysscore.model.entity.user.User
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class DraftValidationService {
-    fun validateMatchStatus(user: User, expectedStatus: MatchStatus, errorMessage: String): Match {
-        val match = user.currentMatch ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not in a match")
-
-        if (match.status != expectedStatus) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage)
-        }
-
-        return match
-    }
-
-    fun validateDraftState(draft: MatchDraft, expectedState: DraftState) {
-        if (draft.currentState != expectedState) {
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Not in needed phase. Current state: ${draft.currentState}",
-            )
-        }
-    }
-
     fun validateUserTurn(draft: MatchDraft, isPlayer1: Boolean) {
         val isUserTurn = (isPlayer1 && draft.isCurrentTurnPlayer1()) || (!isPlayer1 && draft.isCurrentTurnPlayer2())
         if (!isUserTurn) {

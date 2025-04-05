@@ -1,6 +1,8 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
+import com.intezya.abysscore.enum.DraftState
+import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.dto.draft.MatchDraftDTO
 import com.intezya.abysscore.model.dto.draft.PerformDraftActionRequest
@@ -22,14 +24,22 @@ class DraftProcessController(
     private val draftActionService: DraftActionService,
 ) {
     @PostMapping("/characters")
-    @RequireUserInMatch(expectedThat = true)
+    @RequireUserInMatch(
+        expected = true,
+        matchStatus = MatchStatus.PENDING,
+        draftState = DraftState.CHARACTER_REVEAL,
+    )
     fun revealCharacters(
         @AuthenticationPrincipal user: User,
         @RequestBody @Valid characters: List<DraftCharacterDTO>,
     ): MatchDraftDTO = draftCharacterRevealService.revealCharacters(user, characters).toDTO()
 
     @PostMapping("")
-    @RequireUserInMatch(expectedThat = true)
+    @RequireUserInMatch(
+        expected = true,
+        matchStatus = MatchStatus.DRAFTING,
+        draftState = DraftState.DRAFTING,
+    )
     fun performDraftAction(
         @AuthenticationPrincipal user: User,
         @RequestBody @Valid request: PerformDraftActionRequest,

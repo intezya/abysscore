@@ -28,18 +28,13 @@ class DraftCharacterRevealService(
     private val draftActionService: DraftActionService,
 ) {
     fun revealCharacters(user: User, characters: List<DraftCharacterDTO>): MatchDraft {
-        val match = draftValidationService.validateMatchStatus(
-            user,
-            MatchStatus.PENDING,
-            "Match is not in reveal characters stage",
-        )
+        val match = user.currentMatch ?: throw IllegalStateException("User is not in a match")
         val draft = match.draft
 
         if (match.hasPlayerAlreadyRevealedCharacters(user)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You have already revealed your characters")
         }
 
-        draftValidationService.validateDraftState(draft, expectedState = DraftState.CHARACTER_REVEAL)
         val playerInfo = draftValidationService.getPlayerInfo(match, user.id)
 
         registerPlayerCharacters(draft, playerInfo, characters)

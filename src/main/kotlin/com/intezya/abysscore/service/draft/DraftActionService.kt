@@ -1,8 +1,6 @@
 package com.intezya.abysscore.service.draft
 
 import com.intezya.abysscore.enum.DraftActionType
-import com.intezya.abysscore.enum.DraftState
-import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.event.draftprocess.DraftActionPerformEvent
 import com.intezya.abysscore.model.dto.draft.MatchDraftWithDraftAction
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
@@ -28,11 +26,9 @@ class DraftActionService(
     private val draftCompletionService: DraftCompletionService,
 ) {
     fun performDraftAction(user: User, characterName: String): MatchDraft {
-        val match =
-            draftValidationService.validateMatchStatus(user, MatchStatus.DRAFTING, "Match is not in drafting stage")
+        val match = user.currentMatch ?: throw IllegalStateException("User is not in a match")
         val draft = match.draft
 
-        draftValidationService.validateDraftState(draft, DraftState.DRAFTING)
         val playerInfo = draftValidationService.getPlayerInfo(match, user.id)
         draftValidationService.validateUserTurn(draft, playerInfo.isPlayer1)
 

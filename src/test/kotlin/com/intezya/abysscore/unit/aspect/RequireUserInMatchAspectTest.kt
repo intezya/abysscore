@@ -31,7 +31,7 @@ class RequireUserInMatchAspectTest {
     fun `should throw exception when user is not in match but expected`() {
         val user = User()
         every { joinPoint.args } returns arrayOf(user)
-        every { annotation.expectedThat } returns true
+        every { annotation.expected } returns true
 
         val exception = assertThrows<ResponseStatusException> {
             aspect.checkUserInMatch(joinPoint, annotation)
@@ -46,7 +46,7 @@ class RequireUserInMatchAspectTest {
     fun `should throw exception when user is in match but expected to be out`() {
         val user = User().apply { currentMatch = Match() }
         every { joinPoint.args } returns arrayOf(user)
-        every { annotation.expectedThat } returns false
+        every { annotation.expected } returns false
 
         val exception = assertThrows<ResponseStatusException> {
             aspect.checkUserInMatch(joinPoint, annotation)
@@ -61,7 +61,7 @@ class RequireUserInMatchAspectTest {
     fun `should proceed when user is in match and expected`() {
         val user = User().apply { currentMatch = Match() }
         every { joinPoint.args } returns arrayOf(user)
-        every { annotation.expectedThat } returns true
+        every { annotation.expected } returns true
         every { joinPoint.proceed(any()) } returns "success"
 
         val result = aspect.checkUserInMatch(joinPoint, annotation)
@@ -74,7 +74,7 @@ class RequireUserInMatchAspectTest {
     fun `should proceed when user is not in match and expected`() {
         val user = User()
         every { joinPoint.args } returns arrayOf(user)
-        every { annotation.expectedThat } returns false
+        every { annotation.expected } returns false
         every { joinPoint.proceed(any()) } returns "success"
 
         val result = aspect.checkUserInMatch(joinPoint, annotation)

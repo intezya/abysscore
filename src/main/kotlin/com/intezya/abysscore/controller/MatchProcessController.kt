@@ -1,6 +1,7 @@
 package com.intezya.abysscore.controller
 
 import com.intezya.abysscore.controller.annotations.RequireUserInMatch
+import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.model.dto.match.CurrentMatchDTO
 import com.intezya.abysscore.model.dto.match.toCurrentMatchDTO
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
@@ -17,14 +18,14 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/matches/current/process")
 class MatchProcessController(private val matchProcessService: MatchProcessService) {
     @PostMapping("/submit-retry")
-    @RequireUserInMatch(expectedThat = true) // TODO: add stage
+    @RequireUserInMatch(expected = true, matchStatus = MatchStatus.ACTIVE)
     fun submitRetry(
         @RequestBody @Valid request: SubmitRoomResultRequest,
         @AuthenticationPrincipal contextUser: User,
     ): CurrentMatchDTO = matchProcessService.submitRetry(contextUser, request).toCurrentMatchDTO()
 
     @PostMapping("/submit-result")
-    @RequireUserInMatch(expectedThat = true)
+    @RequireUserInMatch(expected = true, matchStatus = MatchStatus.ACTIVE)
     fun submitResult(
         @RequestBody @Valid request: SubmitRoomResultRequest,
         @AuthenticationPrincipal contextUser: User,

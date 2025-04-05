@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/invites")
 class MatchInviteController(private val matchInviteService: MatchInviteService) {
     @PostMapping("")
-    @RequireUserInMatch(expectedThat = false)
+    @RequireUserInMatch(expected = false)
     fun inviteUser(
         @RequestBody @Valid inviteRequest: CreateMatchInviteRequest,
         @AuthenticationPrincipal contextUser: User,
@@ -28,7 +28,7 @@ class MatchInviteController(private val matchInviteService: MatchInviteService) 
     )
 
     @PostMapping("{inviteId}/accept")
-    @RequireUserInMatch(expectedThat = false)
+    @RequireUserInMatch(expected = false)
     @ResponseStatus(HttpStatus.OK)
     fun acceptInvite(@PathVariable inviteId: Long, @AuthenticationPrincipal contextUser: User): CurrentMatchDTO =
         matchInviteService.acceptInvite(contextUser.id, inviteId).toCurrentMatchDTO()
