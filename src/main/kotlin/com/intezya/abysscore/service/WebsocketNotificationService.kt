@@ -15,11 +15,13 @@ import com.intezya.abysscore.model.message.websocket.match.process.MatchEndMessa
 import com.intezya.abysscore.model.message.websocket.match.process.MatchTimeoutMessage
 import com.intezya.abysscore.model.message.websocket.match.process.SubmitRoomResultMessage
 import com.intezya.abysscore.model.message.websocket.matchmaking.MatchCreatedMessage
+import com.intezya.abysscore.model.message.websocket.user.account.AccountBannedMessage
 import com.intezya.abysscore.model.message.websocket.user.action.UserLoggedInMessage
 import com.intezya.abysscore.model.message.websocket.user.action.UserLoggedOutMessage
 import com.intezya.abysscore.service.interfaces.WebsocketMessageBroker
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class WebsocketNotificationService(
@@ -173,5 +175,14 @@ class WebsocketNotificationService(
         )
 
         mainWebsocketMessageService.sendToUser(playerId, message)
+    }
+
+    fun sendAccountBanned(userId: Long, bannedUntil: LocalDateTime, banReason: String?) {
+        val message = AccountBannedMessage(
+            bannedUntil = bannedUntil,
+            reason = banReason,
+        )
+
+        mainWebsocketMessageService.sendToUser(userId, message)
     }
 }
