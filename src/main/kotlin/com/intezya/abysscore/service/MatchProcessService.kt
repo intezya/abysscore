@@ -2,6 +2,7 @@ package com.intezya.abysscore.service
 
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.enum.TimeoutResult
+import com.intezya.abysscore.event.match.process.MatchEndEvent
 import com.intezya.abysscore.event.match.process.MatchSubmitResultEvent
 import com.intezya.abysscore.event.match.process.MatchTimeoutEvent
 import com.intezya.abysscore.model.dto.matchprocess.SubmitRoomResultRequest
@@ -305,7 +306,7 @@ class MatchProcessService(
     }
 
     private fun handleMatchCompletion(match: Match) {
-        if (match.isEnded()) {
+        if (!match.isEnded()) {
             processMatchEnd(match)
         }
     }
@@ -313,6 +314,11 @@ class MatchProcessService(
     private fun processMatchEnd(match: Match) {
         match.endedAt = LocalDateTime.now()
         matchRepository.save(match)
+        val player1Score = match.getPlayerScore(match.player1)
+        val player2Score = match.getPlayerScore(match.player2)
+
+        eventPublisher.publishEvent(MatchEndEvent(this, match, player1Score, player2Score))
+
         // TODO: calculations, statistics update, notifications
     }
 

@@ -11,4 +11,5 @@ object Messages {
     const val DRAFT_AUTOMATIC_ACTION_PERFORMED = "Opponent performed automatic draft action caused by timeout"
     const val DRAFT_END = "Draft ended successfully"
     const val MATCH_RESULT_SUBMIT = "Opponent submitted result"
+    const val MATCH_END = "Match ended successfully"
 }

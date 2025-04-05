@@ -1,6 +1,7 @@
 package com.intezya.abysscore.model.entity.match
 
 import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.enum.UserMatchResult
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.user.User
 import jakarta.persistence.*
@@ -81,6 +82,14 @@ class Match {
     }
 
     fun isPlayerParticipant(user: User): Boolean = user.id == player1.id || user.id == player2.id
+
+    fun getPlayerScore(player: User) = roomResults.filter { it.player == player }.sumOf { it.time }
+
+    fun determineResultForPlayer(player: User) = when (winner) {
+        null -> UserMatchResult.DRAW
+        player -> UserMatchResult.WINNER
+        else -> UserMatchResult.LOSER
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

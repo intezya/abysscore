@@ -1,5 +1,6 @@
 package com.intezya.abysscore.service
 
+import com.intezya.abysscore.enum.UserMatchResult
 import com.intezya.abysscore.model.dto.draft.DraftActionDTO
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.dto.user.UserDTO
@@ -9,6 +10,7 @@ import com.intezya.abysscore.model.message.websocket.draft.process.DraftEndMessa
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteAcceptedMessage
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteReceivedMessage
 import com.intezya.abysscore.model.message.websocket.match.invite.MatchInviteRejectedMessage
+import com.intezya.abysscore.model.message.websocket.match.process.MatchEndMessage
 import com.intezya.abysscore.model.message.websocket.match.process.MatchTimeoutMessage
 import com.intezya.abysscore.model.message.websocket.match.process.SubmitRoomResultMessage
 import com.intezya.abysscore.model.message.websocket.matchmaking.MatchCreatedMessage
@@ -152,5 +154,16 @@ class WebsocketNotificationService(
         )
 
         mainWebsocketMessageService.sendToUser(opponentId, message)
+    }
+
+    fun sendMatchEnd(playerId: Long, playerScore: Int, opponentScore: Int, thisPlayerWinner: UserMatchResult) {
+        // TODO: is it score or result?
+        val message = MatchEndMessage(
+            score = playerScore,
+            opponentScore = opponentScore,
+            winner = thisPlayerWinner,
+        )
+
+        mainWebsocketMessageService.sendToUser(playerId, message)
     }
 }

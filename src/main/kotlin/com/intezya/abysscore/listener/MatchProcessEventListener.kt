@@ -1,6 +1,7 @@
 package com.intezya.abysscore.listener
 
 import com.intezya.abysscore.enum.TimeoutResult
+import com.intezya.abysscore.event.match.process.MatchEndEvent
 import com.intezya.abysscore.event.match.process.MatchSubmitResultEvent
 import com.intezya.abysscore.event.match.process.MatchTimeoutEvent
 import com.intezya.abysscore.service.WebsocketNotificationService
@@ -40,6 +41,31 @@ class MatchProcessEventListener(private val websocketNotificationService: Websoc
             opponentId = opponent.id,
             roomNumber = event.result.roomNumber,
             result = event.result.time,
+        )
+    }
+
+    @EventListener
+    fun onMatchEnd(event: MatchEndEvent) {
+        val player1 = event.match.player1
+        val player2 = event.match.player2
+
+        event.match.winner
+
+        val player1Result = event.match.determineResultForPlayer(player1)
+        val player2Result = event.match.determineResultForPlayer(player2)
+
+        websocketNotificationService.sendMatchEnd(
+            playerId = player1.id,
+            playerScore = event.player1Score,
+            opponentScore = event.player2Score,
+            thisPlayerWinner = player1Result,
+        )
+
+        websocketNotificationService.sendMatchEnd(
+            playerId = player2.id,
+            playerScore = event.player2Score,
+            opponentScore = event.player1Score,
+            thisPlayerWinner = player2Result,
         )
     }
 }
