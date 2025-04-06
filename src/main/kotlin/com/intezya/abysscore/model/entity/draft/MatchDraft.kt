@@ -13,8 +13,33 @@ const val TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS = 60L
 const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 45L
 
 val DEFAULT_DRAFT_SCHEMA = listOf(
+    // bbbb pppp pppp bb pppp pppp - 3 bans + 8 picks per player
+    // 1212 1221 1221 21 2112 2112 - 11 actions per player
     DraftStep(firstPlayer = true, isPick = false),
     DraftStep(firstPlayer = false, isPick = false),
+    DraftStep(firstPlayer = true, isPick = false),
+    DraftStep(firstPlayer = false, isPick = false),
+
+    DraftStep(firstPlayer = true, isPick = true),
+    DraftStep(firstPlayer = false, isPick = true),
+    DraftStep(firstPlayer = false, isPick = true),
+    DraftStep(firstPlayer = true, isPick = true),
+
+    DraftStep(firstPlayer = true, isPick = true),
+    DraftStep(firstPlayer = false, isPick = true),
+    DraftStep(firstPlayer = false, isPick = true),
+    DraftStep(firstPlayer = true, isPick = true),
+
+    DraftStep(firstPlayer = false, isPick = false),
+    DraftStep(firstPlayer = true, isPick = false),
+
+    DraftStep(firstPlayer = false, isPick = true),
+    DraftStep(firstPlayer = true, isPick = true),
+    DraftStep(firstPlayer = true, isPick = true),
+    DraftStep(firstPlayer = false, isPick = true),
+
+    DraftStep(firstPlayer = false, isPick = true),
+    DraftStep(firstPlayer = true, isPick = true),
     DraftStep(firstPlayer = true, isPick = true),
     DraftStep(firstPlayer = false, isPick = true),
 )
@@ -41,15 +66,6 @@ class MatchDraft {
 
     @Column(nullable = false)
     var currentStepIndex: Int = 0
-
-    @Column(nullable = false)
-    var penaltyTimePlayer1: Int = 0
-
-    @Column(nullable = false)
-    var penaltyTimePlayer2: Int = 0
-
-    @Column(nullable = false)
-    var currentStateDeadline: LocalDateTime = LocalDateTime.now().plusMinutes(5)
 
     @Column(nullable = false)
     var isPlayer1Ready: Boolean = false
@@ -103,7 +119,6 @@ class MatchDraft {
     @PrePersist
     fun onPersist() {
         currentStateStartTime = LocalDateTime.now()
-        currentStateDeadline = calculateDeadline()
     }
 
     @Transient
@@ -136,23 +151,6 @@ class MatchDraft {
             currentState = DraftState.COMPLETED
         }
         currentStateStartTime = LocalDateTime.now()
-        currentStateDeadline = calculateDeadline()
-    }
-
-    fun calculateDeadline(): LocalDateTime {
-        val baseTimeout = when (currentState) {
-            DraftState.CHARACTER_REVEAL -> TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS
-            DraftState.DRAFTING -> TIME_FOR_PERFORM_ACTION_IN_SECONDS
-            else -> 60L
-        }
-
-        val additionalTime = when {
-            currentState == DraftState.DRAFTING && getCurrentStep()?.firstPlayer == true -> penaltyTimePlayer1
-            currentState == DraftState.DRAFTING && getCurrentStep()?.firstPlayer == false -> penaltyTimePlayer2
-            else -> 0
-        }
-
-        return LocalDateTime.now().plusSeconds(baseTimeout + additionalTime)
     }
 
     fun isCurrentTurnPlayer1(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.firstPlayer == true

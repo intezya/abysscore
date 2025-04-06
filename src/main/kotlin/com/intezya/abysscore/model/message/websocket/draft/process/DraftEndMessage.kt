@@ -6,5 +6,6 @@ import com.intezya.abysscore.model.message.websocket.Messages
 data class DraftEndMessage(
     val player1Characters: List<DraftCharacterDTO>,
     val player2Characters: List<DraftCharacterDTO>,
-    val message: String = Messages.DRAFT_END,
-)
+) : BaseDraftProcessMessage() {
+    val message: String = Messages.DRAFT_END
+}

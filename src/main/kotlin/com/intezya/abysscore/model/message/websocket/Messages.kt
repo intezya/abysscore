@@ -12,4 +12,5 @@ object Messages {
     const val DRAFT_END = "Draft ended successfully"
     const val MATCH_RESULT_SUBMIT = "Opponent submitted result"
     const val MATCH_END = "Match ended successfully"
+    const val DRAFT_BOTH_PLAYERS_READY = "Both players are ready"
 }

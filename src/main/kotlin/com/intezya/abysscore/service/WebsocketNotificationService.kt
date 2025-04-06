@@ -3,8 +3,10 @@ package com.intezya.abysscore.service
 import com.intezya.abysscore.enum.UserMatchResult
 import com.intezya.abysscore.model.dto.draft.DraftActionDTO
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
+import com.intezya.abysscore.model.dto.draft.MatchDraftDTO
 import com.intezya.abysscore.model.dto.user.UserDTO
 import com.intezya.abysscore.model.dto.user.UserSimpleViewDTO
+import com.intezya.abysscore.model.message.websocket.draft.process.BothPlayersReadyForDraftMessage
 import com.intezya.abysscore.model.message.websocket.draft.process.CharactersRevealMessage
 import com.intezya.abysscore.model.message.websocket.draft.process.DraftActionPerformMessage
 import com.intezya.abysscore.model.message.websocket.draft.process.DraftEndMessage
@@ -96,10 +98,11 @@ class WebsocketNotificationService(
         draftWebsocketMessageService.sendToUser(opponentId, message)
     }
 
-    fun automaticDraftActionPerform(playerId: Long, draftAction: DraftActionDTO) {
+    fun automaticDraftActionPerform(player1Id: Long, player2Id: Long, draftAction: DraftActionDTO) {
         val message = DraftActionPerformMessage(action = draftAction)
 
-        draftWebsocketMessageService.sendToUser(playerId, message)
+        draftWebsocketMessageService.sendToUser(player1Id, message)
+        draftWebsocketMessageService.sendToUser(player2Id, message)
     }
 
     fun sendTimeoutDefeat(playerId: Long, matchId: Long) {
@@ -184,5 +187,12 @@ class WebsocketNotificationService(
         )
 
         mainWebsocketMessageService.sendToUser(userId, message)
+    }
+
+    fun sendBothPlayersReadyForDraft(player1Id: Long, player2Id: Long, matchDraftDTO: MatchDraftDTO) {
+        val message = BothPlayersReadyForDraftMessage(matchDraftDTO)
+
+        draftWebsocketMessageService.sendToUser(player1Id, message)
+        draftWebsocketMessageService.sendToUser(player2Id, message)
     }
 }

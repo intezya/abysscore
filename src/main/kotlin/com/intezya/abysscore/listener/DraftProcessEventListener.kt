@@ -1,9 +1,6 @@
 package com.intezya.abysscore.listener
 
-import com.intezya.abysscore.event.draftprocess.AutomaticDraftActionPerformEvent
-import com.intezya.abysscore.event.draftprocess.CharactersRevealEvent
-import com.intezya.abysscore.event.draftprocess.DraftActionPerformEvent
-import com.intezya.abysscore.event.draftprocess.DraftEndEvent
+import com.intezya.abysscore.event.draftprocess.*
 import com.intezya.abysscore.model.dto.draft.toDTO
 import com.intezya.abysscore.service.WebsocketNotificationService
 import org.springframework.context.event.EventListener
@@ -56,7 +53,19 @@ class DraftProcessEventListener(private val websocketNotificationService: Websoc
 
     @EventListener
     fun onAutomaticDraftActionPerform(event: AutomaticDraftActionPerformEvent) {
-        websocketNotificationService.automaticDraftActionPerform(event.match.player1.id, event.action.toDTO())
-        websocketNotificationService.automaticDraftActionPerform(event.match.player2.id, event.action.toDTO())
+        websocketNotificationService.automaticDraftActionPerform(
+            event.match.player1.id,
+            event.match.player2.id,
+            event.action.toDTO(),
+        )
+    }
+
+    @EventListener
+    fun onBothPlayersReady(event: BothPlayersReadyEvent) {
+        websocketNotificationService.sendBothPlayersReadyForDraft(
+            event.match.player1.id,
+            event.match.player2.id,
+            event.match.draft.toDTO(),
+        )
     }
 }

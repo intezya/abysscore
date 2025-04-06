@@ -34,6 +34,15 @@ class DraftProcessController(
         @RequestBody @Valid characters: List<DraftCharacterDTO>,
     ): MatchDraftDTO = draftCharacterRevealService.revealCharacters(user, characters).toDTO()
 
+    @PostMapping("/ready")
+    @RequireUserInMatch(
+        expected = true,
+        matchStatus = MatchStatus.PENDING,
+        draftState = DraftState.CHARACTER_REVEAL,
+    )
+    fun readyForDraft(@AuthenticationPrincipal user: User): MatchDraftDTO =
+        draftCharacterRevealService.readyForDraft(user).toDTO()
+
     @PostMapping("")
     @RequireUserInMatch(
         expected = true,
