@@ -7,31 +7,51 @@ import java.util.*
 @Entity
 @Table(name = "ban_history")
 class BanHistory(
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
     @Column(nullable = false, updatable = false)
     val expiresAt: LocalDateTime,
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "banned_by", nullable = true, updatable = false)
     val bannedBy: User? = null,
 
-    @Column(nullable = true, updatable = false)
+    @Column(nullable = true, updatable = false, length = 500)
     val reason: String? = null,
-) {
-    constructor() : this(User(), LocalDateTime.now())
 
+    @Column(nullable = false, updatable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
 
-    @Column(updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
-
     @Column
     var disputeApproved: Boolean = false
+
+    @Column(length = 500)
+    var disputeReason: String? = null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_by", nullable = true)
+    var disputeApprovedBy: User? = null
+
+    @Column
+    var disputeApprovedAt: LocalDateTime? = null
+
+    constructor() : this(User(), LocalDateTime.now())
+
+    fun approveDispute(approvedBy: User, reason: String?) {
+        this.disputeApproved = true
+        this.disputeApprovedBy = approvedBy
+        this.disputeApprovedAt = LocalDateTime.now()
+        this.disputeReason = reason
+    }
+
+    val isActive: Boolean
+        get() = expiresAt.isAfter(LocalDateTime.now())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
