@@ -2,7 +2,6 @@ package com.intezya.abysscore.model.dto.draft
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.intezya.abysscore.enum.DraftState
-import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import java.time.LocalDateTime
 
@@ -15,27 +14,31 @@ data class MatchDraftDTO(
     @field:JsonProperty("draft_schema")
     val draftSchemaJson: List<DraftStep>,
     val draftActions: List<DraftActionDTO>,
-    val bannedCharacters: Set<String>,
-    val player1Characters: Set<String>,
-    val player2Characters: Set<String>,
-    val player1AvailableCharacters: Set<DraftCharacterDTO>,
-    val player2AvailableCharacters: Set<DraftCharacterDTO>,
+    val bannedCharacters: List<String>,
+    val player1Characters: List<DraftCharacterDTO>,
+    val player2Characters: List<DraftCharacterDTO>,
+    val player1PickedCharacters: List<String>,
+    val player2PickedCharacters: List<String>,
     val createdAt: LocalDateTime,
 ) {
-    constructor(matchDraft: MatchDraft) : this(
-        currentState = matchDraft.currentState,
-        currentStateStartTime = matchDraft.currentStateStartTime,
-        currentStepIndex = matchDraft.currentStepIndex,
-        isPlayer1Ready = matchDraft.isPlayer1Ready,
-        isPlayer2Ready = matchDraft.isPlayer2Ready,
-        draftSchemaJson = DEFAULT_DRAFT_SCHEMA,
-        draftActions = matchDraft.draftActions.map { it.toDTO() },
-        bannedCharacters = matchDraft.bannedCharacters,
-        player1Characters = matchDraft.player1Characters,
-        player2Characters = matchDraft.player2Characters,
-        player1AvailableCharacters = matchDraft.player1AvailableCharacters.map { it.toDTO() }.toSet(),
-        player2AvailableCharacters = matchDraft.player2AvailableCharacters.map { it.toDTO() }.toSet(),
-        createdAt = matchDraft.createdAt,
+    constructor(draft: MatchDraft) : this(
+        currentState = draft.currentState,
+        currentStateStartTime = draft.currentStateStartTime,
+        currentStepIndex = draft.currentStepIndex,
+        isPlayer1Ready = draft.isPlayer1Ready,
+        isPlayer2Ready = draft.isPlayer2Ready,
+        draftSchemaJson = draft.steps,
+        draftActions = draft.draftActions.map { it.toDTO() },
+        bannedCharacters = draft.draftActions.filter { !it.isPick }.map { it.characterName },
+        player1Characters = draft.player1Characters.map { it.toDTO() },
+        player2Characters = draft.player2Characters.map { it.toDTO() },
+        player1PickedCharacters = draft.draftActions
+            .filter { it.isPick && it.player == draft.match.player1 }
+            .map { it.characterName },
+        player2PickedCharacters = draft.draftActions
+            .filter { it.isPick && it.player == draft.match.player2 }
+            .map { it.characterName },
+        createdAt = draft.createdAt,
     )
 }
 

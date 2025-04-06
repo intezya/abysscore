@@ -1,6 +1,5 @@
 package com.intezya.abysscore.model.entity.draft
 
-import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.model.entity.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -8,53 +7,38 @@ import java.util.*
 
 @Entity
 @Table(name = "draft_actions")
-class DraftAction {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long
-
+class DraftAction(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "draft_id", nullable = false)
-    val draft: MatchDraft
+    val draft: MatchDraft,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    val user: User
+    @JoinColumn(name = "player_id", nullable = false)
+    val player: User,
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    val actionType: DraftActionType
+    @Column(nullable = false, updatable = false)
+    val characterName: String,
 
-    @Column(nullable = true)
-    val characterName: String?
+    @Column(nullable = false, updatable = false)
+    val isPick: Boolean,
 
-    @Column(nullable = false)
-    val timestamp: LocalDateTime
+    @Column(nullable = false, updatable = false)
+    val stepIndex: Int,
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0L
+
+    @Column(nullable = false, updatable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now()
 
     constructor() : this(
-        id = 0L,
         draft = MatchDraft(),
-        user = User(),
-        actionType = DraftActionType.REVEAL_CHARACTERS,
-        characterName = null,
-        timestamp = LocalDateTime.now(),
+        player = User(),
+        characterName = "",
+        isPick = false,
+        stepIndex = 0,
     )
-
-    constructor(
-        id: Long = 0L,
-        draft: MatchDraft,
-        user: User,
-        actionType: DraftActionType,
-        characterName: String? = null,
-        timestamp: LocalDateTime = LocalDateTime.now(),
-    ) {
-        this.id = id
-        this.draft = draft
-        this.user = user
-        this.actionType = actionType
-        this.characterName = characterName
-        this.timestamp = timestamp
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -64,19 +48,20 @@ class DraftAction {
             id == other.id
         } else {
             draft == other.draft &&
-                user == other.user &&
-                actionType == other.actionType &&
+                player == other.player &&
+                isPick == other.isPick &&
                 characterName == other.characterName &&
-                timestamp == other.timestamp
+                stepIndex == other.stepIndex &&
+                createdAt == other.createdAt
         }
     }
 
     override fun hashCode(): Int = if (id != 0L) {
         id.hashCode()
     } else {
-        Objects.hash(draft, user, actionType, characterName, timestamp)
+        Objects.hash(draft, player, isPick, characterName, stepIndex, createdAt)
     }
 
     override fun toString(): String =
-        "DraftAction(id=$id, actionType=$actionType, characterName=$characterName, timestamp=$timestamp)"
+        "DraftAction(id=$id, isPick=$isPick, characterName=$characterName, createdAt=$createdAt)"
 }

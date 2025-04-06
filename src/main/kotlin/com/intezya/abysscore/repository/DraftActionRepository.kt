@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface DraftActionRepository : JpaRepository<DraftAction, Long> {
-    fun findByDraftIdOrderByTimestampDesc(draftId: Long): List<DraftAction>
+    fun findByDraftIdOrderByStepIndexAsc(draftId: Long): List<DraftAction>
 }

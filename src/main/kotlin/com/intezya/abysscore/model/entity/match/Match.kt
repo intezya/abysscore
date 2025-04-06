@@ -74,8 +74,8 @@ class Match {
     }
 
     fun hasPlayerAlreadyRevealedCharacters(user: User): Boolean = when (user.id) {
-        player1.id -> draft.player1AvailableCharacters.isNotEmpty()
-        player2.id -> draft.player2AvailableCharacters.isNotEmpty()
+        player1.id -> draft.player1Characters.isNotEmpty()
+        player2.id -> draft.player2Characters.isNotEmpty()
         else -> false
     }
 

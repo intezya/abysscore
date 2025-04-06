@@ -1,6 +1,7 @@
 package com.intezya.abysscore.service.draft
 
 import com.intezya.abysscore.enum.DraftState
+import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.event.draftprocess.AutomaticDraftActionPerformEvent
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.DraftCharacter
@@ -12,7 +13,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Duration
+import java.time.LocalDateTime
 
 private const val DRAFT_CHECK_TIMEOUT_RATE_MS = 1000L
 
@@ -29,20 +30,15 @@ class DraftTimeoutService(
 
     @Scheduled(fixedRate = DRAFT_CHECK_TIMEOUT_RATE_MS)
     fun checkTimeouts() {
-        // TODO
-        //        LocalDateTime.now()
-//        val expiredDrafts = matchDraftRepository.findByCurrentStateNot(
-//            DraftState.COMPLETED,
-//        )
-//
-//        expiredDrafts.forEach { handleExpiredDraft(it) }
+        val expiredDrafts = matchDraftRepository.findByCurrentStateNot(DraftState.COMPLETED)
+        expiredDrafts.forEach { handleExpiredDraft(it) }
     }
 
     private fun handleExpiredDraft(draft: MatchDraft) {
         logger.info("Processing expired draft: ${draft.id}")
 
         when (draft.currentState) {
-            DraftState.CHARACTER_REVEAL -> handleExpiredCharacterReveal(draft)
+            DraftState.CHARACTER_REVEAL -> handleExpiredPlayersReady(draft)
             DraftState.DRAFTING -> handleExpiredDrafting(draft)
             else -> {}
         }
@@ -52,24 +48,35 @@ class DraftTimeoutService(
         }
     }
 
-    private fun handleExpiredCharacterReveal(draft: MatchDraft) {
-        // TODO: don't update players statistics
-        matchTimeoutService.checkPlayerTimeouts(
-            draft.match,
-            timeoutThreshold = Duration.ofSeconds(DRAFT_CHECK_TIMEOUT_RATE_MS),
-            playerResults = mapOf(
-                draft.match.player1 to draft.currentStateStartTime,
-                draft.match.player2 to draft.currentStateStartTime,
-            ),
-        )
+    private fun handleExpiredPlayersReady(draft: MatchDraft) {
+        if (draft.isPlayer1Ready && draft.isPlayer2Ready) {
+            return
+        }
+
+        if (draft.currentStateDeadline.isAfter(LocalDateTime.now())) {
+            return
+        }
+
+        val player1Result = if (draft.isPlayer1Ready) LocalDateTime.MAX else draft.currentStateStartTime
+        val player2Result = if (draft.isPlayer2Ready) LocalDateTime.MAX else draft.currentStateStartTime
+
+        matchTimeoutService.endMatch(draft.match, MatchStatus.DRAW, null, "")
+
+        // TODO: timeout log and ban after multiple player timeouts
+        if (!draft.isPlayer1Ready) {
+            with(player1Result) { TODO() }
+        }
+        if (!draft.isPlayer2Ready) {
+            with(player2Result) { TODO() }
+        }
     }
 
     private fun handleExpiredDrafting(draft: MatchDraft) {
         val isPlayer1Turn = draft.isCurrentTurnPlayer1()
         val availablePool = if (isPlayer1Turn) {
-            draft.player1AvailableCharacters
+            draft.player1Characters
         } else {
-            draft.player2AvailableCharacters
+            draft.player2Characters
         }
 
         if (availablePool.isNotEmpty()) {
@@ -96,7 +103,7 @@ class DraftTimeoutService(
         }
 
         logger.info(
-            "Auto-${action.draftAction.actionType} character ${randomCharacter.name} for timeout in draft ${draft.id}",
+            "Auto-${if (action.draftAction.isPick) "pick" else "ban"} character ${randomCharacter.name} for timeout in draft ${draft.id}",
         )
 
         applicationEventPublisher.publishEvent(

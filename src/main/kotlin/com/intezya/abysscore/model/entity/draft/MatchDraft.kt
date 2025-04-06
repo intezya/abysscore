@@ -6,40 +6,8 @@ import com.intezya.abysscore.model.entity.match.Match
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-const val TIME_FOR_CHARACTERS_REVEAL_IN_SECONDS = 60L
-const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 45L
-
-val DEFAULT_DRAFT_SCHEMA = listOf(
-    // bbbb pppp pppp bb pppp pppp - 3 bans + 8 picks per player
-    // 1212 1221 1221 21 2112 2112 - 11 actions per player
-    DraftStep(firstPlayer = true, isPick = false),
-    DraftStep(firstPlayer = false, isPick = false),
-    DraftStep(firstPlayer = true, isPick = false),
-    DraftStep(firstPlayer = false, isPick = false),
-
-    DraftStep(firstPlayer = true, isPick = true),
-    DraftStep(firstPlayer = false, isPick = true),
-    DraftStep(firstPlayer = false, isPick = true),
-    DraftStep(firstPlayer = true, isPick = true),
-
-    DraftStep(firstPlayer = true, isPick = true),
-    DraftStep(firstPlayer = false, isPick = true),
-    DraftStep(firstPlayer = false, isPick = true),
-    DraftStep(firstPlayer = true, isPick = true),
-
-    DraftStep(firstPlayer = false, isPick = false),
-    DraftStep(firstPlayer = true, isPick = false),
-
-    DraftStep(firstPlayer = false, isPick = true),
-    DraftStep(firstPlayer = true, isPick = true),
-    DraftStep(firstPlayer = true, isPick = true),
-    DraftStep(firstPlayer = false, isPick = true),
-
-    DraftStep(firstPlayer = false, isPick = true),
-    DraftStep(firstPlayer = true, isPick = true),
-    DraftStep(firstPlayer = true, isPick = true),
-    DraftStep(firstPlayer = false, isPick = true),
-)
+const val TIME_FOR_PLAYERS_READY_IN_SECONDS = 60L
+const val TIME_FOR_PERFORM_ACTION_IN_SECONDS = 90L // TODO: move to config
 
 @Entity
 @Table(name = "match_drafts")
@@ -67,33 +35,21 @@ class MatchDraft {
     @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     val draftActions: MutableList<DraftAction> = mutableListOf()
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "draft_banned_characters", joinColumns = [JoinColumn(name = "draft_id")])
-    val bannedCharacters: MutableSet<String> = mutableSetOf()
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "draft_player1_characters", joinColumns = [JoinColumn(name = "draft_id")])
-    var player1Characters: MutableSet<String> = mutableSetOf()
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "draft_player2_characters", joinColumns = [JoinColumn(name = "draft_id")])
-    var player2Characters: MutableSet<String> = mutableSetOf()
-
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinTable(
-        name = "draft_player1_available_characters",
+        name = "draft_player1_characters",
         joinColumns = [JoinColumn(name = "draft_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")],
     )
-    val player1AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
+    var player1Characters: MutableSet<DraftCharacter> = mutableSetOf()
 
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinTable(
-        name = "draft_player2_available_characters",
+        name = "draft_player2_characters",
         joinColumns = [JoinColumn(name = "draft_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")],
     )
-    val player2AvailableCharacters: MutableSet<DraftCharacter> = mutableSetOf()
+    var player2Characters: MutableSet<DraftCharacter> = mutableSetOf()
 
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
@@ -109,23 +65,32 @@ class MatchDraft {
         currentStateStartTime = LocalDateTime.now()
     }
 
-    @Transient
-    fun getDraftSteps(): List<DraftStep> = DEFAULT_DRAFT_SCHEMA
+    @get:Transient
+    val steps get() = MatchDraftSchema.DRAFT_SCHEMA
+
+    @get:Transient
+    val stepsSize get() = MatchDraftSchema.DRAFT_SCHEMA_SIZE
 
     fun getCurrentStep(): DraftStep? {
         if (currentState != DraftState.DRAFTING) return null
-        val steps = getDraftSteps()
-        return if (currentStepIndex < steps.size) steps[currentStepIndex] else null
+        return if (currentStepIndex < stepsSize) steps[currentStepIndex] else null
     }
 
     fun moveToNextStep() {
-        val steps = getDraftSteps()
         currentStepIndex++
-        if (currentStepIndex >= steps.size) {
+        if (currentStepIndex >= stepsSize) {
             currentState = DraftState.COMPLETED
         }
         currentStateStartTime = LocalDateTime.now()
     }
+
+    @get:Transient
+    val currentStateDeadline: LocalDateTime
+        get() = when (currentState) {
+            DraftState.CHARACTER_REVEAL -> currentStateStartTime.plusSeconds(TIME_FOR_PLAYERS_READY_IN_SECONDS)
+            DraftState.DRAFTING -> currentStateStartTime.plusSeconds(TIME_FOR_PERFORM_ACTION_IN_SECONDS)
+            else -> LocalDateTime.MAX
+        }
 
     fun isCurrentTurnPlayer1(): Boolean = currentState == DraftState.DRAFTING && getCurrentStep()?.firstPlayer == true
 
@@ -135,7 +100,53 @@ class MatchDraft {
 
     fun bothPlayersReady(): Boolean = isPlayer1Ready && isPlayer2Ready
 
-    fun isCompleted(): Boolean = currentStepIndex >= getDraftSteps().size
+    fun isCompleted(): Boolean = currentStepIndex >= stepsSize
+
+    @get:Transient
+    val player1PickedCharacters: Set<DraftCharacter>
+        get() = draftActions
+            .filter { it.isPick && it.player == match.player1 }
+            .mapNotNull { action ->
+                player1Characters.find { it.name == action.characterName }
+            }
+            .toSet()
+
+    @get:Transient
+    val player2PickedCharacters: Set<DraftCharacter>
+        get() = draftActions
+            .filter { it.isPick && it.player == match.player2 }
+            .mapNotNull { action ->
+                player2Characters.find { it.name == action.characterName }
+            }
+            .toSet()
+
+    @get:Transient
+    val bannedCharacters: Set<DraftCharacter>
+        get() = draftActions
+            .filter { !it.isPick }
+            .mapNotNull { action ->
+                player1Characters.find { it.name == action.characterName }
+                    ?: player2Characters.find { it.name == action.characterName }
+            }
+            .toSet()
+
+    @get:Transient
+    val player1AvailableCharacters: Set<DraftCharacter>
+        get() = player1Characters
+            .filter { character ->
+                !player2PickedCharacters.any { it.name == character.name } &&
+                    !bannedCharacters.any { it.name == character.name }
+            }
+            .toSet()
+
+    @get:Transient
+    val player2AvailableCharacters: Set<DraftCharacter>
+        get() = player2Characters
+            .filter { character ->
+                !player1PickedCharacters.any { it.name == character.name } &&
+                    !bannedCharacters.any { it.name == character.name }
+            }
+            .toSet()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

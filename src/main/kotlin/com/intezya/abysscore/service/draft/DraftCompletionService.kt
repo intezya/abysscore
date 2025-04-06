@@ -29,6 +29,6 @@ class DraftCompletionService(
         matchRepository.save(match)
 
         logger.info("Draft ${draft.id} completed")
-        applicationEventPublisher.publishEvent(DraftEndEvent(this, match = draft.match, draft = draft))
+        applicationEventPublisher.publishEvent(DraftEndEvent(this, match = draft.match))
     }
 }

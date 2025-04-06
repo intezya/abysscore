@@ -1,6 +1,5 @@
 package com.intezya.abysscore.service.draft
 
-import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.event.draftprocess.BothPlayersReadyEvent
@@ -30,13 +29,15 @@ class DraftCharacterRevealService(
         val draft = match.draft
 
         if (match.hasPlayerAlreadyRevealedCharacters(user)) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "You have already revealed your characters")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "You have already revealed your characters",
+            )
         }
 
         val playerInfo = draftValidationService.getPlayerInfo(match, user.id)
 
         registerPlayerCharacters(draft, playerInfo, characters)
-        draftActionService.logDraftAction(draft, playerInfo.player, DraftActionType.REVEAL_CHARACTERS)
 
         eventPublisher.publishEvent(CharactersRevealEvent(this, match, user, characters))
 
@@ -56,8 +57,6 @@ class DraftCharacterRevealService(
         } else {
             draft.isPlayer2Ready = true
         }
-
-        draftActionService.logDraftAction(draft, user, DraftActionType.READY_FOR_DRAFT)
 
         if (draft.bothPlayersReady()) {
             match.status = MatchStatus.DRAFTING
@@ -80,9 +79,9 @@ class DraftCharacterRevealService(
         val characterEntities = characters.map { it.toEntity() }
 
         if (playerInfo.isPlayer1) {
-            draft.player1AvailableCharacters.addAll(characterEntities)
+            draft.player1Characters.addAll(characterEntities)
         } else {
-            draft.player2AvailableCharacters.addAll(characterEntities)
+            draft.player2Characters.addAll(characterEntities)
         }
     }
 }

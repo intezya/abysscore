@@ -186,7 +186,7 @@ class MatchTimeoutService(
         )
     }
 
-    private fun endMatch(match: Match, status: MatchStatus, winner: User?, reason: String) {
+    internal fun endMatch(match: Match, status: MatchStatus, winner: User?, reason: String) {
         match.apply {
             this.status = status
             this.endedAt = LocalDateTime.now()
@@ -197,5 +197,7 @@ class MatchTimeoutService(
             player2.currentMatch = null
         }
         matchRepository.save(match)
+
+        // TODO: notify
     }
 }

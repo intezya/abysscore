@@ -45,7 +45,6 @@ class DraftCharacterRevealServiceTests {
         every { match.draft } returns mockk()
         every { draftValidationService.getPlayerInfo(any(), any()) } returns mockk(relaxed = true)
         every { user.id } returns 0L
-        every { draftActionService.logDraftAction(any(), any(), any(), any()) } returns mockk()
     }
 
     @Test

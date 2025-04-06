@@ -26,7 +26,7 @@ class MatchDraftUnitTest {
             draft.apply { this.currentState = DraftState.DRAFTING }
 
             val currentStep = draft.getCurrentStep()
-            assertEquals(draft.getDraftSteps()[0], currentStep)
+            assertEquals(draft.steps[0], currentStep)
         }
     }
 
@@ -40,7 +40,7 @@ class MatchDraftUnitTest {
 
             for (i in 0..draft.draftActions.size) {
                 val currentStep = draft.getCurrentStep()
-                assertEquals(draft.getDraftSteps()[i], currentStep)
+                assertEquals(draft.steps[i], currentStep)
                 draft.moveToNextStep()
             }
         }

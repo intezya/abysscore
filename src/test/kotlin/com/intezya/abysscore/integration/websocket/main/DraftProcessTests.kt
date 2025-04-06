@@ -1,7 +1,6 @@
 package com.intezya.abysscore.integration.websocket.main
 
 import com.intezya.abysscore.integration.BaseApiTest
-import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.model.message.websocket.Messages
 import com.intezya.abysscore.utils.fixtures.DraftCharactersFixtures
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
@@ -11,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 class DraftProcessTests : BaseApiTest() {
     // TODO: need detailed test
-    //    @Test
+//    @Test
     @RepeatedTest(10)
     fun `should notify about draft action`() {
         val player1 = generateUserWithToken()
@@ -56,7 +55,7 @@ class DraftProcessTests : BaseApiTest() {
 
         // TODO:  test that draft ended and match moved to next state
 
-        val stepsCount = DEFAULT_DRAFT_SCHEMA.size
+        val stepsCount = draft.stepsSize
 
         for (i in 0 until stepsCount.div(2)) {
             val waitTimeoutSeconds = 1L

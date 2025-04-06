@@ -48,7 +48,7 @@ class DraftCompletionServiceTests : BaseApiTest() {
             )
         }
 
-        val stepsCount = draft.getDraftSteps().size
+        val stepsCount = draft.stepsSize
 
         for (i in 0 until stepsCount.div(2)) {
             val waitTimeoutSeconds = 1L
@@ -158,7 +158,7 @@ class DraftCompletionServiceTests : BaseApiTest() {
             )
         }
 
-        val stepsCount = draft.getDraftSteps().size
+        val stepsCount = draft.stepsSize
 
         for (i in 0 until stepsCount.div(2)) {
             val waitTimeoutSeconds = 1L

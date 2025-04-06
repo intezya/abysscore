@@ -24,14 +24,14 @@ spring:
         enabled: true
   jpa:
     open-in-view: true
-    properties:
-      hibernate:
-        format_sql: true
-        generate_statistics: true
-        jdbc:
-          batch_size: 100
-          fetch_size: 1000
-    show-sql: true
+  #    properties:
+  #      hibernate:
+  #        format_sql: true
+  #        generate_statistics: true
+  #        jdbc:
+  #          batch_size: 100
+  #          fetch_size: 1000
+  #    show-sql: true
   jackson:
     default-property-inclusion: NON_NULL
     property-naming-strategy: SNAKE_CASE
@@ -50,9 +50,9 @@ logging:
     root: warn
     org.springframework: warn
     com.intezya.abysscore: info
-    org.hibernate.SQL: debug
-    org.hibernate.stat: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
+#    org.hibernate.SQL: debug
+#    org.hibernate.stat: debug
+#    org.hibernate.type.descriptor.sql.BasicBinder: trace
 
 
 jwt:

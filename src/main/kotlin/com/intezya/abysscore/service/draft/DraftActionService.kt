@@ -1,16 +1,13 @@
 package com.intezya.abysscore.service.draft
 
-import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.event.draftprocess.DraftActionPerformEvent
 import com.intezya.abysscore.model.dto.draft.MatchDraftWithDraftAction
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.DraftAction
-import com.intezya.abysscore.model.entity.draft.DraftCharacter
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.DraftActionRepository
 import com.intezya.abysscore.repository.MatchDraftRepository
-import jakarta.persistence.EntityManager
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -25,7 +22,6 @@ class DraftActionService(
     private val draftValidationService: DraftValidationService,
     private val eventPublisher: ApplicationEventPublisher,
     private val draftCompletionService: DraftCompletionService,
-    private val entityManager: EntityManager,
 ) {
     fun performDraftAction(user: User, characterName: String): MatchDraft {
         val match = user.currentMatch ?: throw IllegalStateException("User is not in a match")
@@ -49,17 +45,19 @@ class DraftActionService(
         return result.draft
     }
 
-    fun logDraftAction(
+    fun saveDraftAction(
         draft: MatchDraft,
         player: User,
-        actionType: DraftActionType,
-        characterName: String? = null,
+        characterName: String,
+        isPick: Boolean,
+        stepIndex: Int,
     ): DraftAction {
         val action = DraftAction(
             draft = draft,
-            user = player,
-            actionType = actionType,
+            player = player,
             characterName = characterName,
+            isPick = isPick,
+            stepIndex = stepIndex,
         )
 
         return draftActionRepository.save(action)
@@ -70,27 +68,14 @@ class DraftActionService(
         playerInfo: PlayerInfo,
         characterName: String,
     ): MatchDraftWithDraftAction {
-        val isPlayer1 = playerInfo.isPlayer1
+        checkBanConditions(draft, characterName)
 
-        val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
-        val opponentPool = if (isPlayer1) draft.player2AvailableCharacters else draft.player1AvailableCharacters
-
-        if (!isCharacterAvailableForBanning(opponentPool, characterName)) {
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Character not available for banning",
-            )
-        }
-
-        opponentPool.removeIf { it.name == characterName }
-        userPool.removeIf { it.name == characterName }
-        draft.bannedCharacters.add(characterName)
-
-        val draftAction = logDraftAction(
+        val draftAction = saveDraftAction(
             draft = draft,
             player = playerInfo.player,
-            actionType = DraftActionType.BAN_CHARACTER,
             characterName = characterName,
+            isPick = false,
+            stepIndex = draft.currentStepIndex,
         )
 
         draft.moveToNextStep()
@@ -98,49 +83,59 @@ class DraftActionService(
         return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
     }
 
-    private fun isCharacterAvailableForBanning(
-        characterPool: Collection<DraftCharacter>,
-        characterName: String,
-    ): Boolean = characterPool.any { it.name == characterName }
-
     internal fun pickCharacter(
         draft: MatchDraft,
         playerInfo: PlayerInfo,
         characterName: String,
     ): MatchDraftWithDraftAction {
-        val isPlayer1 = playerInfo.isPlayer1
+        checkPickConditions(draft, characterName, playerInfo.isPlayer1)
 
-        val userPool = if (isPlayer1) draft.player1AvailableCharacters else draft.player2AvailableCharacters
+        val draftAction = saveDraftAction(
+            draft = draft,
+            player = playerInfo.player,
+            characterName = characterName,
+            isPick = true,
+            stepIndex = draft.currentStepIndex,
+        )
+
+        draft.moveToNextStep()
+
+        return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
+    }
+
+    private fun checkPickConditions(draft: MatchDraft, characterName: String, isPlayer1: Boolean) {
         val userCharacters = if (isPlayer1) draft.player1Characters else draft.player2Characters
-        val opponentCharacters = if (isPlayer1) draft.player2Characters else draft.player1Characters
 
-        if (!isCharacterAvailableForPicking(userPool, opponentCharacters, characterName)) {
+        if (userCharacters.find { it.name == characterName } == null) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Character '$characterName' not found in your pool",
+            )
+        }
+
+        if (draft.draftActions.any { it.characterName == characterName }) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character '$characterName' is not available for picking",
             )
         }
-
-        userCharacters.add(characterName)
-        userPool.removeIf { it.name == characterName }
-
-        val draftAction = logDraftAction(
-            draft = draft,
-            player = playerInfo.player,
-            actionType = DraftActionType.PICK_CHARACTER,
-            characterName = characterName,
-        )
-
-        draft.moveToNextStep()
-
-        entityManager.flush()
-
-        return MatchDraftWithDraftAction(draft, draftAction)
     }
 
-    private fun isCharacterAvailableForPicking(
-        userPool: Collection<DraftCharacter>,
-        opponentCharacters: Collection<String>,
-        characterName: String,
-    ): Boolean = userPool.any { it.name == characterName } && !opponentCharacters.contains(characterName)
+    private fun checkBanConditions(draft: MatchDraft, characterName: String) {
+        val characters = draft.player1Characters + draft.player2Characters
+
+        if (characters.find { it.name == characterName } == null) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Character '$characterName' not found in your pool",
+            )
+        }
+
+        if (draft.draftActions.any { it.characterName == characterName }) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Character '$characterName' is not available for banning",
+            )
+        }
+    }
 }
