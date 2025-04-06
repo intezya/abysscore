@@ -3,16 +3,14 @@ package com.intezya.abysscore.service.draft
 import com.intezya.abysscore.enum.DraftActionType
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.enum.MatchStatus
+import com.intezya.abysscore.event.draftprocess.BothPlayersReadyEvent
 import com.intezya.abysscore.event.draftprocess.CharactersRevealEvent
 import com.intezya.abysscore.model.dto.draft.DraftCharacterDTO
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
 import com.intezya.abysscore.model.entity.draft.MatchDraft
-import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.MatchDraftRepository
-import org.springframework.context.ApplicationEvent
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.context.event.EventListener
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -87,12 +85,4 @@ class DraftCharacterRevealService(
             draft.player2AvailableCharacters.addAll(characterEntities)
         }
     }
-
-    @EventListener
-    fun advanceToDraftingState(event: BothPlayersReadyEvent) {
-        // TODO: send notification
-        // TODO: must be saved by transaction. check it
-    }
-
-    class BothPlayersReadyEvent(source: Any, val match: Match) : ApplicationEvent(source)
 }

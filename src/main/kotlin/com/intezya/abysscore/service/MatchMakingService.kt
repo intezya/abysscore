@@ -1,8 +1,6 @@
 package com.intezya.abysscore.service
 
 import com.intezya.abysscore.event.matchmaking.MatchCreatedEvent
-import com.intezya.abysscore.model.dto.draft.DraftStep
-import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.match.Match
 import com.intezya.abysscore.model.entity.user.User
@@ -43,10 +41,9 @@ class MatchMakingService(
         return createMatch(user1, user2)
     }
 
-    private fun createDraft(match: Match, draftSteps: List<DraftStep>? = null): MatchDraft {
+    private fun createDraft(match: Match): MatchDraft {
         val draft = MatchDraft().apply {
             this.match = match
-            setDraftSteps(draftSteps ?: DEFAULT_DRAFT_SCHEMA)
         }
 
         return matchDraftRepository.save(draft)

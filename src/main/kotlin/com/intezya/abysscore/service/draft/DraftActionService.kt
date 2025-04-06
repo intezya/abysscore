@@ -131,7 +131,9 @@ class DraftActionService(
 
         draft.moveToNextStep()
 
-        return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
+        val savedDraft = matchDraftRepository.save(draft)
+
+        return MatchDraftWithDraftAction(savedDraft, draftAction)
     }
 
     private fun isCharacterAvailableForPicking(

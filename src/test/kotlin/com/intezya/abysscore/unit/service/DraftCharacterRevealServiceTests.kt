@@ -30,7 +30,6 @@ class DraftCharacterRevealServiceTests {
     private val draftCharacterRevealService = DraftCharacterRevealService(
         matchDraftRepository,
         draftValidationService,
-        matchRepository,
         eventPublisher,
         draftActionService,
     )

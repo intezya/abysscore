@@ -11,14 +11,12 @@ data class DraftActionDTO(
     val actionType: DraftActionType,
     val characterName: String?,
     val timestamp: LocalDateTime,
-    val isTimeoutAction: Boolean,
 ) {
     constructor(draftAction: DraftAction) : this(
         user = draftAction.user.toSimpleView(),
         actionType = draftAction.actionType,
         characterName = draftAction.characterName,
         timestamp = draftAction.timestamp,
-        isTimeoutAction = draftAction.isTimeoutAction,
     )
 }
 

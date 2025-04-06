@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
-import java.time.LocalDateTime
 
 private const val DRAFT_CHECK_TIMEOUT_RATE_MS = 1000L
 
@@ -30,13 +29,13 @@ class DraftTimeoutService(
 
     @Scheduled(fixedRate = DRAFT_CHECK_TIMEOUT_RATE_MS)
     fun checkTimeouts() {
-        val now = LocalDateTime.now()
-        val expiredDrafts = matchDraftRepository.findByCurrentStateNotAndCurrentStateDeadlineBefore(
-            DraftState.COMPLETED,
-            now,
-        )
-
-        expiredDrafts.forEach { handleExpiredDraft(it) }
+        // TODO
+        //        LocalDateTime.now()
+//        val expiredDrafts = matchDraftRepository.findByCurrentStateNot(
+//            DraftState.COMPLETED,
+//        )
+//
+//        expiredDrafts.forEach { handleExpiredDraft(it) }
     }
 
     private fun handleExpiredDraft(draft: MatchDraft) {

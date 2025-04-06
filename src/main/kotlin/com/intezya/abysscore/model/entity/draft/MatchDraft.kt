@@ -1,8 +1,5 @@
 package com.intezya.abysscore.model.entity.draft
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.model.dto.draft.DraftStep
 import com.intezya.abysscore.model.entity.match.Match
@@ -47,12 +44,6 @@ val DEFAULT_DRAFT_SCHEMA = listOf(
 @Entity
 @Table(name = "match_drafts")
 class MatchDraft {
-    companion object {
-        private val OBJECT_MAPPER = ObjectMapper().apply {
-            registerModule(KotlinModule.Builder().build())
-        }
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
@@ -72,9 +63,6 @@ class MatchDraft {
 
     @Column(nullable = false)
     var isPlayer2Ready: Boolean = false
-
-    @Column(columnDefinition = "TEXT")
-    var draftSchemaJson: String = "[]"
 
     @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     val draftActions: MutableList<DraftAction> = mutableListOf()
@@ -122,21 +110,7 @@ class MatchDraft {
     }
 
     @Transient
-    private var draftStepsCache: List<DraftStep>? = null
-
-    fun getDraftSteps(): List<DraftStep> = draftStepsCache ?: try {
-        val steps = OBJECT_MAPPER.readValue(draftSchemaJson, object : TypeReference<List<DraftStep>>() {})
-        draftStepsCache = steps
-        steps
-    } catch (e: Exception) {
-        e.printStackTrace()
-        DEFAULT_DRAFT_SCHEMA.also { draftStepsCache = it }
-    }
-
-    fun setDraftSteps(steps: List<DraftStep>) {
-        draftSchemaJson = OBJECT_MAPPER.writeValueAsString(steps)
-        draftStepsCache = steps
-    }
+    fun getDraftSteps(): List<DraftStep> = DEFAULT_DRAFT_SCHEMA
 
     fun getCurrentStep(): DraftStep? {
         if (currentState != DraftState.DRAFTING) return null

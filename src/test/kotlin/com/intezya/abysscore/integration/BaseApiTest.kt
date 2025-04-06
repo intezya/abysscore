@@ -135,12 +135,13 @@ abstract class BaseApiTest {
             entityManager.createQuery("UPDATE User u SET u.currentMatch = NULL").executeUpdate()
             entityManager.createQuery("UPDATE User u SET u.currentBadge = NULL").executeUpdate()
 
-            draftActionRepository.deleteAll()
-            matchDraftRepository.deleteAll()
-            matchRepository.deleteAll()
-            userRepository.deleteAll()
-            gameItemRepository.deleteAll()
-            userItemRepository.deleteAll()
+            userGlobalStatisticRepository.deleteAllInBatch()
+            draftActionRepository.deleteAllInBatch()
+            matchDraftRepository.deleteAllInBatch()
+            matchRepository.deleteAllInBatch()
+            userRepository.deleteAllInBatch()
+            gameItemRepository.deleteAllInBatch()
+            userItemRepository.deleteAllInBatch()
         }
     }
 

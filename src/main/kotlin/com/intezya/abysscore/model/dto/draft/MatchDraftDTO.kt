@@ -2,6 +2,7 @@ package com.intezya.abysscore.model.dto.draft
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.intezya.abysscore.enum.DraftState
+import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import java.time.LocalDateTime
 
@@ -9,9 +10,6 @@ data class MatchDraftDTO(
     val currentState: DraftState,
     val currentStateStartTime: LocalDateTime,
     val currentStepIndex: Int,
-    val penaltyTimePlayer1: Int,
-    val penaltyTimePlayer2: Int,
-    val currentStateDeadline: LocalDateTime,
     val isPlayer1Ready: Boolean,
     val isPlayer2Ready: Boolean,
     @field:JsonProperty("draft_schema")
@@ -28,12 +26,9 @@ data class MatchDraftDTO(
         currentState = matchDraft.currentState,
         currentStateStartTime = matchDraft.currentStateStartTime,
         currentStepIndex = matchDraft.currentStepIndex,
-        penaltyTimePlayer1 = matchDraft.penaltyTimePlayer1,
-        penaltyTimePlayer2 = matchDraft.penaltyTimePlayer2,
-        currentStateDeadline = matchDraft.currentStateDeadline,
         isPlayer1Ready = matchDraft.isPlayer1Ready,
         isPlayer2Ready = matchDraft.isPlayer2Ready,
-        draftSchemaJson = matchDraft.getDraftSteps(),
+        draftSchemaJson = DEFAULT_DRAFT_SCHEMA,
         draftActions = matchDraft.draftActions.map { it.toDTO() },
         bannedCharacters = matchDraft.bannedCharacters,
         player1Characters = matchDraft.player1Characters,

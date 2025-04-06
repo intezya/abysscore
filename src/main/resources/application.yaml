@@ -14,7 +14,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://${DATABASE_HOST:localhost:5432}/${DATABASE_DB}
+    url: jdbc:postgresql://${DATABASE_HOST:localhost:5432}/${DATABASE_DB}?allowMultiQueries=true
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -24,6 +24,11 @@ spring:
         enabled: true
   jpa:
     open-in-view: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+          fetch_size: 1000
   jackson:
     default-property-inclusion: NON_NULL
     property-naming-strategy: SNAKE_CASE

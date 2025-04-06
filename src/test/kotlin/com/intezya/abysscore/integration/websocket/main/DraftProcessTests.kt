@@ -1,17 +1,18 @@
 package com.intezya.abysscore.integration.websocket.main
 
 import com.intezya.abysscore.integration.BaseApiTest
+import com.intezya.abysscore.model.entity.draft.DEFAULT_DRAFT_SCHEMA
 import com.intezya.abysscore.model.message.websocket.Messages
 import com.intezya.abysscore.utils.fixtures.DraftCharactersFixtures
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.TimeUnit
+import kotlin.test.Test
 
 class DraftProcessTests : BaseApiTest() {
-    //    @Test
     // TODO: need detailed test
-    @RepeatedTest(10)
+//    @RepeatedTest(10)
+    @Test
     fun `should notify about draft action`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()
@@ -21,12 +22,13 @@ class DraftProcessTests : BaseApiTest() {
 
         val match = matchMakingService.createMatch(player1.first, player2.first)
 
-        val characters1 = DraftCharactersFixtures.createDraftCharacters(4) // Random.nextInt() (can cause exception)
-        val characters2 = DraftCharactersFixtures.createDraftCharacters(4) // Random.nextInt()
+        val characters1 = DraftCharactersFixtures.createDraftCharacters(40) // Random.nextInt() (can cause exception)
+        val characters2 = DraftCharactersFixtures.createDraftCharacters(40) // Random.nextInt()
 
         draftCharacterRevealService.revealCharacters(player1.first, characters1)
         draftCharacterRevealService.revealCharacters(player2.first, characters2)
-
+        draftCharacterRevealService.readyForDraft(player1.first)
+        draftCharacterRevealService.readyForDraft(player2.first)
         // TODO: add test that forbid any action (that not reveal) if players not ready
 
         val draft = match.draft
@@ -54,7 +56,7 @@ class DraftProcessTests : BaseApiTest() {
 
         // TODO:  test that draft ended and match moved to next state
 
-        val stepsCount = draft.getDraftSteps().size
+        val stepsCount = DEFAULT_DRAFT_SCHEMA.size
 
         for (i in 0 until stepsCount.div(2)) {
             val waitTimeoutSeconds = 1L

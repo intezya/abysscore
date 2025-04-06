@@ -31,9 +31,6 @@ class DraftAction {
     @Column(nullable = false)
     val timestamp: LocalDateTime
 
-    @Column(nullable = false)
-    val isTimeoutAction: Boolean
-
     constructor() : this(
         id = 0L,
         draft = MatchDraft(),
@@ -41,7 +38,6 @@ class DraftAction {
         actionType = DraftActionType.REVEAL_CHARACTERS,
         characterName = null,
         timestamp = LocalDateTime.now(),
-        isTimeoutAction = false,
     )
 
     constructor(
@@ -51,7 +47,6 @@ class DraftAction {
         actionType: DraftActionType,
         characterName: String? = null,
         timestamp: LocalDateTime = LocalDateTime.now(),
-        isTimeoutAction: Boolean = false,
     ) {
         this.id = id
         this.draft = draft
@@ -59,7 +54,6 @@ class DraftAction {
         this.actionType = actionType
         this.characterName = characterName
         this.timestamp = timestamp
-        this.isTimeoutAction = isTimeoutAction
     }
 
     override fun equals(other: Any?): Boolean {
@@ -73,17 +67,16 @@ class DraftAction {
                 user == other.user &&
                 actionType == other.actionType &&
                 characterName == other.characterName &&
-                timestamp == other.timestamp &&
-                isTimeoutAction == other.isTimeoutAction
+                timestamp == other.timestamp
         }
     }
 
     override fun hashCode(): Int = if (id != 0L) {
         id.hashCode()
     } else {
-        Objects.hash(draft, user, actionType, characterName, timestamp, isTimeoutAction)
+        Objects.hash(draft, user, actionType, characterName, timestamp)
     }
 
     override fun toString(): String =
-        "DraftAction(id=$id, actionType=$actionType, characterName=$characterName, timestamp=$timestamp, isTimeoutAction=$isTimeoutAction)"
+        "DraftAction(id=$id, actionType=$actionType, characterName=$characterName, timestamp=$timestamp)"
 }
