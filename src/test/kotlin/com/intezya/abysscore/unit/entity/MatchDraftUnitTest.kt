@@ -13,7 +13,7 @@ class MatchDraftUnitTest {
         fun `should return null when draft not in DRAFTING state`() {
             val draft = MatchDraftFixtures.createDefaultMatchDraft()
 
-            draft.apply { this.currentState = DraftState.DRAFTING }
+            draft.apply { this.currentState = DraftState.CHARACTER_REVEAL }
 
             val currentStep = draft.getCurrentStep()
             assertEquals(null, currentStep)

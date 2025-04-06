@@ -26,6 +26,8 @@ class DraftCompletionServiceTests : BaseApiTest() {
 
         draftCharacterRevealService.revealCharacters(player1.first, characters1)
         draftCharacterRevealService.revealCharacters(player2.first, characters2)
+        draftCharacterRevealService.readyForDraft(player1.first)
+        draftCharacterRevealService.readyForDraft(player2.first)
 
         val draft = match.draft
 

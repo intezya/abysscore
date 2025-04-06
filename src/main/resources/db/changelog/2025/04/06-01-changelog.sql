@@ -131,3 +131,6 @@ ALTER TABLE user_items ADD CONSTRAINT FK_USER_ITEMS_ON_TRADE FOREIGN KEY (trade_
 
 -- changeset kurumi:1743936727123-45
 ALTER TABLE user_items ADD CONSTRAINT FK_USER_ITEMS_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+
+ALTER TABLE room_results ADD CONSTRAINT uk_room_player_match_no_retry
+UNIQUE (match_id, player_id, room_number);

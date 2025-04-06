@@ -35,7 +35,7 @@ class MatchResultService(
 
         val roomRetry = createRoomRetry(user, match, request)
         saveAndAddRetry(match, roomRetry)
-
+        matchRepository.save(match)
         return match
     }
 
@@ -48,7 +48,7 @@ class MatchResultService(
             match.roomResults.add(savedResult)
 
             eventPublisher.publishEvent(MatchSubmitResultEvent(this, match, savedResult))
-            return match
+            return matchRepository.save(match)
         } catch (e: DataIntegrityViolationException) {
             throw ResponseStatusException(
                 HttpStatus.CONFLICT,

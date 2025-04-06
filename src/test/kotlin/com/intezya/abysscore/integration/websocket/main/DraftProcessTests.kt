@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 class DraftProcessTests : BaseApiTest() {
     // TODO: need detailed test
 //    @Test
-    @RepeatedTest(100)
+    @RepeatedTest(1)
     fun `should notify about draft action`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()

@@ -8,4 +8,5 @@
     <include file="db/changelog/2025/04/06-01-changelog.sql"/>
     <include file="db/changelog/2025/04/06-02-changelog.sql"/>
     <include file="db/changelog/2025/04/06-03-changelog.sql"/>
+    <include file="db/changelog/2025/04/06-04-changelog.sql"/>
 </databaseChangeLog>

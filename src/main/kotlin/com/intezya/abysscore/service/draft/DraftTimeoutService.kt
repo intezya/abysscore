@@ -87,14 +87,14 @@ class DraftTimeoutService(
         }
 
         if (availablePool.isNotEmpty()) {
-            performAutomaticDraftAction(draft, isPlayer1Turn, availablePool)
+            performAutomaticDraftAction(draft, isPlayer1Turn, availablePool.map { it.name })
         } else {
             draft.moveToNextStep()
             matchDraftRepository.save(draft)
         }
     }
 
-    private fun performAutomaticDraftAction(draft: MatchDraft, isPlayer1Turn: Boolean, availablePool: Set<String>) {
+    private fun performAutomaticDraftAction(draft: MatchDraft, isPlayer1Turn: Boolean, availablePool: List<String>) {
         val randomCharacter = availablePool.random()
         val player = if (isPlayer1Turn) draft.match.player1 else draft.match.player2
         val playerInfo = PlayerInfo(player, isPlayer1Turn)

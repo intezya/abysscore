@@ -8,6 +8,7 @@ import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.DraftActionRepository
 import com.intezya.abysscore.repository.MatchDraftRepository
+import jakarta.persistence.EntityManager
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -22,6 +23,7 @@ class DraftActionService(
     private val draftValidationService: DraftValidationService,
     private val eventPublisher: ApplicationEventPublisher,
     private val draftCompletionService: DraftCompletionService,
+    private val entityManager: EntityManager,
 ) {
     fun performDraftAction(user: User, characterName: String): MatchDraft {
         val match = user.currentMatch ?: throw IllegalStateException("User is not in a match")
@@ -80,7 +82,9 @@ class DraftActionService(
 
         draft.moveToNextStep()
 
-        return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
+        entityManager.flush()
+
+        return MatchDraftWithDraftAction(draft, draftAction)
     }
 
     internal fun pickCharacter(
@@ -100,13 +104,15 @@ class DraftActionService(
 
         draft.moveToNextStep()
 
-        return MatchDraftWithDraftAction(matchDraftRepository.save(draft), draftAction)
+        entityManager.flush()
+
+        return MatchDraftWithDraftAction(draft, draftAction)
     }
 
     private fun checkPickConditions(draft: MatchDraft, characterName: String, isPlayer1: Boolean) {
         val userCharacters = if (isPlayer1) draft.player1Characters else draft.player2Characters
 
-        if (userCharacters.find { it == characterName } == null) {
+        if (userCharacters.find { it.name == characterName } == null) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character '$characterName' not found in your pool",
@@ -124,7 +130,7 @@ class DraftActionService(
     private fun checkBanConditions(draft: MatchDraft, characterName: String) {
         val characters = draft.player1Characters + draft.player2Characters
 
-        if (characters.find { it == characterName } == null) {
+        if (characters.find { it.name == characterName } == null) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character '$characterName' not found in your pool",
