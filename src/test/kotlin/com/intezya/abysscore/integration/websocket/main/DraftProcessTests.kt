@@ -6,13 +6,13 @@ import com.intezya.abysscore.model.message.websocket.Messages
 import com.intezya.abysscore.utils.fixtures.DraftCharactersFixtures
 import com.intezya.abysscore.utils.fixtures.WebSocketFixture
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.TimeUnit
-import kotlin.test.Test
 
 class DraftProcessTests : BaseApiTest() {
     // TODO: need detailed test
-//    @RepeatedTest(10)
-    @Test
+    //    @Test
+    @RepeatedTest(10)
     fun `should notify about draft action`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()

@@ -10,6 +10,7 @@ import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.repository.DraftActionRepository
 import com.intezya.abysscore.repository.MatchDraftRepository
+import jakarta.persistence.EntityManager
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -24,6 +25,7 @@ class DraftActionService(
     private val draftValidationService: DraftValidationService,
     private val eventPublisher: ApplicationEventPublisher,
     private val draftCompletionService: DraftCompletionService,
+    private val entityManager: EntityManager,
 ) {
     fun performDraftAction(user: User, characterName: String): MatchDraft {
         val match = user.currentMatch ?: throw IllegalStateException("User is not in a match")
@@ -131,9 +133,9 @@ class DraftActionService(
 
         draft.moveToNextStep()
 
-        val savedDraft = matchDraftRepository.save(draft)
+        entityManager.flush()
 
-        return MatchDraftWithDraftAction(savedDraft, draftAction)
+        return MatchDraftWithDraftAction(draft, draftAction)
     }
 
     private fun isCharacterAvailableForPicking(
