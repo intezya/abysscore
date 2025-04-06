@@ -9,6 +9,7 @@ import com.intezya.abysscore.model.entity.user.User
 import com.intezya.abysscore.service.match.MatchProcessService
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -26,6 +27,7 @@ class MatchProcessController(private val matchProcessService: MatchProcessServic
 
     @PostMapping("/submit-result")
     @RequireUserInMatch(expected = true, matchStatus = MatchStatus.ACTIVE)
+    @Transactional
     fun submitResult(
         @RequestBody @Valid request: SubmitRoomResultRequest,
         @AuthenticationPrincipal contextUser: User,

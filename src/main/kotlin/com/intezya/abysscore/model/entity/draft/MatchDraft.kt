@@ -35,21 +35,21 @@ class MatchDraft {
     @OneToMany(mappedBy = "draft", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     val draftActions: MutableList<DraftAction> = mutableListOf()
 
-    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "draft_player1_characters",
-        joinColumns = [JoinColumn(name = "draft_id")],
-        inverseJoinColumns = [JoinColumn(name = "character_id")],
+    @ElementCollection
+    @CollectionTable(
+        name = "player1_characters",
+        joinColumns = [JoinColumn(name = "match_draft_id")],
     )
-    var player1Characters: MutableSet<DraftCharacter> = mutableSetOf()
+    @Column(name = "character_name")
+    var player1Characters: MutableSet<String> = mutableSetOf()
 
-    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "draft_player2_characters",
-        joinColumns = [JoinColumn(name = "draft_id")],
-        inverseJoinColumns = [JoinColumn(name = "character_id")],
+    @ElementCollection
+    @CollectionTable(
+        name = "player2_characters",
+        joinColumns = [JoinColumn(name = "match_draft_id")],
     )
-    var player2Characters: MutableSet<DraftCharacter> = mutableSetOf()
+    @Column(name = "character_name")
+    var player2Characters: MutableSet<String> = mutableSetOf()
 
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
@@ -103,48 +103,48 @@ class MatchDraft {
     fun isCompleted(): Boolean = currentStepIndex >= stepsSize
 
     @get:Transient
-    val player1PickedCharacters: Set<DraftCharacter>
+    val player1PickedCharacters: Set<String>
         get() = draftActions
             .filter { it.isPick && it.player == match.player1 }
             .mapNotNull { action ->
-                player1Characters.find { it.name == action.characterName }
+                player1Characters.find { it == action.characterName }
             }
             .toSet()
 
     @get:Transient
-    val player2PickedCharacters: Set<DraftCharacter>
+    val player2PickedCharacters: Set<String>
         get() = draftActions
             .filter { it.isPick && it.player == match.player2 }
             .mapNotNull { action ->
-                player2Characters.find { it.name == action.characterName }
+                player2Characters.find { it == action.characterName }
             }
             .toSet()
 
     @get:Transient
-    val bannedCharacters: Set<DraftCharacter>
+    val bannedCharacters: Set<String>
         get() = draftActions
             .filter { !it.isPick }
             .mapNotNull { action ->
-                player1Characters.find { it.name == action.characterName }
-                    ?: player2Characters.find { it.name == action.characterName }
+                player1Characters.find { it == action.characterName }
+                    ?: player2Characters.find { it == action.characterName }
             }
             .toSet()
 
     @get:Transient
-    val player1AvailableCharacters: Set<DraftCharacter>
+    val player1AvailableCharacters: Set<String>
         get() = player1Characters
             .filter { character ->
-                !player2PickedCharacters.any { it.name == character.name } &&
-                    !bannedCharacters.any { it.name == character.name }
+                !player2PickedCharacters.any { it == character } &&
+                    !bannedCharacters.any { it == character }
             }
             .toSet()
 
     @get:Transient
-    val player2AvailableCharacters: Set<DraftCharacter>
+    val player2AvailableCharacters: Set<String>
         get() = player2Characters
             .filter { character ->
-                !player1PickedCharacters.any { it.name == character.name } &&
-                    !bannedCharacters.any { it.name == character.name }
+                !player1PickedCharacters.any { it == character } &&
+                    !bannedCharacters.any { it == character }
             }
             .toSet()
 

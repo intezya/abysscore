@@ -15,10 +15,10 @@ data class MatchDraftDTO(
     val draftSchemaJson: List<DraftStep>,
     val draftActions: List<DraftActionDTO>,
     val bannedCharacters: List<String>,
-    val player1Characters: List<DraftCharacterDTO>,
-    val player2Characters: List<DraftCharacterDTO>,
-    val player1PickedCharacters: List<String>,
-    val player2PickedCharacters: List<String>,
+    val player1Characters: Set<String>,
+    val player2Characters: Set<String>,
+    val player1PickedCharacters: Set<String>,
+    val player2PickedCharacters: Set<String>,
     val createdAt: LocalDateTime,
 ) {
     constructor(draft: MatchDraft) : this(
@@ -30,14 +30,10 @@ data class MatchDraftDTO(
         draftSchemaJson = draft.steps,
         draftActions = draft.draftActions.map { it.toDTO() },
         bannedCharacters = draft.draftActions.filter { !it.isPick }.map { it.characterName },
-        player1Characters = draft.player1Characters.map { it.toDTO() },
-        player2Characters = draft.player2Characters.map { it.toDTO() },
-        player1PickedCharacters = draft.draftActions
-            .filter { it.isPick && it.player == draft.match.player1 }
-            .map { it.characterName },
-        player2PickedCharacters = draft.draftActions
-            .filter { it.isPick && it.player == draft.match.player2 }
-            .map { it.characterName },
+        player1Characters = draft.player1Characters,
+        player2Characters = draft.player2Characters,
+        player1PickedCharacters = draft.player1PickedCharacters,
+        player2PickedCharacters = draft.player2PickedCharacters,
         createdAt = draft.createdAt,
     )
 }

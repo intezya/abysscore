@@ -106,7 +106,7 @@ class DraftActionService(
     private fun checkPickConditions(draft: MatchDraft, characterName: String, isPlayer1: Boolean) {
         val userCharacters = if (isPlayer1) draft.player1Characters else draft.player2Characters
 
-        if (userCharacters.find { it.name == characterName } == null) {
+        if (userCharacters.find { it == characterName } == null) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character '$characterName' not found in your pool",
@@ -124,7 +124,7 @@ class DraftActionService(
     private fun checkBanConditions(draft: MatchDraft, characterName: String) {
         val characters = draft.player1Characters + draft.player2Characters
 
-        if (characters.find { it.name == characterName } == null) {
+        if (characters.find { it == characterName } == null) {
             throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Character '$characterName' not found in your pool",

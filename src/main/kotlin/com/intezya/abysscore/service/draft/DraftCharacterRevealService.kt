@@ -76,7 +76,7 @@ class DraftCharacterRevealService(
         playerInfo: PlayerInfo,
         characters: List<DraftCharacterDTO>,
     ) {
-        val characterEntities = characters.map { it.toEntity() }
+        val characterEntities = characters.map { it.name }
 
         if (playerInfo.isPlayer1) {
             draft.player1Characters.addAll(characterEntities)

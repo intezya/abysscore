@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 class DraftProcessTests : BaseApiTest() {
     // TODO: need detailed test
 //    @Test
-    @RepeatedTest(10)
+    @RepeatedTest(100)
     fun `should notify about draft action`() {
         val player1 = generateUserWithToken()
         val player2 = generateUserWithToken()
@@ -49,7 +49,7 @@ class DraftProcessTests : BaseApiTest() {
 
             draftActionService.performDraftAction(
                 user = currentStepPlayer,
-                characterName = randomCharacter.name,
+                characterName = randomCharacter,
             )
         }
 

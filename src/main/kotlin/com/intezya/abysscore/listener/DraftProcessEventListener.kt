@@ -43,11 +43,9 @@ class DraftProcessEventListener(private val websocketNotificationService: Websoc
         }.map { it.characterName }
 
         val player1Characters = draft.player1Characters
-            .filter { it.name in player1CharactersNames }
-            .map { it.toDTO() }
+            .filter { it in player1CharactersNames }
         val player2Characters = draft.player2Characters
-            .filter { it.name in player2CharactersNames }
-            .map { it.toDTO() }
+            .filter { it in player2CharactersNames }
 
         websocketNotificationService.sendDraftEnd(
             player1Id = event.match.player1.id,

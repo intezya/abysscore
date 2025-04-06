@@ -139,8 +139,8 @@ class WebsocketNotificationService(
     fun sendDraftEnd(
         player1Id: Long,
         player2Id: Long,
-        player1Characters: List<DraftCharacterDTO>,
-        player2Characters: List<DraftCharacterDTO>,
+        player1Characters: List<String>,
+        player2Characters: List<String>,
     ) {
         val message = DraftEndMessage(
             player1Characters = player1Characters,

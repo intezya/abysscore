@@ -44,7 +44,7 @@ class DraftCompletionServiceTests : BaseApiTest() {
 
             draftActionService.performDraftAction(
                 user = currentStepPlayer,
-                characterName = randomCharacter.name,
+                characterName = randomCharacter,
             )
         }
 
@@ -131,13 +131,16 @@ class DraftCompletionServiceTests : BaseApiTest() {
 
         val match = matchMakingService.createMatch(player1.first, player2.first)
 
-        val characters1 = DraftCharactersFixtures.createDraftCharacters(4) // Random.nextInt() (can cause exception)
-        val characters2 = DraftCharactersFixtures.createDraftCharacters(4) // Random.nextInt()
+        val characters1 = DraftCharactersFixtures.createDraftCharacters(40) // Random.nextInt() (can cause exception)
+        val characters2 = DraftCharactersFixtures.createDraftCharacters(40) // Random.nextInt()
 
         draftCharacterRevealService.revealCharacters(player1.first, characters1)
         draftCharacterRevealService.revealCharacters(player2.first, characters2)
 
         val draft = match.draft
+
+        draftCharacterRevealService.readyForDraft(player1.first)
+        draftCharacterRevealService.readyForDraft(player2.first)
 
         while (draft.getCurrentStep() != null) {
             val currentStep = draft.getCurrentStep()
@@ -154,7 +157,7 @@ class DraftCompletionServiceTests : BaseApiTest() {
 
             draftActionService.performDraftAction(
                 user = currentStepPlayer,
-                characterName = randomCharacter.name,
+                characterName = randomCharacter,
             )
         }
 

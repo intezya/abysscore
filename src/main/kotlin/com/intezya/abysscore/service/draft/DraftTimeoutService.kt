@@ -4,7 +4,6 @@ import com.intezya.abysscore.enum.DraftState
 import com.intezya.abysscore.enum.MatchStatus
 import com.intezya.abysscore.event.draftprocess.AutomaticDraftActionPerformEvent
 import com.intezya.abysscore.model.dto.match.player.PlayerInfo
-import com.intezya.abysscore.model.entity.draft.DraftCharacter
 import com.intezya.abysscore.model.entity.draft.MatchDraft
 import com.intezya.abysscore.repository.MatchDraftRepository
 import com.intezya.abysscore.service.match.MatchTimeoutService
@@ -53,6 +52,10 @@ class DraftTimeoutService(
             return
         }
 
+        logger.warn(
+            "Players not ready for draft: ${draft.id}, DEADLINE: ${draft.currentStateDeadline}, NOW: ${LocalDateTime.now()}",
+        )
+
         if (draft.currentStateDeadline.isAfter(LocalDateTime.now())) {
             return
         }
@@ -72,6 +75,10 @@ class DraftTimeoutService(
     }
 
     private fun handleExpiredDrafting(draft: MatchDraft) {
+        if (draft.currentStateDeadline.isAfter(LocalDateTime.now())) {
+            return
+        }
+
         val isPlayer1Turn = draft.isCurrentTurnPlayer1()
         val availablePool = if (isPlayer1Turn) {
             draft.player1Characters
@@ -87,23 +94,19 @@ class DraftTimeoutService(
         }
     }
 
-    private fun performAutomaticDraftAction(
-        draft: MatchDraft,
-        isPlayer1Turn: Boolean,
-        availablePool: Set<DraftCharacter>,
-    ) {
+    private fun performAutomaticDraftAction(draft: MatchDraft, isPlayer1Turn: Boolean, availablePool: Set<String>) {
         val randomCharacter = availablePool.random()
         val player = if (isPlayer1Turn) draft.match.player1 else draft.match.player2
         val playerInfo = PlayerInfo(player, isPlayer1Turn)
 
         val action = if (draft.isCurrentStepPick()) {
-            draftActionService.pickCharacter(draft, playerInfo, randomCharacter.name)
+            draftActionService.pickCharacter(draft, playerInfo, randomCharacter)
         } else {
-            draftActionService.banCharacter(draft, playerInfo, randomCharacter.name)
+            draftActionService.banCharacter(draft, playerInfo, randomCharacter)
         }
 
         logger.info(
-            "Auto-${if (action.draftAction.isPick) "pick" else "ban"} character ${randomCharacter.name} for timeout in draft ${draft.id}",
+            "Auto-${if (action.draftAction.isPick) "pick" else "ban"} character $randomCharacter for timeout in draft ${draft.id}",
         )
 
         applicationEventPublisher.publishEvent(
